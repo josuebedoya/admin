@@ -1,25 +1,22 @@
-import { Outfit } from 'next/font/google';
-import './globals.css';
+import {Open_Sans} from 'next/font/google';
+import '@/app/globals.css';
 import "flatpickr/dist/flatpickr.css";
-import { SidebarProvider } from '@/context/SidebarContext';
-import { ThemeProvider } from '@/context/ThemeContext';
+import {SidebarProvider} from '@/context/SidebarContext';
+import {ThemeProvider} from '@/context/ThemeContext';
 
-const outfit = Outfit({
+const font = Open_Sans({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({children}: { children: React.ReactNode }) {
+
   return (
     <html lang="en">
-      <body className={`${outfit.className} dark:bg-gray-900`}>
-        <ThemeProvider>
-          <SidebarProvider>{children}</SidebarProvider>
-        </ThemeProvider>
-      </body>
+    <body className={`${font.className} dark:bg-gray-900`}>
+    <ThemeProvider>
+      <SidebarProvider>{children}</SidebarProvider>
+    </ThemeProvider>
+    </body>
     </html>
   );
-}
+};
