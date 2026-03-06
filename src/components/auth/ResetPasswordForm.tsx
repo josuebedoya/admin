@@ -35,10 +35,9 @@ export default function ResetPasswordForm() {
       return;
     }
 
-    const {data, message, success} = await passwordUserUP(dataForm.password);
+    const {message, success} = await passwordUserUP(dataForm.password);
 
     setIsSuccess(message === 'UP_USER_SUCCESS',);
-    console.log(message)
     if (!success) {
       setLoading(false);
     }

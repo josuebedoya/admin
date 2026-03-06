@@ -52,5 +52,5 @@ export async function proxy(request: NextRequest) {
 
   await supabase.auth.getUser()
 
-  return response
+  return response;
 }

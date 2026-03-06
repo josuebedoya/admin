@@ -8,7 +8,7 @@ if (!supabase_url || !anon_key) {
   throw new Error('SUPABASE_URL and SUPABASE_KEY must be set in environment variables')
 }
 
-async function createClientServer() {
+export async function createClientServer() {
   const cookieStore = await cookies()
 
   return createServerClient(

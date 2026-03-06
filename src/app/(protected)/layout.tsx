@@ -1,14 +1,19 @@
-import supabaseServer from "@/server/server";
-import {redirect} from "next/navigation";
+import {redirect} from "next/navigation"
+import {createClientServer} from "@/server/server"
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic"
+
 export default async function RootLayout({children}: { children: React.ReactNode }) {
-  const {data: {user}} = await supabaseServer.auth.getUser()
 
-  // Redirect doesn't exist user logged
+  const supabase = await createClientServer()
+
+  const {
+    data: {user}
+  } = await supabase.auth.getUser()
+
   if (!user) {
-    redirect('/signin')
+    redirect("/signin")
   }
 
   return children
-};
+}
