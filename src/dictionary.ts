@@ -62,5 +62,17 @@ export const dictionary = {
     sign_out: 'Cerrar Sesión',
     reset_password: 'Restablecer Contraseña',
     sign_up: 'Registrarse',
+  },
+  admin: {
+    store: {
+      categories: {
+        title: 'Lista de Categorías',
+        description: 'Gestiona tus categorías. Agrega, edita y elimina categorías',
+      },
+      products: {
+        title: 'Lista de Productos',
+        description: 'Gestiona tus productos. Agrega, edita y elimina productos, mantén tu inventario actualizado',
+      }
+    }
   }
 }

@@ -29,7 +29,3 @@ export async function createClientServer() {
     }
   )
 }
-
-const supabaseServer = await createClientServer();
-
-export default supabaseServer;

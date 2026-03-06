@@ -51,6 +51,11 @@ import HorizontaLDots from "./horizontal-dots.svg";
 import ChatIcon from "./chat.svg";
 import MoreDotIcon from "./more-dot.svg";
 import BellIcon from "./bell.svg";
+import StoreIcon from "./store.svg";
+import MenuDotsIcon from "./option.svg";
+
+const Store = () => <span className='svg-img'><StoreIcon/></span>
+const MenuDots = () => <span className='svg-img'><MenuDotsIcon/></span>
 
 export {
   DownloadIcon,
@@ -106,4 +111,6 @@ export {
   HorizontaLDots,
   ChevronUpIcon,
   ChatIcon,
+  Store,
+  MenuDots
 };

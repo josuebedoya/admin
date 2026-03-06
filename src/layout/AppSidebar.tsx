@@ -2,7 +2,7 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import {useSidebar} from "../context/SidebarContext";
+import {useSidebar} from "@/context/SidebarContext";
 import {
   BoxCubeIcon,
   CalenderIcon,
@@ -13,10 +13,9 @@ import {
   PageIcon,
   PieChartIcon,
   PlugInIcon,
-  TableIcon,
-  UserCircleIcon,
+  Store,
+  TableIcon
 } from "../icons/index";
-import SidebarWidget from "./SidebarWidget";
 import Logo from "@/components/Logo";
 
 type NavItem = {
@@ -28,6 +27,14 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
+    icon: <Store/>,
+    name: "Tienda",
+    subItems: [
+      {name: "Productos", path: "/tienda/productos", pro: false},
+      {name: 'Categorias', path: "/tienda/categorias", pro: false}
+    ]
+  },
+  {
     icon: <GridIcon/>,
     name: "Dashboard",
     subItems: [{name: "Ecommerce", path: "/", pro: false}],
@@ -37,12 +44,6 @@ const navItems: NavItem[] = [
     name: "Calendar",
     path: "/calendar",
   },
-  {
-    icon: <UserCircleIcon/>,
-    name: "User Profile",
-    path: "/profile",
-  },
-
   {
     name: "Forms",
     icon: <ListIcon/>,
@@ -258,6 +259,7 @@ const AppSidebar: React.FC = () => {
 
     // If no submenu item matches, close the open submenu
     if (!submenuMatched) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOpenSubmenu(null);
     }
   }, [pathname, isActive]);
@@ -344,7 +346,6 @@ const AppSidebar: React.FC = () => {
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget/> : null}
       </div>
     </aside>
   );
