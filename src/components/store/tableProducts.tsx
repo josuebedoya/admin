@@ -5,29 +5,32 @@ import CellBadge from "@/components/store/cellBadge";
 
 interface TableCategoriesProps {
   items: {
-    id: string;
+    id: string | number;
     name: string;
-    status: 'active' | 'inactive';
+    status: boolean;
     category: string;
     quantity: number;
     price: number;
-    category_id: string;
+    category_id: string | number;
+    shelf: string;
+    shelf_id: string | number;
   }[]
 }
 
 const TableProducts = ({items}: TableCategoriesProps) => {
 
-  const tableHeaders = ['ID', 'NOMBRE', 'CATEGORÍA', 'CANTIDAD', 'PRECIO', 'ESTADO']
+  const tableHeaders = ['ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO', 'ESTADO']
 
   const transformItemsToTableBody = (items: TableCategoriesProps['items']) => {
-    return items.map((item, i) => ({
+    return items?.map((item, i) => ({
       row: [
         <Cell text={item?.id} path={`/tienda/productos/${item?.id}`} withLink key={i}/>,
         <Cell text={item?.name} path={`/tienda/productos/${item?.id}`} withLink key={i}/>,
-        <Cell text={item?.category} path={`/tienda/categoria/${item?.category_id}`} withLink key={i}/>,
+        <Cell text={item?.category} path={`/tienda/categorias/${item?.category_id}`} withLink key={i}/>,
+        <Cell text={item?.shelf} path={`/tienda/estanterias/${item?.shelf_id}`} withLink key={i}/>,
         <Cell text={item?.quantity} key={i}/>,
         <Cell text={item?.price} key={i}/>,
-        <CellBadge isActive={item?.status === 'active'} isLast key={i}/>
+        <CellBadge isActive={item?.status} isLast key={i}/>
       ]
     }))
   };

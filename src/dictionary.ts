@@ -51,6 +51,9 @@ export const dictionary = {
     same_password: 'La nueva contraseña no puede ser igual a la contraseña anterior. Por favor, elige una contraseña diferente.',
     weak_password: 'La contraseña es demasiado corta. Por favor, elige una contraseña de al menos 6 caracteres.',
     DATA_REQUIRED: 'Falta información requerida. Por favor, completa todos los campos necesarios.',
+    GET_DATA_FAILED: 'Error al obtener datos',
+    GET_DATA_SUCCESS: 'Datos obtenidos exitosamente',
+    GET_DATA_ERROR: 'Error al obtener datos',
   },
 
   welcome: {
@@ -72,6 +75,10 @@ export const dictionary = {
       products: {
         title: 'Lista de Productos',
         description: 'Gestiona tus productos. Agrega, edita y elimina productos, mantén tu inventario actualizado',
+      },
+      shelfies: {
+        title: 'Lista de Estanterías',
+        description: 'Gestiona tus estanterías. Agrega, edita y elimina estanterías, mantén tu inventario organizado',
       }
     }
   }
