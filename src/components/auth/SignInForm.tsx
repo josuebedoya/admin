@@ -6,13 +6,13 @@ import {EyeCloseIcon, EyeIcon} from "@/icons";
 import Link from "next/link";
 import React, {useState} from "react";
 import {dictionary} from "@/dictionary";
-import Image from "next/image";
 import signIn from "@/server/auth/signIn";
 import Loader from '@/icons/loader.svg';
 import {useModal} from "@/hooks/useModal";
 import {Modal} from "@/components/ui/modal";
 import {redirect, useRouter} from "next/navigation";
 import Alert from "@/components/ui/alert/Alert";
+import Logo from "@/components/Logo";
 
 export default function SignInForm() {
 
@@ -62,12 +62,7 @@ export default function SignInForm() {
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div className="mx-auto mb-4">
           <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-            <Image
-              width={150}
-              height={150}
-              src="/images/logo/logo.png"
-              alt="User"
-            />
+            <Logo width={150} height={150}/>
         </span>
         </div>
         <div>

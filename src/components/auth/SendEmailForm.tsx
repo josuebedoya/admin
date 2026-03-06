@@ -9,6 +9,7 @@ import Image from "next/image";
 import Loader from '@/icons/loader.svg';
 import Alert from "@/components/ui/alert/Alert";
 import sendEmailUser from "@/server/auth/sendEmailUser";
+import Logo from "@/components/Logo";
 
 export default function SendEmailForm() {
 
@@ -48,12 +49,7 @@ export default function SendEmailForm() {
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div className="mx-auto mb-4">
           <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-            <Image
-              width={150}
-              height={150}
-              src="/images/logo/logo.png"
-              alt="User"
-            />
+            <Logo width={150} height={150}/>
         </span>
         </div>
         <div>

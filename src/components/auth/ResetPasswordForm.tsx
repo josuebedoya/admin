@@ -5,12 +5,12 @@ import Button from "@/components/ui/button/Button";
 import Link from "next/link";
 import React, {useState} from "react";
 import {dictionary} from "@/dictionary";
-import Image from "next/image";
 import Loader from '@/icons/loader.svg';
 import Alert from "@/components/ui/alert/Alert";
 import {EyeCloseIcon, EyeIcon} from "@/icons";
 import passwordUserUP from "@/server/auth/passwordUserUP";
 import {redirect, useRouter} from "next/navigation";
+import Logo from "@/components/Logo";
 
 export default function ResetPasswordForm() {
 
@@ -65,12 +65,7 @@ export default function ResetPasswordForm() {
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
         <div className="mx-auto mb-4">
           <span className="mr-3 overflow-hidden rounded-full h-11 w-11">
-            <Image
-              width={150}
-              height={150}
-              src="/images/logo/logo.png"
-              alt="User"
-            />
+           <Logo width={150} height={150}/>
         </span>
         </div>
         <div>
