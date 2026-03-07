@@ -11,6 +11,7 @@ type Product = {
   quantity: number;
   type_unity: string;
   price: number;
+  price_sale: number;
 }
 
 type ResProduct = {

@@ -54,6 +54,7 @@ export const dictionary = {
     GET_DATA_FAILED: 'Error al obtener datos',
     GET_DATA_SUCCESS: 'Datos obtenidos exitosamente',
     GET_DATA_ERROR: 'Error al obtener datos',
+    PGRST205: 'Al parecer, no se pudo establecer una conexión con la base de datos. Error interno del servidor.',
   },
 
   welcome: {
@@ -79,6 +80,16 @@ export const dictionary = {
       shelfies: {
         title: 'Lista de Estanterías',
         description: 'Gestiona tus estanterías. Agrega, edita y elimina estanterías, mantén tu inventario organizado',
+      }
+    },
+    dashboard: {
+      sales: {
+        title: 'Ventas Diarias',
+        description: 'Gestiona las ventas diarias y vea los detalles de cada venta en el panel de administración.',
+      },
+      products:{
+        title: 'Dashboard de Productos',
+        description: 'Visualiza los produts, ganancias, ventas y más detalles de tu tienda en el dashboard de productos. Administra tu inventario y optimiza tus ventas con facilidad.',
       }
     }
   }

@@ -2,8 +2,8 @@
 
 import {useParams} from "next/navigation"
 
-export default function ProductPage() {
+export default function SalePage() {
   const params = useParams()
 
-  return <p>Producto: {params.id}</p>
+  return <p>Venta: {params.id}</p>
 }
