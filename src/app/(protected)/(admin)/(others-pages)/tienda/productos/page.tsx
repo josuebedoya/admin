@@ -1,7 +1,6 @@
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import {Metadata} from "next";
-import React from "react";
 import {dictionary} from "@/dictionary";
 import TableProducts from "@/components/store/tableProducts";
 import getProducts from "@/server/store/getProducts";

@@ -9,6 +9,7 @@ type Product = {
   category: string;
   shelf: string;
   quantity: number;
+  type_unity: string;
   price: number;
 }
 
@@ -25,7 +26,7 @@ type ResProduct = {
 const getProducts = async ({...params}: getParams = {}): Promise<ResProduct> => {
 
   const {data, error, success, message} = await get({
-    table: 'product_with_category',
+    table: 'product_with_category_and_shelf',
     count: 'estimated',
     ...params
   });

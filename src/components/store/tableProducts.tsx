@@ -1,7 +1,7 @@
-import React from 'react';
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Cell from "@/components/store/cell";
 import CellBadge from "@/components/store/cellBadge";
+import {formattedMoney} from "@/utils/index";
 
 interface TableCategoriesProps {
   items: {
@@ -11,6 +11,7 @@ interface TableCategoriesProps {
     category: string;
     quantity: number;
     price: number;
+    type_unity: string;
     category_id: string | number;
     shelf: string;
     shelf_id: string | number;
@@ -28,8 +29,8 @@ const TableProducts = ({items}: TableCategoriesProps) => {
         <Cell text={item?.name} path={`/tienda/productos/${item?.id}`} withLink key={i}/>,
         <Cell text={item?.category} path={`/tienda/categorias/${item?.category_id}`} withLink key={i}/>,
         <Cell text={item?.shelf} path={`/tienda/estanterias/${item?.shelf_id}`} withLink key={i}/>,
-        <Cell text={item?.quantity} key={i}/>,
-        <Cell text={item?.price} key={i}/>,
+        <Cell text={`${item?.quantity} - ${item?.type_unity}`} key={i}/>,
+        <Cell text={formattedMoney(item?.price)} key={i}/>,
         <CellBadge isActive={item?.status} isLast key={i}/>
       ]
     }))
