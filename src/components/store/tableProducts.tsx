@@ -79,7 +79,7 @@ const TableProducts = ({ items, isDashboard }: TableProductsProps) => {
     body: bodyRows
   }
 
-  return <BasicTableOne data={dataTable} />;
+  return <BasicTableOne data={dataTable} stickyLastRow/>;
 };
 
 export default TableProducts;

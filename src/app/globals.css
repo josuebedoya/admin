@@ -828,3 +828,23 @@ span.flatpickr-weekday,
   width: 18px;
   height: 18px;
 }
+
+.scrollbar-primary::-webkit-scrollbar-thumb {
+  background: var(--color-brand-300);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .3s;
+  right: 20px;
+  position: relative;
+}
+
+.scrollbar-primary::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-500);
+}
+
+* {
+  &::-webkit-scrollbar {
+    width: 7px;
+    border-radius: 10px;
+  }
+}
