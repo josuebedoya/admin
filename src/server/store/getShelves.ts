@@ -5,6 +5,8 @@ type Shelve = {
   name: string;
   status: boolean;
   products: number;
+  total_price: number;
+  total_price_sale: number;
 }
 
 type ResShelf = {

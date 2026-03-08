@@ -1,7 +1,10 @@
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Cell from "@/components/store/cell";
 import CellBadge from "@/components/store/cellBadge";
-import {formattedMoney} from "@/utils/index";
+import {
+  formattedMoney as fMat, calculateProfit as profit, calculateProfitPercent,
+  getTotalAmount, getTotalProfit, getPromedioProfitPercent, getTotalAmountProduct
+} from "@/utils/index";
 
 interface TableProductsProps {
   items: {
@@ -20,45 +23,63 @@ interface TableProductsProps {
   isDashboard?: boolean;
 }
 
-const TableProducts = ({items, isDashboard}: TableProductsProps) => {
+const TableProducts = ({ items, isDashboard }: TableProductsProps) => {
 
-  const tableHeaders = ['ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO', 'ESTADO'];
-  const dashboardHeaders = ['ID', 'NOMBRE', 'CANTIDAD', 'PRECIO VENTA', 'PRECIO COMPRA','TOTAL PRODUCTO', 'GANANCIA', 'ESTADO'];
+  const tableHeaders = [ 'ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO', 'ESTADO' ];
+  const dashboardHeaders = [ 'ID', 'NOMBRE', 'CANTIDAD', 'PRECIO VENTA', 'PRECIO COMPRA', 'TOTAL PRODUCTO', 'GANANCIA', 'GANANCIA %', 'ESTADO' ];
 
-  const calculateProfit = (price: number, price_sale: number, quantity: number) => {
-    const profit = price - price_sale;
-    return profit * quantity;
+  const transformItemsToTableBody = (products: TableProductsProps[ 'items' ]) => {
+    return products?.map((p, i) => ({
+      row: [
+        <Cell text={p?.id} path={`/tienda/productos/${p?.id}`} withLink key={i} />,
+        <Cell text={p?.name} path={`/tienda/productos/${p?.id}`} withLink key={i} />,
+
+        (!isDashboard && <Cell text={p?.category} path={`/tienda/categorias/${p?.category_id}`} withLink key={i} />),
+        (!isDashboard && <Cell text={p?.shelf} path={`/tienda/estanterias/${p?.shelf_id}`} withLink key={i} />),
+
+        <Cell text={`${p?.quantity} - ${p?.type_unity}`} key={i} />,
+
+        <Cell text={fMat(p?.price)} key={i} />,
+        (isDashboard && <Cell text={fMat(p?.price_sale)} key={i} />),
+        (isDashboard && <Cell text={fMat(p?.price * p?.quantity)} key={i} />),
+        (isDashboard && <Cell text={fMat(profit(p?.price, p?.price_sale, p?.quantity))} key={i} />),
+        (isDashboard && <Cell text={`${calculateProfitPercent(p?.price, p?.price_sale)}%`} key={i} />),
+
+        <CellBadge isActive={p?.status} isLast key={i} />
+      ].filter(Boolean)
+    }))
   };
 
-  const transformItemsToTableBody = (items: TableProductsProps['items']) => {
-    return items?.map((item, i) => {
-      return {
-        row: [
-          <Cell text={item?.id} path={`/tienda/productos/${item?.id}`} withLink key={i}/>,
-          <Cell text={item?.name} path={`/tienda/productos/${item?.id}`} withLink key={i}/>,
+  const bodyRows = transformItemsToTableBody(items);
 
-        (!isDashboard && <Cell text={item?.category} path={`/tienda/categorias/${item?.category_id}`} withLink key={i}/>),
-        (!isDashboard && <Cell text={item?.shelf} path={`/tienda/estanterias/${item?.shelf_id}`} withLink key={i}/>),
+  // Agregar fila de totales solo si es dashboard
+  if (isDashboard) {
+    const totalPrice = getTotalAmount(items, 'price');
+    const totalPriceSale = getTotalAmount(items, 'price_sale');
+    const totalProfit = getTotalProfit(items);
+    const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
 
-          <Cell text={`${item?.quantity} - ${item?.type_unity}`} key={i}/>,
-
-          <Cell text={formattedMoney(item?.price)} key={i}/>,
-          (isDashboard && <Cell text={formattedMoney(item?.price_sale )} key={i}/>),
-          (isDashboard && <Cell text={formattedMoney(item?.price * item?.quantity)} key={i}/>),
-          (isDashboard && <Cell text={formattedMoney(calculateProfit(item?.price, item?.price_sale, item?.quantity))} key={i}/>),
-
-          <CellBadge isActive={item?.status} isLast key={i}/>
-        ].filter(Boolean)
-      }
-    })
-  };
+    bodyRows.push({
+      row: [
+        <Cell text="TOTAL" key="total-label" />,
+        <Cell text="" key="total-name" />,
+        <Cell text={totalQuantity} key="total-quantity" />,
+        <Cell text={fMat(totalPrice)} key="total-price" />,
+        <Cell text={fMat(totalPriceSale)} key="total-price-sale" />,
+        <Cell text={fMat(getTotalAmountProduct(items))} key="total-product" />,
+        <Cell text={fMat(totalProfit)} key="total-profit" />,
+        <Cell text={getPromedioProfitPercent(items) + '%'} key="total-profit-percent" />,
+        <Cell text="" key="total-status" />
+      ]
+    });
+  }
 
   const dataTable = {
     headers: isDashboard ? dashboardHeaders : tableHeaders,
-    body: transformItemsToTableBody(items),
+    body: bodyRows
   }
 
-  return <BasicTableOne data={dataTable}/>;
+  return <BasicTableOne data={dataTable} />;
 };
 
 export default TableProducts;

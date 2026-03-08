@@ -1,15 +1,14 @@
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import {Metadata} from "next";
-import React from "react";
 import {dictionary} from "@/dictionary";
-import TableCategories from "@/components/store/tableCategories";
 import getShelves from "@/server/store/getShelves";
+import TableShelves from "@/components/store/tableShelves";
 
 export const metadata: Metadata = {
-  title: "Categorías - Admin",
+  title: "Estanterías - Admin",
   description:
-    "Gestiona tus categorías de productos de manera eficiente con nuestra plataforma de administración. Agrega, edita y elimina categorías fácilmente, organiza tus productos de manera efectiva y mejora la experiencia de compra de tus clientes. Optimiza tu tienda en línea con nuestras herramientas de gestión de categorías.",
+    "Gestiona tus estanterías de productos de manera eficiente con nuestra plataforma de administración. Agrega, edita y elimina estanterías fácilmente, organiza tus productos de manera efectiva y mejora la experiencia de compra de tus clientes. Optimiza tu tienda en línea con nuestras herramientas de gestión de estanterías.",
 };
 
 export default async function Shelfies() {
@@ -25,7 +24,7 @@ export default async function Shelfies() {
               {dictionary.msg[message as keyof typeof dictionary.msg] || 'Error al cargar las estanterias'}
             </div>
           ) : (
-            <TableCategories items={shelves.items || []}/>
+            <TableShelves items={shelves.items || []}/>
           )}
         </ComponentCard>
       </div>
