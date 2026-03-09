@@ -11,8 +11,16 @@ export const metadata: Metadata = {
     "Gestiona tus estanterías de productos de manera eficiente con nuestra plataforma de administración. Agrega, edita y elimina estanterías fácilmente, organiza tus productos de manera efectiva y mejora la experiencia de compra de tus clientes. Optimiza tu tienda en línea con nuestras herramientas de gestión de estanterías.",
 };
 
-export default async function Shelfies() {
-  const {data: shelves, error, message} = await getShelves();
+type PageProps = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function Shelfies({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const pageSize = Number(params.pageSize) || 10;
+
+  const {data: shelves, error, message} = await getShelves({ page, pageSize });
 
   return (
     <div>
@@ -24,7 +32,12 @@ export default async function Shelfies() {
               {dictionary.msg[message as keyof typeof dictionary.msg] || 'Error al cargar las estanterias'}
             </div>
           ) : (
-            <TableShelves items={shelves.items || []}/>
+            <TableShelves 
+              items={shelves.items || []}
+              totalAmount={shelves.count || 0}
+              currentPage={page}
+              pageSize={pageSize}
+            />
           )}
         </ComponentCard>
       </div>

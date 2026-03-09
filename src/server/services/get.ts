@@ -6,11 +6,13 @@ type Params = {
   columns?: string[] | string;
   count?: 'exact' | 'planned' | 'estimated';
   eq?: {
-    [key: string]: string | number | boolean;
+    [ key: string ]: string | number | boolean;
   };
+  page?: number;
+  pageSize?: number;
 }
 
-export  type getParams = Omit<Params, 'table' | 'count'>;
+export type getParams = Omit<Params, 'table' | 'count'>;
 
 type ResGet = {
   data: {
@@ -27,14 +29,24 @@ const nullData = {
   items: []
 }
 
-const get = async ({table, ...config}: Params): Promise<ResGet> => {
+const get = async ({ table, ...config }: Params): Promise<ResGet> => {
 
   try {
+    const page = config.page || 1;
+    const pageSize = config.pageSize || 10;
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
 
-    const {data, error, count} = await supabase
+    let query = supabase
       .from(table)
-      .select([...config.columns || ''].join(', '), {count: config.count || 'exact'})
-      .match(config.eq || {});
+      .select(
+        [ ...config.columns || '' ].join(', '),
+        { count: config.count || 'exact' }
+      )
+      .match(config.eq || {})
+      .range(from, to);
+
+    const { data, error, count } = await query;
 
     if (error) {
       console.error('Error triying get data from table: ', table, error.message)

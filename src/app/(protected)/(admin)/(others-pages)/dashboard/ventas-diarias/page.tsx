@@ -11,10 +11,17 @@ export const metadata: Metadata = {
     "Gestione las ventas diarias y vea los detalles de cada venta en el panel de administración.",
 };
 
-const {data: products, error, message} = await getDailySales();
-console.log(message)
+type PageProps = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export default function Sales() {
+export default async function Sales({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const pageSize = Number(params.pageSize) || 10;
+
+  const {data: products, error, message} = await getDailySales({ page, pageSize });
+
   return (
     <div>
       <PageBreadcrumb pageTitle={dictionary.admin.dashboard.sales.title}/>
@@ -25,7 +32,12 @@ export default function Sales() {
               {dictionary.msg[message as keyof typeof dictionary.msg] || 'Error al cargar las ventas diarias'}
             </div>
           ) : (
-            <TableSales items={products.items || []}/>
+            <TableSales 
+              items={products.items || []}
+              totalAmount={products.count || 0}
+              currentPage={page}
+              pageSize={pageSize}
+            />
           )}
         </ComponentCard>
       </div>

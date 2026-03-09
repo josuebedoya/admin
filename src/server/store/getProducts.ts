@@ -16,7 +16,7 @@ type Product = {
 
 type ResProduct = {
   data: {
-    count: number | null;
+    count: number;
     items: Product[]
   }
   error: string | null;

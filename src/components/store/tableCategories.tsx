@@ -1,7 +1,10 @@
-import React from 'react';
+'use client';
+
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Cell from "@/components/store/cell";
 import CellBadge from "@/components/store/cellBadge";
+import { usePaginatedTable } from "@/hooks/usePaginatedTable";
+import { fetchCategories } from "@/server/actions/store";
 
 interface TableCategoriesProps {
   items: {
@@ -9,10 +12,35 @@ interface TableCategoriesProps {
     name: string;
     status: boolean;
     products: number;
-  }[]
+  }[];
+  totalAmount?: number;
+  currentPage?: number;
+  pageSize?: number;
 }
 
-const TableCategories = ({items}: TableCategoriesProps) => {
+const TableCategories = ({
+  items: initialItems,
+  totalAmount: initialTotalCount = 0,
+  currentPage = 1,
+  pageSize = 10
+}: TableCategoriesProps) => {
+
+  // Usar el hook centralizado
+  const {
+    items,
+    currentPage: page,
+    pageSize: size,
+    totalCount,
+    handlePageChange,
+    handlePageSizeChange,
+  } = usePaginatedTable({
+    queryKey: 'categories',
+    initialData: initialItems,
+    initialTotalCount,
+    initialPage: currentPage,
+    initialPageSize: pageSize,
+    fetchFn: fetchCategories,
+  });
 
   const tableHeaders = ['ID', 'NOMBRE', 'ESTADO', 'PRODUCTOS']
 
@@ -32,7 +60,15 @@ const TableCategories = ({items}: TableCategoriesProps) => {
     body: transformItemsToTableBody(items),
   }
 
-  return <BasicTableOne data={dataTable}/>;
+  const paginationData = {
+    currentPage: page,
+    totalAmount: totalCount,
+    onPageChange: handlePageChange,
+    onPageSizeChange: handlePageSizeChange,
+    pageSize: size
+  };
+
+  return <BasicTableOne data={dataTable} pagination={paginationData} />;
 };
 
 export default TableCategories;

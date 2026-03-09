@@ -12,8 +12,16 @@ export const metadata: Metadata = {
     "Gestiona tus categorías de productos de manera eficiente con nuestra plataforma de administración. Agrega, edita y elimina categorías fácilmente, organiza tus productos de manera efectiva y mejora la experiencia de compra de tus clientes. Optimiza tu tienda en línea con nuestras herramientas de gestión de categorías.",
 };
 
-export default async function Categories() {
-  const {data: categories, error, message} = await getCategories();
+type PageProps = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function Categories({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const pageSize = Number(params.pageSize) || 10;
+
+  const {data: categories, error, message} = await getCategories({ page, pageSize });
 
   return (
     <div>
@@ -25,7 +33,12 @@ export default async function Categories() {
               {dictionary.msg[message as keyof typeof dictionary.msg] || 'Error al cargar las categorías'}
             </div>
           ) : (
-            <TableCategories items={categories.items || []}/>
+            <TableCategories 
+              items={categories.items || []}
+              totalAmount={categories.count || 0}
+              currentPage={page}
+              pageSize={pageSize}
+            />
           )}
         </ComponentCard>
       </div>

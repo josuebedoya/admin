@@ -1,4 +1,4 @@
-import get, {getParams} from "@/server/services/get";
+import get, { getParams } from "@/server/services/get";
 
 type Category = {
   id: number | string;
@@ -9,7 +9,7 @@ type Category = {
 
 type ResCategory = {
   data: {
-    count: number | null;
+    count: number;
     items: Category[]
   }
   error: string | null;
@@ -17,16 +17,16 @@ type ResCategory = {
   message: string;
 }
 
-const getCategories = async ({...params}: getParams = {}): Promise<ResCategory> => {
+const getCategories = async ({ ...params }: getParams = {}): Promise<ResCategory> => {
 
-  const {data, success, message, error} = await get(
+  const { data, success, message, error } = await get(
     {
       table: 'category_with_products',
       count: 'estimated',
       ...params
     });
 
-  return {data, error, success, message};
+  return { data, error, success, message };
 }
 
 export default getCategories;

@@ -1,6 +1,10 @@
+'use client';
+
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Cell from "@/components/store/cell";
 import {formattedMoney, formattedDate} from "@/utils/index";
+import { usePaginatedTable } from "@/hooks/usePaginatedTable";
+import { fetchDailySales } from "@/server/actions/store";
 
 interface TableSalesProps {
   items: {
@@ -10,9 +14,34 @@ interface TableSalesProps {
     note: number;
     date_created: string;
   }[];
+  totalAmount?: number;
+  currentPage?: number;
+  pageSize?: number;
 }
 
-const TableSales = ({items}: TableSalesProps) => {
+const TableSales = ({
+  items: initialItems,
+  totalAmount: initialTotalCount = 0,
+  currentPage = 1,
+  pageSize = 10
+}: TableSalesProps) => {
+
+  // Usar el hook centralizado
+  const {
+    items,
+    currentPage: page,
+    pageSize: size,
+    totalCount,
+    handlePageChange,
+    handlePageSizeChange,
+  } = usePaginatedTable({
+    queryKey: 'sales',
+    initialData: initialItems,
+    initialTotalCount,
+    initialPage: currentPage,
+    initialPageSize: pageSize,
+    fetchFn: fetchDailySales,
+  });
 
   const tableHeaders = ['ID', 'DÍA', 'TRANSFERIDO', 'EFECTIVO', 'TOTAL', 'NOTA'];
 
@@ -36,7 +65,15 @@ const TableSales = ({items}: TableSalesProps) => {
     body: transformItemsToTableBody(items),
   }
 
-  return <BasicTableOne data={dataTable}/>;
+  const paginationData = {
+    currentPage: page,
+    totalAmount: totalCount,
+    onPageChange: handlePageChange,
+    onPageSizeChange: handlePageSizeChange,
+    pageSize: size
+  };
+
+  return <BasicTableOne data={dataTable} pagination={paginationData} />;
 };
 
 export default TableSales;

@@ -1,3 +1,5 @@
+'use client';
+
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Cell from "@/components/store/cell";
 import CellBadge from "@/components/store/cellBadge";
@@ -5,6 +7,8 @@ import {
   formattedMoney as fMat, calculateProfit as profit, calculateProfitPercent,
   getTotalAmount, getTotalProfit, getPromedioProfitPercent, getTotalAmountProduct
 } from "@/utils/index";
+import { usePaginatedTable } from "@/hooks/usePaginatedTable";
+import { fetchProducts } from "@/server/actions/store";
 
 interface TableProductsProps {
   items: {
@@ -20,10 +24,38 @@ interface TableProductsProps {
     shelf: string;
     shelf_id: string | number;
   }[];
+  totalAmount?: number;
   isDashboard?: boolean;
+  currentPage?: number;
+  pageSize?: number;
+  stickyLastRow?: boolean;
 }
 
-const TableProducts = ({ items, isDashboard }: TableProductsProps) => {
+const TableProducts = ({ 
+  items: initialItems, 
+  totalAmount: initialTotalCount = 0, 
+  isDashboard, 
+  currentPage = 1, 
+  pageSize = 10, 
+  stickyLastRow 
+}: TableProductsProps) => {
+  
+  // Usar el hook centralizado
+  const {
+    items,
+    currentPage: page,
+    pageSize: size,
+    totalCount,
+    handlePageChange,
+    handlePageSizeChange,
+  } = usePaginatedTable({
+    queryKey: 'products',
+    initialData: initialItems,
+    initialTotalCount,
+    initialPage: currentPage,
+    initialPageSize: pageSize,
+    fetchFn: fetchProducts,
+  });
 
   const tableHeaders = [ 'ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO', 'ESTADO' ];
   const dashboardHeaders = [ 'ID', 'NOMBRE', 'CANTIDAD', 'PRECIO VENTA', 'PRECIO COMPRA', 'TOTAL PRODUCTO', 'GANANCIA', 'GANANCIA %', 'ESTADO' ];
@@ -52,7 +84,6 @@ const TableProducts = ({ items, isDashboard }: TableProductsProps) => {
 
   const bodyRows = transformItemsToTableBody(items);
 
-  // Agregar fila de totales solo si es dashboard
   if (isDashboard) {
     const totalPrice = getTotalAmount(items, 'price');
     const totalPriceSale = getTotalAmount(items, 'price_sale');
@@ -74,12 +105,22 @@ const TableProducts = ({ items, isDashboard }: TableProductsProps) => {
     });
   }
 
+  // Table data structure
   const dataTable = {
     headers: isDashboard ? dashboardHeaders : tableHeaders,
     body: bodyRows
   }
 
-  return <BasicTableOne data={dataTable} stickyLastRow/>;
+  // Pagination data
+  const paginationData = {
+    currentPage: page,
+    totalAmount: totalCount,
+    onPageChange: handlePageChange,
+    onPageSizeChange: handlePageSizeChange,
+    pageSize: size
+  };
+
+  return <BasicTableOne data={dataTable} stickyLastRow={stickyLastRow} pagination={paginationData} />;
 };
 
 export default TableProducts;

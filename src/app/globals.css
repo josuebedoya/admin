@@ -829,7 +829,7 @@ span.flatpickr-weekday,
   height: 18px;
 }
 
-.scrollbar-primary::-webkit-scrollbar-thumb {
+.scrollbar-primary::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb {
   background: var(--color-brand-300);
   border-radius: 10px;
   cursor: pointer;
@@ -838,13 +838,14 @@ span.flatpickr-weekday,
   position: relative;
 }
 
-.scrollbar-primary::-webkit-scrollbar-thumb:hover {
+.scrollbar-primary::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover {
   background: var(--color-brand-500);
 }
 
 * {
   &::-webkit-scrollbar {
     width: 7px;
+    height: 7px;
     border-radius: 10px;
   }
 }

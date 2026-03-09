@@ -1,4 +1,7 @@
+'use client';
+
 import { Table, TableBody, TableCell, TableHeader, TableRow, } from "../ui/table";
+import Pagination from "./Pagination";
 
 type TableProps = {
   data: {
@@ -7,49 +10,70 @@ type TableProps = {
       row: any[];
     }[];
   };
-    stickyLastRow?: boolean;
+  pagination?: {
+    currentPage: number;
+    totalAmount: number;
+    onPageChange: (page: number) => void;
+    onPageSizeChange?: (pageSize: number) => void;
+    pageSize?: number;
+  };
+  stickyLastRow?: boolean;
 };
 
-
-export default function BasicTableOne({ data, stickyLastRow }: TableProps) {
+export default function BasicTableOne({ data, stickyLastRow, pagination }: TableProps) {
   return (
-    <div
-      className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-      <div className="max-w-full overflow-x-auto">
-        <div className="min-w-[1102px] overflow-y-auto max-h-[85vh] scrollbar-primary">
-          <Table>
-            {/* Table Header */}
-            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-              <TableRow className="rounded-lg overflow-hidden bg-brand-500  rounded-tr-lg rounded-tl-lg">
-                {data?.headers?.map((h, i) => (
-                  <TableCell
-                    key={i}
-                    isHeader
-                    className="px-5 py-5 font-medium text-brand-600  text-start text-theme-xs sticky top-0 z-10 bg-brand-100"
-                  >
-                    {h}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHeader>
-
-            {/* Table Body */}
-            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {data?.body?.map((b, i) => (
-                <TableRow key={i} className='hover:bg-gray-100 duration-150 transition-all'>
-                  {b?.row?.map((c: any, j: number) => {
-                    const isLastRow = i === data.body.length - 1;
-                    return (
-                      <TableCell className={`px-3 py-3 sm:px-6 text-start cursor-pointer ${isLastRow && stickyLastRow ? 'sticky bottom-0 z-10 bg-brand-50 !text-gray-dark ' : ''}`} key={j}>
-                        {c}
-                      </TableCell>
-                    );
-                  })}
+    <div className="section-table">
+      <div
+        className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+        <div className="max-w-full overflow-x-auto">
+          <div className="min-w-[1102px] overflow-y-auto max-h-[92vh] scrollbar-primary">
+            <Table>
+              {/* Table Header */}
+              <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                <TableRow className="rounded-lg overflow-hidden bg-brand-500  rounded-tr-lg rounded-tl-lg">
+                  {data?.headers?.map((h, i) => (
+                    <TableCell
+                      key={i}
+                      isHeader
+                      className="px-5 py-5 font-medium text-brand-600  text-start text-theme-xs sticky top-0 z-10 bg-brand-100"
+                    >
+                      {h}
+                    </TableCell>
+                  ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+
+              {/* Table Body */}
+              <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                {data?.body?.map((b, i) => (
+                  <TableRow key={i} className='hover:bg-gray-100 duration-150 transition-all'>
+                    {b?.row?.map((c: any, j: number) => {
+                      const isLastRow = i === data.body.length - 1;
+                      return (
+                        <TableCell className={`px-3 py-3 sm:px-6 text-start cursor-pointer ${isLastRow && stickyLastRow ? 'sticky bottom-0 z-10 bg-brand-50 !text-gray-dark' : ''}`} key={j}>
+                          {c}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
+      </div>
+      <div className="flex justify-center mt-5">
+        {
+          (pagination?.totalAmount || 1) > 1 && (
+            <Pagination
+              currentPage={pagination?.currentPage || 1}
+              totalAmount={pagination?.totalAmount || 0}
+              onPageChange={pagination?.onPageChange || (() => { })}
+              onPageSizeChange={pagination?.onPageSizeChange}
+              pageSize={pagination?.pageSize}
+            />
+          )
+        }
       </div>
     </div>
   );

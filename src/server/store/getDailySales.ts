@@ -1,4 +1,4 @@
-import get, {getParams} from "@/server/services/get";
+import get, { getParams } from "@/server/services/get";
 
 type Sale = {
   id: number | string;
@@ -10,7 +10,7 @@ type Sale = {
 
 type ResSale = {
   data: {
-    count: number | null;
+    count: number;
     items: Sale[]
   }
   error: string | null;
@@ -18,16 +18,16 @@ type ResSale = {
   message: string;
 }
 
-const getDailySales = async ({...params}: getParams = {}): Promise<ResSale> => {
+const getDailySales = async ({ ...params }: getParams = {}): Promise<ResSale> => {
 
-  const {data, success, message, error} = await get(
+  const { data, success, message, error } = await get(
     {
       table: 'daily_sale',
       count: 'estimated',
       ...params
     });
 
-  return {data, error, success, message};
+  return { data, error, success, message };
 }
 
 export default getDailySales;

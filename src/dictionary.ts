@@ -66,6 +66,11 @@ export const dictionary = {
     sign_out: 'Cerrar Sesión',
     reset_password: 'Restablecer Contraseña',
     sign_up: 'Registrarse',
+    previus: 'Anterior',
+    next: 'Siguiente',
+    save: 'Guardar',
+    edit: 'Editar',
+    delete: 'Eliminar',
   },
   admin: {
     store: {
@@ -87,7 +92,7 @@ export const dictionary = {
         title: 'Ventas Diarias',
         description: 'Gestiona las ventas diarias y vea los detalles de cada venta en el panel de administración.',
       },
-      products:{
+      products: {
         title: 'Dashboard de Productos',
         description: 'Visualiza los produts, ganancias, ventas y más detalles de tu tienda en el dashboard de productos. Administra tu inventario y optimiza tus ventas con facilidad.',
       }
