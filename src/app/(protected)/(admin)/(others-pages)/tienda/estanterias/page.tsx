@@ -37,6 +37,7 @@ export default async function Shelfies({ searchParams }: PageProps) {
               totalAmount={shelves.count || 0}
               currentPage={page}
               pageSize={pageSize}
+              stickyLastRow={true}
             />
           )}
         </ComponentCard>

@@ -19,13 +19,15 @@ interface TableShelvesProps {
   totalAmount?: number;
   currentPage?: number;
   pageSize?: number;
+  stickyLastRow?: boolean;
 }
 
 const TableShelves = ({
   items: initialItems, 
   totalAmount: initialTotalCount = 0,
   currentPage = 1,
-  pageSize = 10
+  pageSize = 10,
+  stickyLastRow
 }: TableShelvesProps) => {
 
   // Usar el hook centralizado
@@ -60,9 +62,27 @@ const TableShelves = ({
     }))
   };
 
+  const bodyRows = transformItemsToTableBody(items);
+
+  // Agregar fila de totales
+  const totalProducts = items.reduce((acc, item) => acc + item.products, 0);
+  const totalPrice = items.reduce((acc, item) => acc + item.total_price, 0);
+  const totalPriceSale = items.reduce((acc, item) => acc + item.total_price_sale, 0);
+
+  bodyRows.push({
+    row: [
+      <Cell text="TOTAL" key="total-label" />,
+      <Cell text="" key="total-name" />,
+      <Cell text="" key="total-status" />,
+      <Cell text={totalProducts} key="total-products" />,
+      <Cell text={formattedMoney(totalPrice)} key="total-price" />,
+      <Cell text={formattedMoney(totalPriceSale)} isLast key="total-price-sale" />,
+    ]
+  });
+
   const dataTable = {
     headers: tableHeaders,
-    body: transformItemsToTableBody(items),
+    body: bodyRows,
   }
 
   const paginationData = {
@@ -73,7 +93,7 @@ const TableShelves = ({
     pageSize: size
   };
 
-  return <BasicTableOne data={dataTable} pagination={paginationData} />;
+  return <BasicTableOne data={dataTable} stickyLastRow={stickyLastRow} pagination={paginationData} />;
 };
 
 export default TableShelves;
