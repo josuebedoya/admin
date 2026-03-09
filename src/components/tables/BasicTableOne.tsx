@@ -26,7 +26,7 @@ export default function BasicTableOne({ data, stickyLastRow, pagination }: Table
       <div
         className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
-          <div className="min-w-[1102px] overflow-y-auto max-h-[92vh] scrollbar-primary">
+          <div className="min-w-full xl:min-w-[1102px] overflow-y-auto max-h-[65vh] lg:max-h-[92vh] scrollbar-primary">
             <Table>
               {/* Table Header */}
               <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
