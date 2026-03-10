@@ -31,8 +31,11 @@ const TableCategories = ({
     currentPage: page,
     pageSize: size,
     totalCount,
+    sortBy,
+    sortOrder,
     handlePageChange,
     handlePageSizeChange,
+    handleSort,
   } = usePaginatedTable({
     queryKey: 'categories',
     initialData: initialItems,
@@ -68,7 +71,14 @@ const TableCategories = ({
     pageSize: size
   };
 
-  return <BasicTableOne data={dataTable} pagination={paginationData} />;
+  const sortableData = {
+    columnKeys: ['id', 'name', 'status', 'products'],
+    onSort: handleSort,
+    sortBy,
+    sortOrder,
+  };
+
+  return <BasicTableOne data={dataTable} pagination={paginationData} sortable={sortableData} />;
 };
 
 export default TableCategories;

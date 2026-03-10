@@ -10,7 +10,7 @@ interface UsePaginatedTableOptions<T> {
   initialTotalCount: number;
   initialPage?: number;
   initialPageSize?: number;
-  fetchFn: (page: number, pageSize: number) => Promise<{ items: T[]; count: number }>;
+  fetchFn: (page: number, pageSize: number, orderBy?: string, ascending?: boolean) => Promise<{ items: T[]; count: number }>;
 }
 
 interface UsePaginatedTableReturn<T> {
@@ -19,8 +19,11 @@ interface UsePaginatedTableReturn<T> {
   pageSize: number;
   totalCount: number;
   isLoading: boolean;
+  sortBy: string | null;
+  sortOrder: 'asc' | 'desc';
   handlePageChange: (page: number) => void;
   handlePageSizeChange: (size: number) => void;
+  handleSort: (column: string) => void;
 }
 
 export function usePaginatedTable<T>({
@@ -35,12 +38,14 @@ export function usePaginatedTable<T>({
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [pageSize, setPageSize] = useState(initialPageSize);
+  const [sortBy, setSortBy] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Query con cache automático de TanStack Query
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: [queryKey, currentPage, pageSize],
+    queryKey: [queryKey, currentPage, pageSize, sortBy, sortOrder],
     queryFn: async () => {
-      return await fetchFn(currentPage, pageSize);
+      return await fetchFn(currentPage, pageSize, sortBy || undefined, sortOrder === 'asc');
     },
     placeholderData: (previousData) => previousData, // Mantener datos previos mientras carga
     staleTime: 1000 * 60 * 5, // 5 minutos
@@ -68,13 +73,28 @@ export function usePaginatedTable<T>({
     router.push(`?${params.toString()}`, { scroll: false });
   }, [router, searchParams]);
 
+  const handleSort = useCallback((column: string) => {
+    if (sortBy === column) {
+      // Si ya está ordenado por esta columna, invertir orden
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Nueva columna, ordenar ascendente por defecto
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+    setCurrentPage(1); // Volver a la primera página al ordenar
+  }, [sortBy, sortOrder]);
+
   return {
     items,
     currentPage,
     pageSize,
     totalCount,
     isLoading: isLoading || isFetching,
+    sortBy,
+    sortOrder,
     handlePageChange,
     handlePageSizeChange,
+    handleSort,
   };
 }

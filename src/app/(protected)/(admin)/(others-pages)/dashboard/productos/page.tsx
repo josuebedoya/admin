@@ -3,7 +3,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { Metadata } from "next";
 import { dictionary } from "@/dictionary";
 import TableProducts from "@/components/store/tableProducts";
-import getProducts from "@/server/store/getProducts";
+import getProducts from "@/server/store/productRepository/getProducts";
 
 export const metadata: Metadata = {
   title: "Dashboard productos - Admin",

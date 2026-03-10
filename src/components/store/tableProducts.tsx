@@ -46,8 +46,11 @@ const TableProducts = ({
     currentPage: page,
     pageSize: size,
     totalCount,
+    sortBy,
+    sortOrder,
     handlePageChange,
     handlePageSizeChange,
+    handleSort,
   } = usePaginatedTable({
     queryKey: 'products',
     initialData: initialItems,
@@ -120,7 +123,17 @@ const TableProducts = ({
     pageSize: size
   };
 
-  return <BasicTableOne data={dataTable} stickyLastRow={stickyLastRow} pagination={paginationData} />;
+  // Sortable data
+  const sortableData = {
+    columnKeys: isDashboard 
+      ? ['id', 'name', 'quantity', 'price', 'price_sale', '', '', '', 'status'] 
+      : ['id', 'name', 'category', 'shelf', 'quantity', 'price', 'status'],
+    onSort: handleSort,
+    sortBy,
+    sortOrder,
+  };
+
+  return <BasicTableOne data={dataTable} stickyLastRow={stickyLastRow} pagination={paginationData} sortable={sortableData} />;
 };
 
 export default TableProducts;

@@ -18,9 +18,40 @@ type TableProps = {
     pageSize?: number;
   };
   stickyLastRow?: boolean;
+  sortable?: {
+    columnKeys: string[]; // Nombres de columnas reales para ordenar (ej: ['id', 'name', 'category', 'shelf'])
+    onSort: (column: string) => void;
+    sortBy: string | null;
+    sortOrder: 'asc' | 'desc';
+  };
 };
 
-export default function BasicTableOne({ data, stickyLastRow, pagination }: TableProps) {
+export default function BasicTableOne({ data, stickyLastRow, pagination, sortable }: TableProps) {
+  
+  const getSortIcon = (columnKey: string) => {
+    if (!sortable || sortable.sortBy !== columnKey) {
+      return (
+        <svg className="w-5 h-5 ml-1 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      );
+    }
+    
+    if (sortable.sortOrder === 'asc') {
+      return (
+        <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+        </svg>
+      );
+    } else {
+      return (
+        <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      );
+    }
+  };
+
   return (
     <div className="section-table">
       <div
@@ -31,15 +62,28 @@ export default function BasicTableOne({ data, stickyLastRow, pagination }: Table
               {/* Table Header */}
               <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow className="rounded-lg overflow-hidden bg-brand-500  rounded-tr-lg rounded-tl-lg">
-                  {data?.headers?.map((h, i) => (
-                    <TableCell
-                      key={i}
-                      isHeader
-                      className="px-5 py-5 font-medium text-brand-600  text-start text-theme-xs sticky top-0 z-10 bg-brand-100"
-                    >
-                      {h}
-                    </TableCell>
-                  ))}
+                  {data?.headers?.map((h, i) => {
+                    const columnKey = sortable?.columnKeys?.[i];
+                    const isSortable = sortable && columnKey && columnKey !== '';
+                    
+                    return (
+                      <TableCell
+                        key={i}
+                        isHeader
+                        className="px-5 py-5 font-medium text-brand-600 text-start text-theme-xs sticky top-0 z-10 bg-brand-100 hover:bg-brand-200 transition-colors duration-200 cursor-pointer select-none"
+                      >
+                        <div 
+                          className={`flex items-center justify-between ${
+                            isSortable ? 'cursor-pointer hover:opacity-70 transition-opacity select-none' : ''
+                          }`}
+                          onClick={() => isSortable && sortable.onSort(columnKey)}
+                        >
+                          <span>{h}</span>
+                          {isSortable && getSortIcon(columnKey)}
+                        </div>
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               </TableHeader>
 

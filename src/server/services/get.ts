@@ -10,11 +10,13 @@ type Params = {
   };
   page?: number;
   pageSize?: number;
+  orderBy?: string;
+  ascending?: boolean;
 }
 
 export type getParams = Omit<Params, 'table' | 'count'>;
 
-type ResGet = {
+export type ResGet = {
   data: {
     count: number;
     items: any[];
@@ -45,6 +47,11 @@ const get = async ({ table, ...config }: Params): Promise<ResGet> => {
       )
       .match(config.eq || {})
       .range(from, to);
+
+    // Agregar ordenamiento si existe
+    if (config.orderBy) {
+      query = query.order(config.orderBy, { ascending: config.ascending ?? true });
+    }
 
     const { data, error, count } = await query;
 

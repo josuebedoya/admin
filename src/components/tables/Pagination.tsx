@@ -54,7 +54,7 @@ const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div className="paginator flex items-center justify-center gap-4">
-      <SelectSize onChangeSelect={handlePageSizeChange} />
+      <SelectSize onChangeSelect={handlePageSizeChange} total={totalAmount} />
       <div className="flex items-center ">
         <button
           onClick={() => onPageChange(currentPage - 1)}

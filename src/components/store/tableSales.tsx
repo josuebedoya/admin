@@ -32,8 +32,11 @@ const TableSales = ({
     currentPage: page,
     pageSize: size,
     totalCount,
+    sortBy,
+    sortOrder,
     handlePageChange,
     handlePageSizeChange,
+    handleSort,
   } = usePaginatedTable({
     queryKey: 'sales',
     initialData: initialItems,
@@ -73,7 +76,14 @@ const TableSales = ({
     pageSize: size
   };
 
-  return <BasicTableOne data={dataTable} pagination={paginationData} />;
+  const sortableData = {
+    columnKeys: ['id', 'date_created', 'transferred', 'cashed', '', 'note'],
+    onSort: handleSort,
+    sortBy,
+    sortOrder,
+  };
+
+  return <BasicTableOne data={dataTable} pagination={paginationData} sortable={sortableData} />;
 };
 
 export default TableSales;

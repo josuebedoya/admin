@@ -36,8 +36,11 @@ const TableShelves = ({
     currentPage: page,
     pageSize: size,
     totalCount,
+    sortBy,
+    sortOrder,
     handlePageChange,
     handlePageSizeChange,
+    handleSort,
   } = usePaginatedTable({
     queryKey: 'shelves',
     initialData: initialItems,
@@ -93,7 +96,14 @@ const TableShelves = ({
     pageSize: size
   };
 
-  return <BasicTableOne data={dataTable} stickyLastRow={stickyLastRow} pagination={paginationData} />;
+  const sortableData = {
+    columnKeys: ['id', 'name', 'status', 'products', 'total_price', 'total_price_sale'],
+    onSort: handleSort,
+    sortBy,
+    sortOrder,
+  };
+
+  return <BasicTableOne data={dataTable} stickyLastRow={stickyLastRow} pagination={paginationData} sortable={sortableData} />;
 };
 
 export default TableShelves;

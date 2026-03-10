@@ -1,3 +1,5 @@
+import { create } from "domain";
+
 export const dictionary = {
   auth: {
     sign_in: 'Iniciar Sesión',
@@ -16,6 +18,10 @@ export const dictionary = {
     name: 'Nombre',
     last_name: 'Apellido/s',
     full_name: 'Nombre Completo',
+    price: 'Precio de venta',
+    category: 'Categoría',
+    shelf: 'Estantería',
+    price_sale: 'Precio de Venta',
     // keep_me_logged_in: 'Mantenerme conectado',
     forgot_password: '¿Olvidaste tu contraseña?',
     write_password: 'Escribe tu contraseña',
@@ -55,6 +61,7 @@ export const dictionary = {
     GET_DATA_SUCCESS: 'Datos obtenidos exitosamente',
     GET_DATA_ERROR: 'Error al obtener datos',
     PGRST205: 'Al parecer, no se pudo establecer una conexión con la base de datos. Error interno del servidor.',
+    PRODUCT_NOT_FOUND: 'Producto no encontrado',
   },
 
   welcome: {
@@ -71,6 +78,7 @@ export const dictionary = {
     save: 'Guardar',
     edit: 'Editar',
     delete: 'Eliminar',
+    create: 'Crear',
   },
   admin: {
     store: {

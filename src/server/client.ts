@@ -1,26 +1,17 @@
-import {createBrowserClient} from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 
 const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const anon_key = process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
+const service_role_key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
 
-if (!supabase_url || !anon_key) {
-  throw new Error('SUPABASE_URL and SUPABASE_KEY must be set in environment variables')
+if (!supabase_url || !service_role_key) {
+  throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set in environment variables')
 }
 
-function createClient() {
-  return createBrowserClient(
-    supabase_url,
-    anon_key,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-        detectSessionInUrl: false
-      }
-    }
-  )
-}
-
-const supabase = createClient()
+const supabase = createClient(supabase_url, service_role_key, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+})
 
 export default supabase;
