@@ -32,6 +32,7 @@ export default function DefaultInputs() {
           <Label>Select Input</Label>
           <div className="relative">
             <Select
+            name="defaulInputs"
             options={options}
             placeholder="Select an option"
             onChange={handleSelectChange}
