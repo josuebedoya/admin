@@ -10,7 +10,7 @@ interface CellProps {
 }
 
 const controls = <span className='p-1 hover:bg-gray-300 rounded-sm svg-img-options'><MenuDots/></span>;
-const classes = `py-3 text-gray-500 text-theme-sm dark:text-gray-400 hover:text-brand-600 ${controls ? 'pr-2' : ''} uppercase`;
+const classes = `py-3 text-gray-500 text-[13px] dark:text-gray-400 hover:text-brand-600 ${controls ? 'pr-2' : ''} uppercase`;
 
 const Cell = ({text, path, withLink, isLast}: CellProps) => {
   return (

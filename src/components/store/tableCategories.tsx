@@ -5,6 +5,7 @@ import Cell from "@/components/store/cell";
 import CellBadge from "@/components/store/cellBadge";
 import { usePaginatedTable } from "@/hooks/usePaginatedTable";
 import { fetchCategories } from "@/server/actions/store";
+import { useRouter } from "next/navigation";
 
 interface TableCategoriesProps {
   items: {
@@ -45,6 +46,8 @@ const TableCategories = ({
     fetchFn: fetchCategories,
   });
 
+  const router = useRouter();
+
   const tableHeaders = ['ID', 'NOMBRE', 'ESTADO', 'PRODUCTOS']
 
   const transformItemsToTableBody = (items: TableCategoriesProps['items']) => {
@@ -78,7 +81,11 @@ const TableCategories = ({
     sortOrder,
   };
 
-  return <BasicTableOne data={dataTable} pagination={paginationData} sortable={sortableData} />;
+  const openFormNewCategory = () => {
+    router.push('/tienda/categorias/+');
+  };
+
+  return <BasicTableOne data={dataTable} pagination={paginationData} sortable={sortableData} buttonAdd={{onClick: openFormNewCategory, label: 'Agregar Categoría'}} />;
 };
 
 export default TableCategories;

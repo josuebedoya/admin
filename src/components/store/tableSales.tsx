@@ -2,9 +2,10 @@
 
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Cell from "@/components/store/cell";
-import {formattedMoney, formattedDate} from "@/utils/index";
+import { formattedMoney, formattedDate } from "@/utils";
 import { usePaginatedTable } from "@/hooks/usePaginatedTable";
 import { fetchDailySales } from "@/server/actions/store";
+import { useRouter } from "next/navigation";
 
 interface TableSalesProps {
   items: {
@@ -46,6 +47,8 @@ const TableSales = ({
     fetchFn: fetchDailySales,
   });
 
+  const router = useRouter();
+
   const tableHeaders = ['ID', 'DÍA', 'TRANSFERIDO', 'EFECTIVO', 'TOTAL', 'NOTA'];
 
   const transformItemsToTableBody = (items: TableSalesProps['items']) => {
@@ -83,7 +86,11 @@ const TableSales = ({
     sortOrder,
   };
 
-  return <BasicTableOne data={dataTable} pagination={paginationData} sortable={sortableData} />;
+  const openFormNewSale = () => {
+    router.push('/dashboard/ventas-diarias/+');
+  };
+
+  return <BasicTableOne data={dataTable} pagination={paginationData} sortable={sortableData} buttonAdd={{onClick: openFormNewSale, label: 'Agregar Venta'}} />;
 };
 
 export default TableSales;

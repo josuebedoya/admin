@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { Table, TableBody, TableCell, TableHeader, TableRow, } from "../ui/table";
+import {Table, TableBody, TableCell, TableHeader, TableRow} from "../ui/table";
 import Pagination from "./Pagination";
+import Button from "@/components/ui/button/Button";
 
 type TableProps = {
   data: {
@@ -24,62 +25,81 @@ type TableProps = {
     sortBy: string | null;
     sortOrder: 'asc' | 'desc';
   };
+  buttonAdd?: {
+    onClick: () => void;
+    label: string;
+  };
 };
 
-export default function BasicTableOne({ data, stickyLastRow, pagination, sortable }: TableProps) {
-  
+export default function BasicTableOne({data, stickyLastRow, pagination, sortable, buttonAdd}: TableProps) {
+
   const getSortIcon = (columnKey: string) => {
     if (!sortable || sortable.sortBy !== columnKey) {
       return (
-        <svg className="w-4 h-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}
+                d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
         </svg>
       );
     }
-    
     if (sortable.sortOrder === 'asc') {
       return (
-        <svg className="w-4 h-4 opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" />
-        </svg>
-      );
-    } else {
-      return (
-        <svg className="w-4 h-4 opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        <svg className="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7"/>
         </svg>
       );
     }
+    return (
+      <svg className="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7"/>
+      </svg>
+    );
   };
 
   return (
-    <div className="section-table">
-      <div
-        className="overflow-hidden rounded-xl border-2 border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] shadow-lg dark:shadow-xl">
-        <div className="max-w-full overflow-x-auto">
-          <div className="min-w-full xl:min-w-[1102px] overflow-y-auto max-h-[65vh] lg:max-h-[92vh] scrollbar-primary">
+    <div className="flex flex-col gap-0">
+      {/* ── Controls ── */}
+      {buttonAdd && (
+        <div className="flex justify-end gap-4 mb-4 lg:px-6">
+          <Button
+            size='sm'
+            variant='primary'
+            onClick={buttonAdd.onClick}
+          >
+            + {' ' + buttonAdd.label}
+          </Button>
+        </div>
+      )}
+      {/* ── Tabla ── */}
+      <div className=" rounded-xl border border-gray-200 dark:border-white/[0.05] bg-white dark:bg-gray-900 shadow-sm">
+        <div className="max-w-full overflow-x-auto rounded-xl">
+          <div className="min-w-full xl:min-w-[1102px] overflow-y-auto max-h-[60vh] lg:max-h-[70vh] scrollbar-primary">
             <Table>
-              {/* Table Header */}
-              <TableHeader className="border-b-2 border-brand-200 dark:border-white/[0.1]">
-                <TableRow className="rounded-lg overflow-hidden bg-gradient-to-r from-brand-500 to-brand-600 rounded-tr-lg rounded-tl-lg">
+              {/* Header */}
+              <TableHeader>
+                <TableRow
+                  className="bg-gray-50/50 dark:bg-white/[0.02] border-b border-gray-200 dark:border-white/[0.05]">
                   {data?.headers?.map((h, i) => {
                     const columnKey = sortable?.columnKeys?.[i];
                     const isSortable = sortable && columnKey && columnKey !== '';
-                    
                     return (
                       <TableCell
                         key={i}
                         isHeader
-                        className="px-5 py-3 font-semibold text-white text-start text-sm tracking-wide uppercase sticky top-0 z-10 bg-gradient-to-br from-brand-500 to-brand-600 dark:from-brand-600 dark:to-brand-700 hover:from-brand-600 hover:to-brand-700 transition-all duration-300 shadow-sm"
+                        className="px-3 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap sticky top-0 z-10 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm select-none"
                       >
-                        <div 
-                          className={`flex items-center justify-between gap-2 ${
-                            isSortable ? 'cursor-pointer hover:scale-105 transition-transform select-none' : ''
-                          }`}
+                        <div
+                          className={`flex items-center gap-2 ${isSortable ? 'cursor-pointer group' : ''}`}
                           onClick={() => isSortable && sortable.onSort(columnKey)}
                         >
-                          <span className="font-bold text-[13px]">{h}</span>
-                          {isSortable && getSortIcon(columnKey)}
+                          <span
+                            className="group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-200">{h}</span>
+                          {isSortable && (
+                            <span
+                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-brand-500">
+                              {getSortIcon(columnKey)}
+                            </span>
+                          )}
                         </div>
                       </TableCell>
                     );
@@ -87,37 +107,53 @@ export default function BasicTableOne({ data, stickyLastRow, pagination, sortabl
                 </TableRow>
               </TableHeader>
 
-              {/* Table Body */}
-              <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {data?.body?.map((b, i) => (
-                  <TableRow key={i} className='hover:bg-brand-50 dark:hover:bg-white/[0.02] duration-200 transition-all'>
-                    {b?.row?.map((c: any, j: number) => {
-                      const isLastRow = i === data.body.length - 1;
-                      return (
-                        <TableCell className={`px-5 py-2.5 text-start text-sm cursor-pointer ${isLastRow && stickyLastRow ? 'sticky bottom-0 z-10 bg-brand-50 dark:bg-white/[0.03] !text-gray-dark font-semibold' : 'text-gray-700 dark:text-gray-300'}`} key={j}>
+              {/* Body */}
+              <TableBody>
+                {data?.body?.map((b, i) => {
+                  const isLastRow = i === data.body.length - 1;
+                  return (
+                    <TableRow
+                      key={i}
+                      className={`group transition-colors duration-150 border-b border-gray-100 dark:border-white/[0.02] last:border-b-0
+                        ${isLastRow && stickyLastRow
+                        ? 'sticky bottom-0 z-10 bg-gray-50 dark:bg-gray-800 font-medium'
+                        : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-white/[0.02]'
+                      }`}
+                    >
+                      {b?.row?.map((c: any, j: number) => (
+                        <TableCell
+                          key={j}
+                          className={`px-3 py-3 text-sm whitespace-nowrap text-start
+                            ${isLastRow && stickyLastRow
+                            ? 'text-gray-900 dark:text-white'
+                            : 'text-gray-600 dark:text-gray-300'
+                          }`}
+                        >
                           {c}
                         </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                ))}
+                      ))}
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
         </div>
-      </div>
-      <div className="flex justify-center mt-5">
-        {
-          (pagination?.totalAmount || 1) > 1 && (
+
+        {/* ── Paginador ── */}
+        {(pagination?.totalAmount || 0) > 1 && (
+          <div
+            className="px-6 py-4 border border-gray-200  rounded-xl m-4 dark:border-white/[0.05] bg-white dark:bg-gray-900">
             <Pagination
               currentPage={pagination?.currentPage || 1}
               totalAmount={pagination?.totalAmount || 0}
-              onPageChange={pagination?.onPageChange || (() => { })}
+              onPageChange={pagination?.onPageChange || (() => {
+              })}
               onPageSizeChange={pagination?.onPageSizeChange}
               pageSize={pagination?.pageSize}
             />
-          )
-        }
+          </div>
+        )}
       </div>
     </div>
   );

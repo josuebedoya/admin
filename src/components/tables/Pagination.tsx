@@ -50,42 +50,64 @@ const Pagination: React.FC<PaginationProps> = ({
     (_, i) => startPage + i
   );
 
-  const classControls = "flex items-center h-10 justify-center rounded-lg border border-gray-300 bg-white px-3.5 py-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] text-sm mx-2";
+  const classBtn =
+    "inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm transition-colors duration-200 " +
+    "text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/[0.05] " +
+    "disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed";
 
   return (
-    <div className="paginator flex items-center justify-center gap-4">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+
+      {/* Selector de tamaño */}
       <SelectSize onChangeSelect={handlePageSizeChange} total={totalAmount} />
-      <div className="flex items-center ">
+
+      {/* Navegación */}
+      <div className="flex items-center gap-2">
+
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className={classControls}
+          className={classBtn}
+          aria-label="Anterior"
         >
-          {dictionary.btn.previus}
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
         </button>
-        <div className="flex items-center gap-2">
-          {currentPage > 3 && <span className="px-2">...</span>}
+
+        <div className="flex items-center gap-1">
+          {currentPage > 3 && (
+            <span className="w-8 h-8 flex items-center justify-center text-gray-400 text-sm">...</span>
+          )}
           {pagesAroundCurrent.map((page) => (
             <button
               key={page}
               onClick={() => onPageChange(page)}
-              className={`px-4 py-2 rounded ${currentPage === page
-                ? "bg-brand-500 text-white"
-                : "text-gray-700 dark:text-gray-400"
-                } flex w-10 items-center justify-center h-10 rounded-lg text-sm font-medium hover:bg-blue-500/[0.08] hover:text-brand-500 dark:hover:text-brand-500`}
+              className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-all duration-200
+                ${currentPage === page
+                  ? 'bg-brand-500 text-white shadow-sm ring-2 ring-brand-100 dark:ring-brand-900/30'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/[0.05]'
+                }`}
             >
               {page}
             </button>
           ))}
-          {currentPage < totalPages - 2 && <span className="px-2">...</span>}
+          {currentPage < totalPages - 2 && (
+            <span className="w-8 h-8 flex items-center justify-center text-gray-400 text-sm">...</span>
+          )}
         </div>
+
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className={classControls}
+          className={classBtn}
+          aria-label="Siguiente"
         >
-          {dictionary.btn.next}
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
+
       </div>
     </div>
   );

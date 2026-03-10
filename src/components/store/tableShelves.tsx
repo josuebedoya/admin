@@ -6,6 +6,7 @@ import CellBadge from "@/components/store/cellBadge";
 import { formattedMoney } from '@/utils';
 import { usePaginatedTable } from "@/hooks/usePaginatedTable";
 import { fetchShelves } from "@/server/actions/store";
+import { useRouter } from "next/navigation";
 
 interface TableShelvesProps {
   items: {
@@ -49,6 +50,8 @@ const TableShelves = ({
     initialPageSize: pageSize,
     fetchFn: fetchShelves,
   });
+
+  const router = useRouter();
 
   const tableHeaders = ['ID', 'NOMBRE', 'ESTADO', 'PRODUCTOS', 'PRECIO TOTAL', 'PRECIO VENTA']
 
@@ -103,7 +106,11 @@ const TableShelves = ({
     sortOrder,
   };
 
-  return <BasicTableOne data={dataTable} stickyLastRow={stickyLastRow} pagination={paginationData} sortable={sortableData} />;
+  const openFormNewShelf = () => {
+    router.push('/tienda/estanterias/+');
+  };
+
+  return <BasicTableOne data={dataTable} stickyLastRow={stickyLastRow} pagination={paginationData} sortable={sortableData} buttonAdd={{onClick: openFormNewShelf, label: 'Agregar Estantería'}} />;
 };
 
 export default TableShelves;

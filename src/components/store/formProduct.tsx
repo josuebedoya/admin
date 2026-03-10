@@ -157,8 +157,6 @@ export default function ProductForm({ product, isNew }: FormProductProps) {
         status: dataForm.status,
       };
 
-      console.log('Saving product:', { productData, isNew, productId: product?.id });
-
       const result = await saveProduct(productData, isNew, product?.id);
 
       if (!result.success) {
