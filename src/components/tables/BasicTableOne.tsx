@@ -70,7 +70,7 @@ export default function BasicTableOne({ data, stickyLastRow, pagination, sortabl
                       <TableCell
                         key={i}
                         isHeader
-                        className="px-6 py-4 font-semibold text-white text-start text-sm tracking-wide uppercase sticky top-0 z-10 bg-gradient-to-br from-brand-500 to-brand-600 dark:from-brand-600 dark:to-brand-700 hover:from-brand-600 hover:to-brand-700 transition-all duration-300 shadow-sm"
+                        className="px-5 py-3 font-semibold text-white text-start text-sm tracking-wide uppercase sticky top-0 z-10 bg-gradient-to-br from-brand-500 to-brand-600 dark:from-brand-600 dark:to-brand-700 hover:from-brand-600 hover:to-brand-700 transition-all duration-300 shadow-sm"
                       >
                         <div 
                           className={`flex items-center justify-between gap-2 ${
@@ -94,7 +94,7 @@ export default function BasicTableOne({ data, stickyLastRow, pagination, sortabl
                     {b?.row?.map((c: any, j: number) => {
                       const isLastRow = i === data.body.length - 1;
                       return (
-                        <TableCell className={`px-6 py-3.5 text-start text-sm cursor-pointer ${isLastRow && stickyLastRow ? 'sticky bottom-0 z-10 bg-brand-50 dark:bg-white/[0.03] !text-gray-dark font-semibold' : 'text-gray-700 dark:text-gray-300'}`} key={j}>
+                        <TableCell className={`px-5 py-2.5 text-start text-sm cursor-pointer ${isLastRow && stickyLastRow ? 'sticky bottom-0 z-10 bg-brand-50 dark:bg-white/[0.03] !text-gray-dark font-semibold' : 'text-gray-700 dark:text-gray-300'}`} key={j}>
                           {c}
                         </TableCell>
                       );
