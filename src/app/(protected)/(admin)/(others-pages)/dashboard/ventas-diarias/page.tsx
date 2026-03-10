@@ -15,12 +15,12 @@ type PageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function Sales({ searchParams }: PageProps) {
+export default async function Sales({searchParams}: PageProps) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;
 
-  const {data: products, error, message} = await getDailySales({ page, pageSize });
+  const {data: dailySales, error, message} = await getDailySales({page, pageSize});
 
   return (
     <div>
@@ -32,9 +32,9 @@ export default async function Sales({ searchParams }: PageProps) {
               {dictionary.msg[message as keyof typeof dictionary.msg] || 'Error al cargar las ventas diarias'}
             </div>
           ) : (
-            <TableSales 
-              items={products.items || []}
-              totalAmount={products.count || 0}
+            <TableSales
+              items={dailySales.items || []}
+              totalAmount={dailySales.count || 0}
               currentPage={page}
               pageSize={pageSize}
             />

@@ -10,6 +10,8 @@ import getCategories from '@/server/store/categoryRepository/getCategories';
 import createCategory from '@/server/store/categoryRepository/createCategory';
 import updateCategory from '@/server/store/categoryRepository/updateCategory';
 import getDailySales from '@/server/store/dailySaleRepository/getDailySales';
+import createDailySale from '@/server/store/dailySaleRepository/createDailySale';
+import updateDailySale from '@/server/store/dailySaleRepository/updateDailySale';
 
 export async function fetchProducts(page: number, pageSize: number, orderBy?: string, ascending?: boolean) {
   const {data, error} = await getProducts({page, pageSize, orderBy, ascending});
@@ -126,6 +128,38 @@ export async function saveShelve(data: any, isNew: boolean, shelveId?: string | 
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'SAVE_SHELVE_ERROR',
+      data: {items: []}
+    };
+  }
+}
+
+export async function saveDailySale(data: any, isNew: boolean, dailySaleId?: string | number) {
+  try {
+    if (isNew) {
+      const result = await createDailySale({data, returning: true});
+      return result;
+    } else {
+      if (!dailySaleId) {
+        return {
+          success: false,
+          error: 'Daily Sale ID is required for update',
+          message: 'Daily Sale ID is required for update',
+          data: null,
+          status: 400
+        };
+      }
+      const result = await updateDailySale({
+        data,
+        eq: {id: dailySaleId},
+        returning: true
+      });
+      return result;
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      message: 'SAVE_DAILY_SALE_ERROR',
       data: {items: []}
     };
   }

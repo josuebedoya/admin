@@ -1,32 +1,32 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Dropdown } from "../ui/dropdown/Dropdown";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
+import React, {useEffect, useState} from "react";
+import {Dropdown} from "../ui/dropdown/Dropdown";
+import {DropdownItem} from "../ui/dropdown/DropdownItem";
 
 interface Option {
-  value: string;
+  value: string | number;
   label: string;
 }
 
 interface SelectProps {
   options: Option[];
   placeholder?: string;
-  onChange: (value: string) => void;
+  onChange: (value: string | number) => void;
   className?: string;
   defaultValue?: string;
   name: string;
 }
 
 const Select: React.FC<SelectProps> = ({
-  options,
-  placeholder = "Select an option",
-  onChange,
-  className = "",
-  defaultValue = "",
-  name,
-}) => {
+                                         options,
+                                         placeholder = "Select an option",
+                                         onChange,
+                                         className = "",
+                                         defaultValue = "",
+                                         name,
+                                       }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState<string>(defaultValue);
+  const [selectedValue, setSelectedValue] = useState<string | number>(defaultValue);
 
   // Sincronizar con defaultValue cuando cambie
   useEffect(() => {
@@ -45,7 +45,7 @@ const Select: React.FC<SelectProps> = ({
     setIsOpen(false);
   };
 
-  const handleSelect = (value: string) => {
+  const handleSelect = (value: string | number) => {
     setSelectedValue(value);
     onChange(value);
     closeDropdown();
@@ -70,7 +70,7 @@ const Select: React.FC<SelectProps> = ({
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
           </svg>
         </span>
       </button>
@@ -98,7 +98,7 @@ const Select: React.FC<SelectProps> = ({
       </Dropdown>
 
       {/* Hidden input para formularios */}
-      <input type="hidden" name={name} value={selectedValue} />
+      <input type="hidden" name={name} value={selectedValue}/>
     </div>
   );
 };

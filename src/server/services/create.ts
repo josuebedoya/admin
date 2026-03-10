@@ -4,7 +4,7 @@ import ResApi from "@/server/resApi";
 type Params = {
   table: string;
   data: Record<string, any>;
-  returning?: boolean; // Si queremos que retorne los datos insertados
+  returning?: boolean;
 }
 
 export type createParams = Omit<Params, 'table'>;
@@ -22,11 +22,10 @@ const nullData = {
   items: []
 }
 
-const create = async ({ table, data, returning = true }: Params): Promise<ResCreate> => {
+const create = async ({table, data, returning = true}: Params): Promise<ResCreate> => {
 
   try {
-    // Asegurarse de que no se envíe el campo 'id' si existe
-    const { id, ...cleanData } = data as any;
+    const {id, ...cleanData} = data as any;
     const dataToInsert = id !== undefined ? cleanData : data;
 
     console.log('Creating in table:', table, 'with data:', dataToInsert);
@@ -36,7 +35,7 @@ const create = async ({ table, data, returning = true }: Params): Promise<ResCre
       .insert(dataToInsert);
 
     // Ejecutar con o sin select según el parámetro returning
-    const { data: insertedData, error } = returning 
+    const {data: insertedData, error} = returning
       ? await query.select()
       : await query;
 
