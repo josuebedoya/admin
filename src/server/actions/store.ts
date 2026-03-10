@@ -4,31 +4,33 @@ import getProducts from '@/server/store/productRepository/getProducts';
 import createProduct from '@/server/store/productRepository/createProduct';
 import updateProduct from '@/server/store/productRepository/updateProduct';
 import getShelves from '@/server/store/shelveRepository/getShelves';
+import createShelve from '@/server/store/shelveRepository/createShelve';
+import updateShelve from '@/server/store/shelveRepository/updateShelve';
 import getCategories from '@/server/store/categoryRepository/getCategories';
 import createCategory from '@/server/store/categoryRepository/createCategory';
 import updateCategory from '@/server/store/categoryRepository/updateCategory';
 import getDailySales from '@/server/store/dailySaleRepository/getDailySales';
 
 export async function fetchProducts(page: number, pageSize: number, orderBy?: string, ascending?: boolean) {
-  const { data, error } = await getProducts({ page, pageSize, orderBy, ascending });
+  const {data, error} = await getProducts({page, pageSize, orderBy, ascending});
   if (error) throw new Error(error);
   return data;
 }
 
 export async function fetchShelves(page: number, pageSize: number, orderBy?: string, ascending?: boolean) {
-  const { data, error } = await getShelves({ page, pageSize, orderBy, ascending });
+  const {data, error} = await getShelves({page, pageSize, orderBy, ascending});
   if (error) throw new Error(error);
   return data;
 }
 
 export async function fetchCategories(page: number, pageSize: number, orderBy?: string, ascending?: boolean) {
-  const { data, error } = await getCategories({ page, pageSize, orderBy, ascending });
+  const {data, error} = await getCategories({page, pageSize, orderBy, ascending});
   if (error) throw new Error(error);
   return data;
 }
 
 export async function fetchDailySales(page: number, pageSize: number, orderBy?: string, ascending?: boolean) {
-  const { data, error } = await getDailySales({ page, pageSize, orderBy, ascending });
+  const {data, error} = await getDailySales({page, pageSize, orderBy, ascending});
   if (error) throw new Error(error);
   return data;
 }
@@ -36,7 +38,7 @@ export async function fetchDailySales(page: number, pageSize: number, orderBy?: 
 export async function saveProduct(data: any, isNew: boolean, productId?: string | number) {
   try {
     if (isNew) {
-      const result = await createProduct({ data, returning: true });
+      const result = await createProduct({data, returning: true});
       return result;
     } else {
       if (!productId) {
@@ -48,10 +50,10 @@ export async function saveProduct(data: any, isNew: boolean, productId?: string 
           status: 400
         };
       }
-      const result = await updateProduct({ 
-        data, 
-        eq: { id: productId },
-        returning: true 
+      const result = await updateProduct({
+        data,
+        eq: {id: productId},
+        returning: true
       });
       return result;
     }
@@ -60,7 +62,7 @@ export async function saveProduct(data: any, isNew: boolean, productId?: string 
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'SAVE_PRODUCT_ERROR',
-      data: { items: [] }
+      data: {items: []}
     };
   }
 }
@@ -68,7 +70,7 @@ export async function saveProduct(data: any, isNew: boolean, productId?: string 
 export async function saveCategory(data: any, isNew: boolean, categoryId?: string | number) {
   try {
     if (isNew) {
-      const result = await createCategory({ data, returning: true });
+      const result = await createCategory({data, returning: true});
       return result;
     } else {
       if (!categoryId) {
@@ -82,7 +84,7 @@ export async function saveCategory(data: any, isNew: boolean, categoryId?: strin
       }
       const result = await updateCategory({
         data,
-        eq: { id: categoryId },
+        eq: {id: categoryId},
         returning: true
       });
       return result;
@@ -92,7 +94,39 @@ export async function saveCategory(data: any, isNew: boolean, categoryId?: strin
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'SAVE_CATEGORY_ERROR',
-      data: { items: [] }
+      data: {items: []}
+    };
+  }
+}
+
+export async function saveShelve(data: any, isNew: boolean, shelveId?: string | number) {
+  try {
+    if (isNew) {
+      const result = await createShelve({data, returning: true});
+      return result;
+    } else {
+      if (!shelveId) {
+        return {
+          success: false,
+          error: 'Shelve ID is required for update',
+          message: 'Shelve ID is required for update',
+          data: null,
+          status: 400
+        };
+      }
+      const result = await updateShelve({
+        data,
+        eq: {id: shelveId},
+        returning: true
+      });
+      return result;
+    }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      message: 'SAVE_SHELVE_ERROR',
+      data: {items: []}
     };
   }
 }
