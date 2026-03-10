@@ -1,16 +1,5 @@
 import update, { updateParams } from "@/server/services/update";
 
-type ProductUpdate = {
-  name?: string;
-  status?: boolean;
-  category_id?: number | string;
-  shelf_id?: number | string;
-  quantity?: number;
-  type_unity?: string;
-  price?: number;
-  price_sale?: number;
-}
-
 type Product = {
   id: number | string;
   name: string;

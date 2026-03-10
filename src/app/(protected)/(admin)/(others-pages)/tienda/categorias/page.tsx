@@ -4,7 +4,7 @@ import {Metadata} from "next";
 import React from "react";
 import {dictionary} from "@/dictionary";
 import TableCategories from "@/components/store/tableCategories";
-import getCategories from "@/server/store/getCategories";
+import getCategories from "@/server/store/categoryRepository/getCategories";
 
 export const metadata: Metadata = {
   title: "Categorías - Admin",

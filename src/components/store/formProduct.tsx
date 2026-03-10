@@ -1,27 +1,14 @@
 'use client';
 
 import Button from "@/components/ui/button/Button";
-import React, { useState, useMemo, useEffect } from "react";
-import { dictionary } from "@/dictionary";
+import React, {useEffect, useMemo, useState} from "react";
+import {dictionary} from "@/dictionary";
 import Loader from '@/icons/loader.svg';
 import Alert from "@/components/ui/alert/Alert";
 import RenderFields from "./renderFields";
-import { fetchCategories, fetchShelves, saveProduct } from "@/server/actions/store";
-import { useRouter } from "next/navigation";
-
-const TYPE_UNITIES = [
-  { value: 'unity', label: 'Unidad' },
-  { value: 'kl', label: 'Kilogramo' },
-  { value: 'lt', label: 'Litro' },
-  { value: 'six_pack', label: 'Six Pack' },
-  { value: 'box', label: 'Caja' },
-  { value: 'dozen', label: 'Docena' }
-];
-
-const STATUS_OPTIONS = [
-  { value: 'true', label: 'Activo' },
-  { value: 'false', label: 'Inactivo' }
-];
+import {fetchCategories, fetchShelves, saveProduct} from "@/server/actions/store";
+import {useRouter} from "next/navigation";
+import {STATUS_OPTIONS, TYPE_UNITIES} from "@/components/store/resources";
 
 type FormFields = {
   name: string;
@@ -53,9 +40,9 @@ type FormProductProps = {
   isNew: boolean;
 };
 
-export default function ProductForm({ product, isNew }: FormProductProps) {
+export default function ProductForm({product, isNew}: FormProductProps) {
   const router = useRouter();
-  const [ dataForm, setDataForm ] = useState<FormFields>({
+  const [dataForm, setDataForm] = useState<FormFields>({
     name: product ? product.name : "",
     price: product ? product.price : null,
     price_sale: product ? product.price_sale : null,
@@ -68,19 +55,19 @@ export default function ProductForm({ product, isNew }: FormProductProps) {
     status: product ? product.status : true,
   });
 
-  const [ loading, setLoading ] = useState<boolean>(false);
-  const [ message, setMessage ] = useState<string>('');
-  const [ successMessage, setSuccessMessage ] = useState<string>('');
-  const [ categories, setCategories ] = useState<{ value: string | number; label: string }[]>([]);
-  const [ shelves, setShelves ] = useState<{ value: string | number; label: string }[]>([]);
-  const [ loadingData, setLoadingData ] = useState<boolean>(true);
-  const [ dataError, setDataError ] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const [categories, setCategories] = useState<{ value: string | number; label: string }[]>([]);
+  const [shelves, setShelves] = useState<{ value: string | number; label: string }[]>([]);
+  const [loadingData, setLoadingData] = useState<boolean>(true);
+  const [dataError, setDataError] = useState<string>('');
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setLoadingData(true);
-        const [ categoriesResult, shelvesResult ] = await Promise.all([
+        const [categoriesResult, shelvesResult] = await Promise.all([
           fetchCategories(1, 100),
           fetchShelves(1, 100)
         ]);
@@ -166,7 +153,7 @@ export default function ProductForm({ product, isNew }: FormProductProps) {
       }
 
       setSuccessMessage(isNew ? 'Producto creado exitosamente' : 'Producto actualizado exitosamente');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({top: 0, behavior: 'smooth'});
 
       // Redirigir después de un breve delay para mostrar el mensaje
       setTimeout(() => {
@@ -193,7 +180,7 @@ export default function ProductForm({ product, isNew }: FormProductProps) {
 
       return {
         ...prevData,
-        [ name ]: processedValue,
+        [name]: processedValue,
       };
     });
   };
@@ -283,10 +270,10 @@ export default function ProductForm({ product, isNew }: FormProductProps) {
         }
       ]
     }
-  ], [ dataForm, categories, shelves ]);
+  ], [dataForm, categories, shelves]);
 
   return (
-    <div className="w-full max-wxl mx-auto px-4 py-8 lg:py-20">
+    <div className="w-full mx-auto px-4 py-8 lg:py-20">
       <div>
         <div className="my-10">
           {dataError && (
@@ -334,17 +321,17 @@ export default function ProductForm({ product, isNew }: FormProductProps) {
           {loadingData ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-16 h-16">
-                <Loader />
+                <Loader/>
               </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className='relative'>
               <div className="space-y-6">
-                <RenderFields fields={formFields} />
+                <RenderFields fields={formFields}/>
 
                 <div>
                   <Button size="md">
-                    {dictionary.btn[ product ? 'save' : 'create' ]}
+                    {dictionary.btn[product ? 'save' : 'create']}
                   </Button>
                 </div>
               </div>
@@ -352,14 +339,14 @@ export default function ProductForm({ product, isNew }: FormProductProps) {
                 <div
                   className="loader absolute inset-0 bg-white/80 w-[110%] h-[110%] shadow-lg rounded-xl -left-[5%] -top-[5%] flex items-center justify-center">
                   <div className="w-32 h-32">
-                    <Loader />
+                    <Loader/>
                   </div>
                 </div>
               )}
             </form>
           )}
         </div>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }

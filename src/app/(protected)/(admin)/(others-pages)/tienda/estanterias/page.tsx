@@ -2,7 +2,7 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import {Metadata} from "next";
 import {dictionary} from "@/dictionary";
-import getShelves from "@/server/store/getShelves";
+import getShelves from "@/server/store/shelveRepository/getShelves";
 import TableShelves from "@/components/store/tableShelves";
 
 export const metadata: Metadata = {

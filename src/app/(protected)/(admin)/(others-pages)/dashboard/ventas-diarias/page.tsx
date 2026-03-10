@@ -3,7 +3,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import {Metadata} from "next";
 import {dictionary} from "@/dictionary";
 import TableSales from "@/components/store/tableSales";
-import getDailySales from "@/server/store/getDailySales";
+import getDailySales from "@/server/store/dailySaleRepository/getDailySales";
 
 export const metadata: Metadata = {
   title: "Ventas Diarias - Admin",
