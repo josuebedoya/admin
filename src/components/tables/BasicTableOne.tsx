@@ -3,6 +3,7 @@
 import {Table, TableBody, TableCell, TableHeader, TableRow} from "../ui/table";
 import Pagination from "./Pagination";
 import Button from "@/components/ui/button/Button";
+import SearchEngine from "@/components/common/searchEngine";
 
 type TableProps = {
   data: {
@@ -29,9 +30,14 @@ type TableProps = {
     onClick: () => void;
     label: string;
   };
+  search?: {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string
+  }
 };
 
-export default function BasicTableOne({data, stickyLastRow, pagination, sortable, buttonAdd}: TableProps) {
+export default function BasicTableOne({data, stickyLastRow, pagination, sortable, buttonAdd, search}: TableProps) {
 
   const getSortIcon = (columnKey: string) => {
     if (!sortable || sortable.sortBy !== columnKey) {
@@ -61,6 +67,7 @@ export default function BasicTableOne({data, stickyLastRow, pagination, sortable
       {/* ── Controls ── */}
       {buttonAdd && (
         <div className="flex justify-end gap-4 mb-4 lg:px-6">
+          {search && <SearchEngine value={search.value} onChange={search.onChange} placeholder={search.placeholder}/>}
           <Button
             size='sm'
             variant='primary'

@@ -1,4 +1,4 @@
-import get, {getParams} from "@/server/services/get";
+import get, {GetParams} from "@/server/services/get";
 
 type Shelve = {
   id: number | string;
@@ -19,14 +19,17 @@ type ResShelf = {
   message: string;
 }
 
-const getShelves = async ({...params}: getParams = {}): Promise<ResShelf> => {
+const getShelves = async ({search, ...params}: GetParams = {}): Promise<ResShelf> => {
 
-  const {data, success, message, error} = await get(
-    {
-      table: 'shelf_with_products',
-      count: 'estimated',
-      ...params
-    });
+  const {data, success, message, error} = await get({
+    table: 'shelf_with_products',
+    count: 'estimated',
+    search: search ? {
+      query: search,
+      columns: ['name']
+    } : undefined,
+    ...params
+  });
 
   return {data, error, success, message};
 }

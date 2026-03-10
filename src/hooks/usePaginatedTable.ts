@@ -1,8 +1,8 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { useState, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import {useQuery} from '@tanstack/react-query';
+import {useCallback, useState} from 'react';
+import {useRouter, useSearchParams} from 'next/navigation';
 
 interface UsePaginatedTableOptions<T> {
   queryKey: string;
@@ -10,7 +10,9 @@ interface UsePaginatedTableOptions<T> {
   initialTotalCount: number;
   initialPage?: number;
   initialPageSize?: number;
-  fetchFn: (page: number, pageSize: number, orderBy?: string, ascending?: boolean) => Promise<{ items: T[]; count: number }>;
+  fetchFn:
+    (page: number, pageSize: number, orderBy?: string, ascending?: boolean, search?: string) =>
+      Promise<{ items: T[]; count: number }>;
 }
 
 interface UsePaginatedTableReturn<T> {
@@ -24,28 +26,38 @@ interface UsePaginatedTableReturn<T> {
   handlePageChange: (page: number) => void;
   handlePageSizeChange: (size: number) => void;
   handleSort: (column: string) => void;
+  searchTerm: string;
+  handleSearchChange: (value: string) => void;
 }
 
-export function usePaginatedTable<T>({
-  queryKey,
-  initialData,
-  initialTotalCount,
-  initialPage = 1,
-  initialPageSize = 10,
-  fetchFn,
-}: UsePaginatedTableOptions<T>): UsePaginatedTableReturn<T> {
+export function usePaginatedTable<T>(
+  {
+    queryKey,
+    initialData,
+    initialTotalCount,
+    initialPage = 1,
+    initialPageSize = 10,
+    fetchFn,
+  }: UsePaginatedTableOptions<T>): UsePaginatedTableReturn<T> {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [pageSize, setPageSize] = useState(initialPageSize);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   // Query con cache automático de TanStack Query
-  const { data, isLoading, isFetching } = useQuery({
-    queryKey: [queryKey, currentPage, pageSize, sortBy, sortOrder],
+  const {data, isLoading, isFetching} = useQuery({
+    queryKey: [queryKey, currentPage, pageSize, sortBy, sortOrder, searchTerm],
     queryFn: async () => {
-      return await fetchFn(currentPage, pageSize, sortBy || undefined, sortOrder === 'asc');
+      return await fetchFn(
+        currentPage,
+        pageSize,
+        sortBy || undefined,
+        sortOrder === 'asc',
+        searchTerm || undefined
+      );
     },
     placeholderData: (previousData) => previousData, // Mantener datos previos mientras carga
     staleTime: 1000 * 60 * 5, // 5 minutos
@@ -61,7 +73,7 @@ export function usePaginatedTable<T>({
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', page.toString());
     params.set('pageSize', pageSize.toString());
-    router.push(`?${params.toString()}`, { scroll: false });
+    router.push(`?${params.toString()}`, {scroll: false});
   }, [pageSize, router, searchParams]);
 
   const handlePageSizeChange = useCallback((size: number) => {
@@ -70,7 +82,7 @@ export function usePaginatedTable<T>({
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', '1');
     params.set('pageSize', size.toString());
-    router.push(`?${params.toString()}`, { scroll: false });
+    router.push(`?${params.toString()}`, {scroll: false});
   }, [router, searchParams]);
 
   const handleSort = useCallback((column: string) => {
@@ -85,6 +97,11 @@ export function usePaginatedTable<T>({
     setCurrentPage(1); // Volver a la primera página al ordenar
   }, [sortBy, sortOrder]);
 
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1); // Volver a la primera página al buscar
+  }, []);
+
   return {
     items,
     currentPage,
@@ -96,5 +113,7 @@ export function usePaginatedTable<T>({
     handlePageChange,
     handlePageSizeChange,
     handleSort,
+    searchTerm,
+    handleSearchChange,
   };
 }

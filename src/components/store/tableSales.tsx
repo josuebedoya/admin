@@ -2,10 +2,10 @@
 
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Cell from "@/components/store/cell";
-import { formattedMoney, formattedDate } from "@/utils";
-import { usePaginatedTable } from "@/hooks/usePaginatedTable";
-import { fetchDailySales } from "@/server/actions/store";
-import { useRouter } from "next/navigation";
+import {formattedDate, formattedMoney} from "@/utils";
+import {usePaginatedTable} from "@/hooks/usePaginatedTable";
+import {fetchDailySales} from "@/server/actions/store";
+import {useRouter} from "next/navigation";
 
 interface TableSalesProps {
   items: {
@@ -21,11 +21,11 @@ interface TableSalesProps {
 }
 
 const TableSales = ({
-  items: initialItems,
-  totalAmount: initialTotalCount = 0,
-  currentPage = 1,
-  pageSize = 10
-}: TableSalesProps) => {
+                      items: initialItems,
+                      totalAmount: initialTotalCount = 0,
+                      currentPage = 1,
+                      pageSize = 10
+                    }: TableSalesProps) => {
 
   // Usar el hook centralizado
   const {
@@ -38,13 +38,15 @@ const TableSales = ({
     handlePageChange,
     handlePageSizeChange,
     handleSort,
+    searchTerm,
+    handleSearchChange
   } = usePaginatedTable({
     queryKey: 'sales',
     initialData: initialItems,
     initialTotalCount,
     initialPage: currentPage,
     initialPageSize: pageSize,
-    fetchFn: fetchDailySales,
+    fetchFn: fetchDailySales
   });
 
   const router = useRouter();
@@ -56,7 +58,8 @@ const TableSales = ({
       return {
         row: [
           <Cell text={item?.id} path={`/dashboard/ventas-diarias/${item?.id}`} withLink key={i}/>,
-          <Cell text={formattedDate(item?.date_created, 'long')} path={`/dashboard/ventas-diarias/${item?.id}`} withLink key={i}/>,
+          <Cell text={formattedDate(item?.date_created, 'long')} path={`/dashboard/ventas-diarias/${item?.id}`} withLink
+                key={i}/>,
           <Cell text={formattedMoney(item?.transferred)} key={i}/>,
           <Cell text={formattedMoney(item?.cashed)} key={i}/>,
           <Cell text={formattedMoney(item?.transferred + item?.cashed)} key={i}/>,
@@ -90,7 +93,16 @@ const TableSales = ({
     router.push('/dashboard/ventas-diarias/+');
   };
 
-  return <BasicTableOne data={dataTable} pagination={paginationData} sortable={sortableData} buttonAdd={{onClick: openFormNewSale, label: 'Agregar Venta'}} />;
+  return <BasicTableOne
+    data={dataTable}
+    pagination={paginationData}
+    sortable={sortableData}
+    buttonAdd={{onClick: openFormNewSale, label: 'Agregar Venta'}}
+    search={{
+      onChange: handleSearchChange,
+      value: searchTerm,
+      placeholder: 'Buscar en ventas...'
+    }}/>;
 };
 
 export default TableSales;

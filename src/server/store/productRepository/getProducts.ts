@@ -1,4 +1,4 @@
-import get, {getParams} from "@/server/services/get";
+import get, {GetParams} from "@/server/services/get";
 
 type Product = {
   id: number | string;
@@ -24,11 +24,15 @@ type ResProduct = {
   message: string;
 }
 
-const getProducts = async ({...params}: getParams = {}): Promise<ResProduct> => {
+const getProducts = async ({search, ...params}: GetParams = {}): Promise<ResProduct> => {
 
   const {data, error, success, message} = await get({
     table: 'product_with_category_and_shelf',
     count: 'estimated',
+    search: search ? {
+      query: search,
+      columns: ['name', 'category', 'shelf', 'type_unity']
+    } : undefined,
     ...params
   });
 

@@ -3,10 +3,10 @@
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Cell from "@/components/store/cell";
 import CellBadge from "@/components/store/cellBadge";
-import { formattedMoney } from '@/utils';
-import { usePaginatedTable } from "@/hooks/usePaginatedTable";
-import { fetchShelves } from "@/server/actions/store";
-import { useRouter } from "next/navigation";
+import {formattedMoney} from '@/utils';
+import {usePaginatedTable} from "@/hooks/usePaginatedTable";
+import {fetchShelves} from "@/server/actions/store";
+import {useRouter} from "next/navigation";
 
 interface TableShelvesProps {
   items: {
@@ -24,12 +24,12 @@ interface TableShelvesProps {
 }
 
 const TableShelves = ({
-  items: initialItems, 
-  totalAmount: initialTotalCount = 0,
-  currentPage = 1,
-  pageSize = 10,
-  stickyLastRow
-}: TableShelvesProps) => {
+                        items: initialItems,
+                        totalAmount: initialTotalCount = 0,
+                        currentPage = 1,
+                        pageSize = 10,
+                        stickyLastRow
+                      }: TableShelvesProps) => {
 
   // Usar el hook centralizado
   const {
@@ -42,6 +42,8 @@ const TableShelves = ({
     handlePageChange,
     handlePageSizeChange,
     handleSort,
+    searchTerm,
+    handleSearchChange
   } = usePaginatedTable({
     queryKey: 'shelves',
     initialData: initialItems,
@@ -77,12 +79,12 @@ const TableShelves = ({
 
   bodyRows.push({
     row: [
-      <Cell text="TOTAL" key="total-label" />,
-      <Cell text="" key="total-name" />,
-      <Cell text="" key="total-status" />,
-      <Cell text={totalProducts} key="total-products" />,
-      <Cell text={formattedMoney(totalPrice)} key="total-price" />,
-      <Cell text={formattedMoney(totalPriceSale)} isLast key="total-price-sale" />,
+      <Cell text="TOTAL" key="total-label"/>,
+      <Cell text="" key="total-name"/>,
+      <Cell text="" key="total-status"/>,
+      <Cell text={totalProducts} key="total-products"/>,
+      <Cell text={formattedMoney(totalPrice)} key="total-price"/>,
+      <Cell text={formattedMoney(totalPriceSale)} isLast key="total-price-sale"/>,
     ]
   });
 
@@ -110,7 +112,17 @@ const TableShelves = ({
     router.push('/tienda/estanterias/+');
   };
 
-  return <BasicTableOne data={dataTable} stickyLastRow={stickyLastRow} pagination={paginationData} sortable={sortableData} buttonAdd={{onClick: openFormNewShelf, label: 'Agregar Estantería'}} />;
+  return <BasicTableOne
+    data={dataTable}
+    stickyLastRow={stickyLastRow}
+    pagination={paginationData}
+    sortable={sortableData}
+    buttonAdd={{onClick: openFormNewShelf, label: 'Agregar Estantería'}}
+    search={{
+      onChange: handleSearchChange,
+      value: searchTerm,
+      placeholder: 'Buscar en estanterías...'
+    }}/>;
 };
 
 export default TableShelves;

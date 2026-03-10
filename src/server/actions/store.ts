@@ -13,26 +13,34 @@ import getDailySales from '@/server/store/dailySaleRepository/getDailySales';
 import createDailySale from '@/server/store/dailySaleRepository/createDailySale';
 import updateDailySale from '@/server/store/dailySaleRepository/updateDailySale';
 
-export async function fetchProducts(page: number, pageSize: number, orderBy?: string, ascending?: boolean) {
-  const {data, error} = await getProducts({page, pageSize, orderBy, ascending});
+type TypeFetch = (
+  page: number,
+  pageSize: number,
+  orderBy?: string,
+  ascending?: boolean,
+  search?: string
+) => void;
+
+export async function fetchProducts(...[page, pageSize, orderBy, ascending, search]: Parameters<TypeFetch>) {
+  const {data, error} = await getProducts({page, pageSize, orderBy, ascending, search});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchShelves(page: number, pageSize: number, orderBy?: string, ascending?: boolean) {
-  const {data, error} = await getShelves({page, pageSize, orderBy, ascending});
+export async function fetchShelves(...[page, pageSize, orderBy, ascending, search]: Parameters<TypeFetch>) {
+  const {data, error} = await getShelves({page, pageSize, orderBy, ascending, search});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchCategories(page: number, pageSize: number, orderBy?: string, ascending?: boolean) {
-  const {data, error} = await getCategories({page, pageSize, orderBy, ascending});
+export async function fetchCategories(...[page, pageSize, orderBy, ascending, search]: Parameters<TypeFetch>) {
+  const {data, error} = await getCategories({page, pageSize, orderBy, ascending, search});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchDailySales(page: number, pageSize: number, orderBy?: string, ascending?: boolean) {
-  const {data, error} = await getDailySales({page, pageSize, orderBy, ascending});
+export async function fetchDailySales(...[page, pageSize, orderBy, ascending, search]: Parameters<TypeFetch>) {
+  const {data, error} = await getDailySales({page, pageSize, orderBy, ascending, search});
   if (error) throw new Error(error);
   return data;
 }

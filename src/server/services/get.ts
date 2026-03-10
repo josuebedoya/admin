@@ -1,12 +1,10 @@
 import supabase from "@/server/client";
 import ResApi from "@/server/resApi";
 
-type Params = {
-  table: string;
+type ParamsGetCommon = {
   columns?: string[] | string;
-  count?: 'exact' | 'planned' | 'estimated';
   eq?: {
-    [ key: string ]: string | number | boolean;
+    [key: string]: string | number | boolean;
   };
   page?: number;
   pageSize?: number;
@@ -14,7 +12,17 @@ type Params = {
   ascending?: boolean;
 }
 
-export type getParams = Omit<Params, 'table' | 'count'>;
+type Params = ParamsGetCommon & {
+  table: string;
+  columns?: string[] | string;
+  count?: 'exact' | 'planned' | 'estimated';
+  search?: {
+    query: string;
+    columns: string[];
+  };
+}
+
+export type GetParams = ParamsGetCommon & { search?: string };
 
 export type ResGet = {
   data: {
@@ -31,7 +39,7 @@ const nullData = {
   items: []
 }
 
-const get = async ({ table, ...config }: Params): Promise<ResGet> => {
+const get = async ({table, ...config}: Params): Promise<ResGet> => {
 
   try {
     const page = config.page || 1;
@@ -42,18 +50,25 @@ const get = async ({ table, ...config }: Params): Promise<ResGet> => {
     let query = supabase
       .from(table)
       .select(
-        [ ...config.columns || '' ].join(', '),
-        { count: config.count || 'exact' }
-      )
+        [...config.columns || ''].join(', '),
+        {count: config.count || 'exact'}
+      );
+
+    if (config.search && config.search.query && config.search.columns.length > 0) {
+      const searchQuery = config.search.columns.map(col => `${col}.ilike.%${config.search!.query}%`).join(',');
+      query = query.or(searchQuery);
+    }
+
+    query = query
       .match(config.eq || {})
       .range(from, to);
 
     // Agregar ordenamiento si existe
     if (config.orderBy) {
-      query = query.order(config.orderBy, { ascending: config.ascending ?? true });
+      query = query.order(config.orderBy, {ascending: config.ascending ?? true});
     }
 
-    const { data, error, count } = await query;
+    const {data, error, count} = await query;
 
     if (error) {
       console.error('Error triying get data from table: ', table, error.message)

@@ -57,6 +57,8 @@ const TableProducts = ({
     handlePageChange,
     handlePageSizeChange,
     handleSort,
+    searchTerm,
+    handleSearchChange
   } = usePaginatedTable({
     queryKey: 'products',
     initialData: initialItems,
@@ -152,6 +154,11 @@ const TableProducts = ({
     pagination={paginationData}
     sortable={sortableData}
     buttonAdd={{onClick: openFormNewProduct, label: 'Agregar Producto'}}
+    search={{
+      onChange: handleSearchChange,
+      value: searchTerm,
+      placeholder: 'Buscar en productos...'
+    }}
   />;
 };
 

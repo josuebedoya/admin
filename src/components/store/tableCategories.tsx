@@ -3,9 +3,9 @@
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Cell from "@/components/store/cell";
 import CellBadge from "@/components/store/cellBadge";
-import { usePaginatedTable } from "@/hooks/usePaginatedTable";
-import { fetchCategories } from "@/server/actions/store";
-import { useRouter } from "next/navigation";
+import {usePaginatedTable} from "@/hooks/usePaginatedTable";
+import {fetchCategories} from "@/server/actions/store";
+import {useRouter} from "next/navigation";
 
 interface TableCategoriesProps {
   items: {
@@ -20,11 +20,11 @@ interface TableCategoriesProps {
 }
 
 const TableCategories = ({
-  items: initialItems,
-  totalAmount: initialTotalCount = 0,
-  currentPage = 1,
-  pageSize = 10
-}: TableCategoriesProps) => {
+                           items: initialItems,
+                           totalAmount: initialTotalCount = 0,
+                           currentPage = 1,
+                           pageSize = 10
+                         }: TableCategoriesProps) => {
 
   // Usar el hook centralizado
   const {
@@ -37,6 +37,8 @@ const TableCategories = ({
     handlePageChange,
     handlePageSizeChange,
     handleSort,
+    searchTerm,
+    handleSearchChange
   } = usePaginatedTable({
     queryKey: 'categories',
     initialData: initialItems,
@@ -85,7 +87,17 @@ const TableCategories = ({
     router.push('/tienda/categorias/+');
   };
 
-  return <BasicTableOne data={dataTable} pagination={paginationData} sortable={sortableData} buttonAdd={{onClick: openFormNewCategory, label: 'Agregar Categoría'}} />;
+  return <BasicTableOne
+    data={dataTable}
+    pagination={paginationData}
+    sortable={sortableData}
+    buttonAdd={{onClick: openFormNewCategory, label: 'Agregar Categoría'}}
+    search={{
+      onChange: handleSearchChange,
+      value: searchTerm,
+      placeholder: 'Buscar en categorias...'
+    }}
+  />;
 };
 
 export default TableCategories;
