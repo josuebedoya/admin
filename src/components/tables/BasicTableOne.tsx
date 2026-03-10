@@ -52,15 +52,6 @@ export default function BasicTableOne({ data, stickyLastRow, pagination, sortabl
     }
   };
 
-  const itemsTEst = {
-    headers: ['ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO', 'ESTADO'],
-    body: [
-      { row: ['1', 'Producto 1', 'Categoría A', 'Estantería X', '10', '$100', 'Activo'] },
-      { row: ['2', 'Producto 2', 'Categoría B', 'Estantería Y', '5', '$50', 'Inactivo'] },
-      { row: ['3', 'Producto 3', 'Categoría A', 'Estantería Z', '20', '$200', 'Activo'] },
-    ]
-  }
-
   return (
     <div className="section-table">
       <div
@@ -71,7 +62,7 @@ export default function BasicTableOne({ data, stickyLastRow, pagination, sortabl
               {/* Table Header */}
               <TableHeader className="border-b-2 border-brand-200 dark:border-white/[0.1]">
                 <TableRow className="rounded-lg overflow-hidden bg-gradient-to-r from-brand-500 to-brand-600 rounded-tr-lg rounded-tl-lg">
-                  {itemsTEst?.headers?.map((h, i) => {
+                  {data?.headers?.map((h, i) => {
                     const columnKey = sortable?.columnKeys?.[i];
                     const isSortable = sortable && columnKey && columnKey !== '';
                     
@@ -98,7 +89,7 @@ export default function BasicTableOne({ data, stickyLastRow, pagination, sortabl
 
               {/* Table Body */}
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {itemsTEst?.body?.map((b, i) => (
+                {data?.body?.map((b, i) => (
                   <TableRow key={i} className='hover:bg-brand-50 dark:hover:bg-white/[0.02] duration-200 transition-all'>
                     {b?.row?.map((c: any, j: number) => {
                       const isLastRow = i === data.body.length - 1;
