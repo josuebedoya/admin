@@ -35,7 +35,7 @@ const Pagination: React.FC<PaginationProps> = ({
     }
   }, [ totalAmount, sizePage, onPageChange, currentPage ]);
 
-  const handlePageSizeChange = (value: string) => {
+  const handlePageSizeChange = (value: string | number) => {
     const newSize = Number(value);
     setSizePage(newSize);
     if (onPageSizeChange) {

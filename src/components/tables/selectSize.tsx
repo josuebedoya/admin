@@ -1,7 +1,7 @@
 import Select from "@/components/form/Select";
 
 type SelectSizeProps = {
-  onChangeSelect: (value: string) => void;
+  onChangeSelect: (value: string | number) => void;
   total: number;
 };
 

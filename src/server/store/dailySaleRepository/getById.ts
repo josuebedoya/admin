@@ -4,7 +4,7 @@ type DailySale = {
   id: number | string;
   transferred: number;
   cashed: number;
-  note: number;
+  note: string;
   date_created: string;
 }
 
