@@ -1,4 +1,4 @@
-import supabase from "@/server/client";
+import { createAuthClient } from "@/server/auth/client";
 import ResApi from "@/server/resApi";
 
 type Params = {
@@ -20,6 +20,7 @@ const signIn = async ({email}: Params) => {
       })
     }
 
+    const supabase = await createAuthClient();
     const {data, error} = await supabase.auth.resetPasswordForEmail(email,
       {
         redirectTo: `${url}/reset-password`

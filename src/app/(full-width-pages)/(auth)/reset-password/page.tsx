@@ -1,7 +1,7 @@
 'use client'
 
 import {useEffect, useState} from "react"
-import getSession from "@/server/auth/getSession";
+import { getSessionAction } from "@/server/auth/actions";
 import Alert from "@/components/ui/alert/Alert";
 import SendEmailForm from "@/components/auth/SendEmailForm";
 import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
@@ -15,7 +15,7 @@ export default function ResetPasswordPage() {
 
     const init = async () => {
 
-      const {data} = await getSession()
+      const {data} = await getSessionAction()
 
       if (!data.session) {
         setExpired(true)

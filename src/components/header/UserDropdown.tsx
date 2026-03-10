@@ -3,11 +3,12 @@ import Image from "next/image";
 import React, {useState} from "react";
 import {Dropdown} from "../ui/dropdown/Dropdown";
 import {DropdownItem} from "../ui/dropdown/DropdownItem";
-import signOut from "@/server/auth/signOut";
-import {redirect} from "next/navigation";
+import { signOutAction } from "@/server/auth/actions";
+import {useRouter} from "next/navigation";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
@@ -19,14 +20,15 @@ export default function UserDropdown() {
   }
 
   const logout = async () => {
-    const {success, error} = await signOut();
+    const {success, error} = await signOutAction();
 
     if (!success) {
       console.error('Error signing out:', error);
       return;
     }
 
-    redirect('/signin');
+    router.push('/signin');
+    router.refresh();
   }
   return (
     <div className="relative">

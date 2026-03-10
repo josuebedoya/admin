@@ -8,7 +8,7 @@ import {dictionary} from "@/dictionary";
 import Image from "next/image";
 import Loader from '@/icons/loader.svg';
 import Alert from "@/components/ui/alert/Alert";
-import sendEmailUser from "@/server/auth/sendEmailUser";
+import { sendPasswordResetAction } from "@/server/auth/actions";
 import Logo from "@/components/Logo";
 
 export default function SendEmailForm() {
@@ -23,7 +23,7 @@ export default function SendEmailForm() {
     setLoading(true);
     setIsSuccessSend(false);
 
-    const {message, success} = await sendEmailUser({email});
+    const {message, success} = await sendPasswordResetAction(email);
 
 
     if (!success) {

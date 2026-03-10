@@ -1,4 +1,4 @@
-import supabase from "@/server/client";
+import { createAuthClient } from "@/server/auth/client";
 import ResApi from "@/server/resApi";
 
 const PasswordUserUP = async (password: string) => {
@@ -14,6 +14,7 @@ const PasswordUserUP = async (password: string) => {
       })
     }
 
+    const supabase = await createAuthClient();
     const {data, error} = await supabase.auth.updateUser({
       password,
     })

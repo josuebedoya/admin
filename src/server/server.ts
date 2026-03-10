@@ -20,10 +20,18 @@ export async function createClientServer() {
           return cookieStore.get(name)?.value
         },
         set(name: string, value: string, options) {
-          cookieStore.set({name, value, ...options})
+          try {
+            cookieStore.set({name, value, ...options})
+          } catch {
+            // Ignorar errores cuando no estamos en Server Action/Route Handler
+          }
         },
         remove(name: string, options) {
-          cookieStore.set({name, value: '', ...options})
+          try {
+            cookieStore.set({name, value: '', ...options})
+          } catch {
+            // Ignorar errores cuando no estamos en Server Action/Route Handler
+          }
         },
       },
     }

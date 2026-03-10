@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
 
+// Cliente de Supabase para operaciones de datos (CRUD) en el servidor
+// Usa el service role key para bypass de RLS
+// Para operaciones de autenticación, usa @/server/auth/client.ts
+
 const supabase_url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 const service_role_key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_KEY || ''
 

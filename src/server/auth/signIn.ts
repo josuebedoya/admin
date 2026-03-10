@@ -1,4 +1,4 @@
-import supabase from "@/server/client";
+import { createAuthClient } from "@/server/auth/client";
 import ResApi from "@/server/resApi";
 
 type Params = {
@@ -19,6 +19,7 @@ const signIn = async ({email, password}: Params) => {
       })
     }
 
+    const supabase = await createAuthClient();
     const {data, error} = await supabase.auth.signInWithPassword({
       email,
       password,

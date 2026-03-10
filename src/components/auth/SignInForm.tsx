@@ -6,7 +6,7 @@ import {EyeCloseIcon, EyeIcon} from "@/icons";
 import Link from "next/link";
 import React, {useState} from "react";
 import {dictionary} from "@/dictionary";
-import signIn from "@/server/auth/signIn";
+import { signInAction } from "@/server/auth/actions";
 import Loader from '@/icons/loader.svg';
 import {useModal} from "@/hooks/useModal";
 import {Modal} from "@/components/ui/modal";
@@ -32,7 +32,7 @@ export default function SignInForm() {
     e.preventDefault();
     setLoading(true);
 
-    const {data, message, success} = await signIn(dataForm);
+    const {data, message, success} = await signInAction(dataForm);
 
     if (!success) {
       setLoading(false);

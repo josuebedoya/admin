@@ -1,10 +1,11 @@
-import supabase from "@/server/client";
+import { createAuthClient } from "@/server/auth/client";
 import ResApi from "@/server/resApi";
 
 const getSession = async () => {
 
   try {
 
+    const supabase = await createAuthClient();
     const {data, error} = await supabase.auth.getSession();
 
     if (error) {

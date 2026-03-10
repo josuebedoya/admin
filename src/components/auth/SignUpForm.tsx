@@ -11,7 +11,7 @@ import {useModal} from "@/hooks/useModal";
 import {Modal} from "@/components/ui/modal";
 import {redirect, useRouter} from "next/navigation";
 import Alert from "@/components/ui/alert/Alert";
-import signUp from "@/server/auth/signUp";
+import { signUpAction } from "@/server/auth/actions";
 import Logo from "@/components/Logo";
 
 export default function SignInForm() {
@@ -59,7 +59,7 @@ export default function SignInForm() {
       name: `${dataForm.name} ${dataForm.lastName}`,
     }
 
-    const {data, message, success} = await signUp(dataUser);
+    const {data, message, success} = await signUpAction(dataUser);
 
     if (!success) {
       setLoading(false);

@@ -8,7 +8,7 @@ import {dictionary} from "@/dictionary";
 import Loader from '@/icons/loader.svg';
 import Alert from "@/components/ui/alert/Alert";
 import {EyeCloseIcon, EyeIcon} from "@/icons";
-import passwordUserUP from "@/server/auth/passwordUserUP";
+import { updatePasswordAction } from "@/server/auth/actions";
 import {redirect, useRouter} from "next/navigation";
 import Logo from "@/components/Logo";
 
@@ -35,7 +35,7 @@ export default function ResetPasswordForm() {
       return;
     }
 
-    const {message, success} = await passwordUserUP(dataForm.password);
+    const {message, success} = await updatePasswordAction(dataForm.password);
 
     setIsSuccess(message === 'UP_USER_SUCCESS',);
     if (!success) {

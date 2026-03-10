@@ -1,8 +1,9 @@
-import supabase from "@/server/client";
+import { createAuthClient } from "@/server/auth/client";
 import ResApi from "@/server/resApi";
 
 const signOut = async () => {
   try {
+    const supabase = await createAuthClient();
     const {error} = await supabase.auth.signOut();
 
 
