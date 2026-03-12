@@ -1,8 +1,8 @@
-import Field from "./field";
-import SelectField from "@/components/store/selectField";
-import TextAreaField from "@/components/store/textAreaField";
+import Field from "./components/field";
+import SelectField from "@/components/store/components/selectField";
+import TextAreaField from "@/components/store/components/textAreaField";
 
-type FieldType = {
+export type FieldType = {
   name: string;
   label: string;
   type: string;
@@ -12,7 +12,7 @@ type FieldType = {
   options?: { value: string | number; label: string }[];
 }
 
-type FieldGroupType = {
+export type FieldGroupType = {
   group: FieldType[];
 }
 

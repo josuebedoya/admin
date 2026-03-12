@@ -1,8 +1,8 @@
 'use client';
 
 import BasicTableOne from "@/components/tables/BasicTableOne";
-import Cell from "@/components/store/cell";
-import CellBadge from "@/components/store/cellBadge";
+import Cell from "@/components/store/components/cell";
+import CellBadge from "@/components/store/components/cellBadge";
 import {formattedMoney} from '@/utils';
 import {usePaginatedTable} from "@/hooks/usePaginatedTable";
 import {fetchShelves} from "@/server/actions/store";

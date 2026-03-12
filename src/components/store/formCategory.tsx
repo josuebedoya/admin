@@ -1,7 +1,7 @@
 'use client';
 
-import FormNameStatus from "./FormNameStatus";
-import {saveCategory} from "@/server/actions/store";
+import FormNameStatus from "./components/FormNameStatus";
+import {saveCategory,saveDailySale} from "@/server/actions/store";
 
 type FormCategoryProps = {
   category?: { id: string | number; name: string; status: boolean } | null;

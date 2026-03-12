@@ -1,5 +1,5 @@
 import Label from "@/components/form/Label"
-import Select from "../form/Select";
+import Select from "../../form/Select";
 
 type FieldProps = {
   name: string;

@@ -18,7 +18,7 @@ type ResUpdateDailySale = {
   message: string;
 }
 
-const MAX_NUMERIC_VALUE = 99999999.99; // Límite para numeric(10,2)
+const MAX_NUMERIC_VALUE = 99999999.99;
 
 const updateDailySale = async ({ data, eq, returning = true }: updateParams): Promise<ResUpdateDailySale> => {
 

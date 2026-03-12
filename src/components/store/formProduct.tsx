@@ -1,14 +1,12 @@
 'use client';
 
-import Button from "@/components/ui/button/Button";
 import React, {useEffect, useMemo, useState} from "react";
-import {dictionary} from "@/dictionary";
 import Loader from '@/icons/loader.svg';
 import Alert from "@/components/ui/alert/Alert";
-import RenderFields from "./renderFields";
 import {fetchCategories, fetchShelves, saveProduct} from "@/server/actions/store";
-import {useRouter} from "next/navigation";
-import {STATUS_OPTIONS, TYPE_UNITIES} from "@/components/store/resources";
+import {MAX_PRICE, STATUS_OPTIONS, TYPE_UNITIES} from "@/components/store/resources";
+import FormBase from "@/components/store/components/FormBase";
+import {dictionary} from "@/dictionary";
 
 type FormFields = {
   name: string;
@@ -41,7 +39,6 @@ type FormProductProps = {
 };
 
 export default function ProductForm({product, isNew}: FormProductProps) {
-  const router = useRouter();
   const [dataForm, setDataForm] = useState<FormFields>({
     name: product ? product.name : "",
     price: product ? product.price : null,
@@ -55,9 +52,6 @@ export default function ProductForm({product, isNew}: FormProductProps) {
     status: product ? product.status : true,
   });
 
-  const [loading, setLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
-  const [successMessage, setSuccessMessage] = useState<string>('');
   const [categories, setCategories] = useState<{ value: string | number; label: string }[]>([]);
   const [shelves, setShelves] = useState<{ value: string | number; label: string }[]>([]);
   const [loadingData, setLoadingData] = useState<boolean>(true);
@@ -72,12 +66,12 @@ export default function ProductForm({product, isNew}: FormProductProps) {
           fetchShelves(1, 100)
         ]);
 
-        const formattedCategories = categoriesResult.items.map((category: any) => ({
+        const formattedCategories = categoriesResult.items.map((category: { id: string | number; name: string }) => ({
           value: String(category.id),
           label: category.name
         }));
 
-        const formattedShelves = shelvesResult.items.map((shelf: any) => ({
+        const formattedShelves = shelvesResult.items.map((shelf: { id: string | number; name: string }) => ({
           value: String(shelf.id),
           label: shelf.name
         }));
@@ -94,81 +88,59 @@ export default function ProductForm({product, isNew}: FormProductProps) {
     loadData();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage('');
-    setSuccessMessage('');
+  const handleSubmit = async (rawData: Record<string, string>, currentIsNew: boolean, id?: string | number) => {
+    const parsedData: FormFields = {
+      name: (rawData.name ?? '').trim(),
+      price: rawData.price === '' || rawData.price == null ? null : Number(rawData.price),
+      price_sale: rawData.price_sale === '' || rawData.price_sale == null ? null : Number(rawData.price_sale),
+      shelf: rawData.shelf ?? '',
+      shelf_id: rawData.shelf_id === '' || rawData.shelf_id == null ? null : rawData.shelf_id,
+      category: rawData.category ?? '',
+      category_id: rawData.category_id === '' || rawData.category_id == null ? null : rawData.category_id,
+      quantity: rawData.quantity === '' || rawData.quantity == null ? null : Number(rawData.quantity),
+      type_unity: rawData.type_unity ?? '',
+      status: rawData.status === 'true',
+    };
 
-    // Validar campos requeridos
-    if (!dataForm.name || dataForm.name.trim() === '') {
-      setMessage('El nombre es requerido');
-      return;
+    if (!parsedData.name) {
+      return {success: false, message: 'El nombre es requerido'};
     }
-    if (!dataForm.price || dataForm.price <= 0) {
-      setMessage('El precio debe ser mayor a 0');
-      return;
+    if (parsedData.price === null || !Number.isFinite(parsedData.price) || parsedData.price <= 0 || parsedData.price > MAX_PRICE) {
+      return {success: false, message: dictionary.msg.INVALID_AMOUNT_PRICE};
     }
-    if (!dataForm.price_sale || dataForm.price_sale <= 0) {
-      setMessage('El precio de venta debe ser mayor a 0');
-      return;
+    if (parsedData.price_sale === null || !Number.isFinite(parsedData.price_sale) || parsedData.price_sale <= 0 || parsedData.price_sale > MAX_PRICE) {
+      return {success: false, message: dictionary.msg.INVALID_AMOUNT_PRICE};
     }
-    if (!dataForm.category_id) {
-      setMessage('La categoría es requerida');
-      return;
+    if (!parsedData.category_id) {
+      return {success: false, message: 'La categoría es requerida'};
     }
-    if (!dataForm.shelf_id) {
-      setMessage('La estantería es requerida');
-      return;
+    if (!parsedData.shelf_id) {
+      return {success: false, message: 'La estantería es requerida'};
     }
-    if (dataForm.quantity === null || dataForm.quantity < 0) {
-      setMessage('La cantidad debe ser mayor o igual a 0');
-      return;
+    if (parsedData.quantity === null || !Number.isFinite(parsedData.quantity) || parsedData.quantity < 0) {
+      return {success: false, message: 'La cantidad debe ser mayor o igual a 0'};
     }
-    if (!dataForm.type_unity || dataForm.type_unity.trim() === '') {
-      setMessage('El tipo de unidad es requerido');
-      return;
+    if (!parsedData.type_unity || parsedData.type_unity.trim() === '') {
+      return {success: false, message: 'El tipo de unidad es requerido'};
     }
 
-    setLoading(true);
+    const productData = {
+      name: parsedData.name,
+      price: Number(parsedData.price),
+      price_sale: Number(parsedData.price_sale),
+      category_id: Number(parsedData.category_id),
+      shelf_id: Number(parsedData.shelf_id),
+      quantity: Number(parsedData.quantity),
+      type_unity: parsedData.type_unity,
+      status: parsedData.status,
+    };
 
-    try {
-      // Preparar datos para guardar - asegurar tipos correctos
-      const productData = {
-        name: dataForm.name,
-        price: Number(dataForm.price),
-        price_sale: Number(dataForm.price_sale),
-        category_id: Number(dataForm.category_id),
-        shelf_id: Number(dataForm.shelf_id),
-        quantity: Number(dataForm.quantity),
-        type_unity: dataForm.type_unity,
-        status: dataForm.status,
-      };
-
-      const result = await saveProduct(productData, isNew, product?.id);
-
-      if (!result.success) {
-        setMessage(result.message || 'Error al guardar el producto');
-        setLoading(false);
-        return;
-      }
-
-      setSuccessMessage(isNew ? 'Producto creado exitosamente' : 'Producto actualizado exitosamente');
-      window.scrollTo({top: 0, behavior: 'smooth'});
-
-      // Redirigir después de un breve delay para mostrar el mensaje
-      setTimeout(() => {
-        router.push('/tienda/productos');
-      }, 1500);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Error al guardar el producto');
-      setLoading(false);
-    }
+    return saveProduct(productData, currentIsNew, id);
   };
 
   const handleInputChange = (name: string, value: string) => {
     setDataForm((prevData) => {
-      // Convertir el valor según el tipo de campo
-      let processedValue: any = value;
+      let processedValue: string | number | boolean | null = value;
 
       if (name === 'status') {
         processedValue = value === 'true';
@@ -272,81 +244,41 @@ export default function ProductForm({product, isNew}: FormProductProps) {
     }
   ], [dataForm, categories, shelves]);
 
-  return (
-    <div className="w-full mx-auto px-4 py-8 lg:py-20">
-      <div>
-        <div className="my-10">
-          {dataError && (
-            <Alert
-              variant="error"
-              title="Error cargando datos"
-              message={dataError}
-              showLink={false}
-            />
-          )}
-          {message && (
-            <Alert
-              variant="error"
-              title="Error"
-              message={message}
-              showLink={false}
-            />
-          )}
-          {successMessage && (
-            <Alert
-              variant="success"
-              title="Éxito"
-              message={successMessage}
-              showLink={false}
-            />
-          )}
-          <div>
-            <h1 className="text-2xl font-bold text-center mb-2">
-              {isNew ? 'Crear nuevo producto' : `Editar producto: ${product?.name || ''}`}
-            </h1>
-            <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
-              {isNew ? 'Complete el formulario para crear un nuevo producto.' : 'Actualice los campos necesarios para editar el producto.'}
-            </p>
+  if (loadingData) {
+    return (
+      <div className="w-full mx-auto px-4 py-8 lg:py-20">
+        <div className="flex items-center justify-center py-12">
+          <div className="w-16 h-16">
+            <Loader/>
           </div>
-          <div className="relative py-3 sm:py-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="p-2 text-gray-400 bg-gray-50 dark:bg-gray-900 sm:px-5 sm:py-2">
-                Aquí
-              </span>
-            </div>
-          </div>
-          {loadingData ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="w-16 h-16">
-                <Loader/>
-              </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className='relative'>
-              <div className="space-y-6">
-                <RenderFields fields={formFields}/>
-
-                <div>
-                  <Button size="md">
-                    {dictionary.btn[product ? 'save' : 'create']}
-                  </Button>
-                </div>
-              </div>
-              {loading && (
-                <div
-                  className="loader absolute inset-0 bg-white/80 w-[110%] h-[110%] shadow-lg rounded-xl -left-[5%] -top-[5%] flex items-center justify-center">
-                  <div className="w-32 h-32">
-                    <Loader/>
-                  </div>
-                </div>
-              )}
-            </form>
-          )}
         </div>
       </div>
-    </div>
+    );
+  }
+
+  if (dataError) {
+    return (
+      <div className="w-full mx-auto px-4 py-8 lg:py-20">
+        <Alert
+          variant="error"
+          title="Error cargando datos"
+          message={dataError}
+          showLink={false}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <FormBase
+      item={product ?? null}
+      isNew={isNew}
+      entityLabel="producto"
+      redirectPath="/tienda/productos"
+      sectionLabel="Datos del producto"
+      onSaveAction={handleSubmit}
+      formFields={formFields}
+      dataForm={dataForm}
+    />
   );
 }

@@ -11,3 +11,5 @@ export const TYPE_UNITIES = [
   {value: 'box', label: 'Caja'},
   {value: 'dozen', label: 'Docena'}
 ];
+
+export const MAX_PRICE = 99999999.99;

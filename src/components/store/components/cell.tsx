@@ -16,7 +16,7 @@ const Cell = ({text, path, withLink, isLast}: CellProps) => {
   return (
     <div className='flex items-center justify-between gap-2'>
       {withLink ? (
-        <Link href={path ?? '/'}>
+        <Link href={path ?? '/public'}>
           <span className={classes}>{text}</span>
         </Link>
       ) : (<span className={classes}>{text}</span>)}

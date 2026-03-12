@@ -1,5 +1,3 @@
-import { create } from "domain";
-
 export const dictionary = {
   auth: {
     sign_in: 'Iniciar Sesión',
@@ -62,6 +60,9 @@ export const dictionary = {
     GET_DATA_ERROR: 'Error al obtener datos',
     PGRST205: 'Al parecer, no se pudo establecer una conexión con la base de datos. Error interno del servidor.',
     PRODUCT_NOT_FOUND: 'Producto no encontrado',
+    INVALID_AMOUNT_PRICE: 'Cantidad de precios no válida. Debe ser un numero entre 0 y $99.999.999,99',
+    have_changes_without_save: 'Tienes cambios sin guardar. Si continúas, perderás la información editada.',
+    have_changes_without_save_title: '¿Modificaste algo?',
   },
 
   welcome: {
@@ -79,6 +80,8 @@ export const dictionary = {
     edit: 'Editar',
     delete: 'Eliminar',
     create: 'Crear',
+    cancel: 'Cancelar',
+    confirm: 'Confirmar',
   },
   admin: {
     store: {

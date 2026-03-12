@@ -1,7 +1,7 @@
 'use client';
 
 import BasicTableOne from "@/components/tables/BasicTableOne";
-import Cell from "@/components/store/cell";
+import Cell from "@/components/store/components/cell";
 import {formattedDate, formattedMoney} from "@/utils";
 import {usePaginatedTable} from "@/hooks/usePaginatedTable";
 import {fetchDailySales} from "@/server/actions/store";

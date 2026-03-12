@@ -1,6 +1,6 @@
 'use client';
 
-import FormNameStatus from "./FormNameStatus";
+import FormNameStatus from "./components/FormNameStatus";
 import {saveShelve} from "@/server/actions/store";
 
 type FormShelfProps = {
