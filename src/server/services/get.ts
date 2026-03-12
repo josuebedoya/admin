@@ -66,6 +66,8 @@ const get = async ({table, ...config}: Params): Promise<ResGet> => {
     // Agregar ordenamiento si existe
     if (config.orderBy) {
       query = query.order(config.orderBy, {ascending: config.ascending ?? true});
+    } else {
+      query = query.order('id', {ascending: false});
     }
 
     const {data, error, count} = await query;
