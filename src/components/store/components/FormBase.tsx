@@ -21,7 +21,7 @@ type FormNameStatusProps = {
   entityLabel: string;
   redirectPath: string;
   sectionLabel: string;
-  onSaveAction: (data: { [key: string]: string }, isNew: boolean, id?: string | number) => Promise<{
+  onSaveAction: (data: any, isNew: boolean, id?: string | number) => Promise<{
     success: boolean;
     message?: string | null;
   }>;
@@ -54,12 +54,14 @@ const FormBase = (
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!hasUnsavedChanges) return;
-      event.preventDefault();
-      event.returnValue = '';
+
+      const confirmationMessage = 'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?';
+      event.returnValue = confirmationMessage;
+      return confirmationMessage;
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    return () =>{ window.removeEventListener('beforeunload', handleBeforeUnload); };
   }, [hasUnsavedChanges]);
 
   const confirmDiscardChanges = () => {
@@ -97,7 +99,7 @@ const FormBase = (
 
     try {
       const result = await onSaveAction(
-        {...dataForm},
+        dataForm,
         isNew,
         item?.id
       );

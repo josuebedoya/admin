@@ -20,7 +20,7 @@ const SelectField: React.FC<FieldProps> = ({...field}) => {
         name={field.name}
         options={field.options || []}
         placeholder={field.placeholder}
-        onChange={() => field.onChange(field.name, String(field.value))}
+        onChange={(val) => field.onChange(field.name, String(val))}
         className="!h-14"
         defaultValue={String(field.value)}
       />
