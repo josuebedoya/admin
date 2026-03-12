@@ -1,4 +1,6 @@
 const formattedMoney = (value: number) => {
+  if (!value) return '$0';
+
   return value.toLocaleString('es-CO', {
     style: 'currency',
     currency: 'COP',
@@ -7,8 +9,8 @@ const formattedMoney = (value: number) => {
 
 type DateFormat = 'short' | 'medium' | 'long' | 'numeric';
 const formattedDate = (date: string, format?: DateFormat) => {
-  const datePart = date.split('T')[ 0 ] || date.split(' ')[ 0 ];
-  const [ year, month, day ] = datePart.split('-').map(Number);
+  const datePart = date.split('T')[0] || date.split(' ')[0];
+  const [year, month, day] = datePart.split('-').map(Number);
 
   const newDate = new Date(year, month - 1, day);
 
@@ -49,7 +51,7 @@ type Item = {
 }
 
 const getTotalAmount = (items: Item[], key: 'price' | 'price_sale') => {
-  const total = items.reduce((acc, p) => acc + p[ key ], 0);
+  const total = items.reduce((acc, p) => acc + p[key], 0);
   return total;
 };
 
