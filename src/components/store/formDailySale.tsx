@@ -1,15 +1,17 @@
 'use client';
 
-import React, {useMemo, useState} from "react";
+import {useMemo, useState} from "react";
 import {saveDailySale} from "@/server/actions/store";
 import FormBase from "@/components/store/components/FormBase";
 import {dictionary} from "@/dictionary";
 import {MAX_PRICE} from "@/components/store/resources";
+import {formattedDate} from "@/utils";
 
 type FormFields = {
   transferred: number | null;
   cashed: number | null;
   note: string;
+  date_created: string;
 };
 
 type FormDailySaleProps = {
@@ -23,12 +25,15 @@ type FormDailySaleProps = {
   isNew: boolean;
 };
 
+const todayDate = formattedDate(new Date(), 'input');
+
 export default function DailySaleForm({dailySale, isNew}: FormDailySaleProps) {
 
   const [dataForm, setDataForm] = useState<FormFields>({
     transferred: dailySale ? dailySale.transferred : 0,
     cashed: dailySale ? dailySale.cashed : 0,
     note: dailySale ? String(dailySale.note) : "",
+    date_created: dailySale ? dailySale.date_created : todayDate,
   });
 
   const handleSubmit = async (rawData: Record<string, string>, isNew: boolean, id?: string | number) => {
@@ -36,6 +41,7 @@ export default function DailySaleForm({dailySale, isNew}: FormDailySaleProps) {
       transferred: rawData.transferred === '' || rawData.transferred == null ? null : Number(rawData.transferred),
       cashed: rawData.cashed === '' || rawData.cashed == null ? null : Number(rawData.cashed),
       note: rawData.note ?? '',
+      date_created: rawData.date_created ?? todayDate,
     };
 
     const isTransferredInvalid =
@@ -53,7 +59,8 @@ export default function DailySaleForm({dailySale, isNew}: FormDailySaleProps) {
     const saleData = {
       transferred: Number(data.transferred ?? 0),
       cashed: Number(data.cashed ?? 0),
-      note: data.note || ''
+      note: data.note || '',
+      date_created: data.date_created || todayDate
     };
 
     return await saveDailySale(saleData, isNew, id);
@@ -99,6 +106,14 @@ export default function DailySaleForm({dailySale, isNew}: FormDailySaleProps) {
     },
     {
       group: [
+        {
+          name: 'date_created',
+          label: 'Fecha de Registro',
+          type: 'datetime',
+          placeholder: 'Seleccione la fecha',
+          value: dataForm.date_created ?? '',
+          onChange: handleInputChange
+        },
         {
           name: 'note',
           label: 'Nota',

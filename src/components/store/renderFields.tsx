@@ -1,6 +1,7 @@
 import Field from "./components/field";
 import SelectField from "@/components/store/components/selectField";
 import TextAreaField from "@/components/store/components/textAreaField";
+import DateTimeField from "@/components/store/components/dateTimeField";
 
 export type FieldType = {
   name: string;
@@ -32,6 +33,13 @@ const ComponentField = (field: FieldType) => {
     case  'textarea':
       return (
         <TextAreaField
+          key={field.name}
+          {...field}
+        />
+      )
+    case 'datetime':
+      return (
+        <DateTimeField
           key={field.name}
           {...field}
         />

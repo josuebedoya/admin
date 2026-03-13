@@ -7,12 +7,22 @@ const formattedMoney = (value: number) => {
   });
 };
 
-type DateFormat = 'short' | 'medium' | 'long' | 'numeric';
-const formattedDate = (date: string, format?: DateFormat) => {
-  const datePart = date.split('T')[0] || date.split(' ')[0];
-  const [year, month, day] = datePart.split('-').map(Number);
+type DateFormat = 'short' | 'medium' | 'long' | 'numeric' | 'input';
+const formattedDate = (date: string | Date, format?: DateFormat) => {
+  const newDate = date instanceof Date
+    ? new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    : (() => {
+      const datePart = date.split('T')[0] || date.split(' ')[0];
+      const [year, month, day] = datePart.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    })();
 
-  const newDate = new Date(year, month - 1, day);
+  if (format === 'input') {
+    const year = newDate.getFullYear();
+    const month = String(newDate.getMonth() + 1).padStart(2, '0');
+    const day = String(newDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   const op: Intl.DateTimeFormatOptions = {
     year: 'numeric',

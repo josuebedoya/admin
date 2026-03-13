@@ -13,6 +13,7 @@ type PropsType = {
   defaultDate?: DateOption;
   label?: string;
   placeholder?: string;
+  className?: string;
 };
 
 export default function DatePicker({
@@ -22,6 +23,7 @@ export default function DatePicker({
   label,
   defaultDate,
   placeholder,
+  className
 }: PropsType) {
   useEffect(() => {
     const flatPickr = flatpickr(`#${id}`, {
@@ -41,7 +43,7 @@ export default function DatePicker({
   }, [mode, onChange, id, defaultDate]);
 
   return (
-    <div>
+    <div className={className}>
       {label && <Label htmlFor={id}>{label}</Label>}
 
       <div className="relative">

@@ -63,6 +63,9 @@ export const dictionary = {
     INVALID_AMOUNT_PRICE: 'Cantidad de precios no válida. Debe ser un numero entre 0 y $99.999.999,99',
     have_changes_without_save: 'Tienes cambios sin guardar. Si continúas, perderás la información editada.',
     have_changes_without_save_title: '¿Modificaste algo?',
+    CREATE_DATA_FAILED: 'Error al crear el registro',
+    CREATE_DATA_SUCCESS: 'Registro creado exitosamente',
+    CREATE_DATA_ERROR: 'Error al crear el registro',
   },
 
   welcome: {
