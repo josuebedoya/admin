@@ -24,8 +24,10 @@ const SelectSize: React.FC<SelectSizeProps> = ({onChangeSelect, total}) => {
         name="pageSize"
         options={options}
         onChange={onChangeSelect}
-        className="dark:bg-dark-900 !w-[72px] !h-8 !px-2 !py-0 !text-xs"
+        className="dark:bg-dark-900 w-[72px]! h-8! px-2! py-0! text-xs!"
         defaultValue="10"
+        searchable={false}
+        searchPlaceholder="Buscar tamaño..."
       />
       <span className="text-[14px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
         de{" "}

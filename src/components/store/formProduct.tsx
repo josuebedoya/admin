@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import Loader from '@/icons/loader.svg';
 import Alert from "@/components/ui/alert/Alert";
 import {fetchCategories, fetchShelves, saveProduct} from "@/server/actions/store";
@@ -39,6 +39,13 @@ type FormProductProps = {
 };
 
 export default function ProductForm({product, isNew}: FormProductProps) {
+  const toSelectOptions = useCallback((items: Array<{ id: string | number; name: string }>) => {
+    return items.map((item) => ({
+      value: String(item.id),
+      label: item.name,
+    }));
+  }, []);
+
   const [dataForm, setDataForm] = useState<FormFields>({
     name: product ? product.name : "",
     price: product ? product.price : null,
@@ -66,18 +73,8 @@ export default function ProductForm({product, isNew}: FormProductProps) {
           fetchShelves(1, 100)
         ]);
 
-        const formattedCategories = categoriesResult.items.map((category: { id: string | number; name: string }) => ({
-          value: String(category.id),
-          label: category.name
-        }));
-
-        const formattedShelves = shelvesResult.items.map((shelf: { id: string | number; name: string }) => ({
-          value: String(shelf.id),
-          label: shelf.name
-        }));
-
-        setCategories(formattedCategories);
-        setShelves(formattedShelves);
+        setCategories(toSelectOptions(categoriesResult.items));
+        setShelves(toSelectOptions(shelvesResult.items));
       } catch (error) {
         setDataError(error instanceof Error ? error.message : 'Error cargando datos');
       } finally {
@@ -86,7 +83,19 @@ export default function ProductForm({product, isNew}: FormProductProps) {
     };
 
     loadData();
-  }, []);
+  }, [toSelectOptions]);
+
+  const searchCategories = useCallback(async (query: string) => {
+    const result = await fetchCategories(1, 100, undefined, undefined, query || undefined);
+    const formatted = toSelectOptions(result.items);
+    return formatted;
+  }, [toSelectOptions]);
+
+  const searchShelves = useCallback(async (query: string) => {
+    const result = await fetchShelves(1, 100, undefined, undefined, query || undefined);
+    const formatted = toSelectOptions(result.items);
+    return formatted;
+  }, [toSelectOptions]);
 
   const handleSubmit = async (rawData: Record<string, string>, currentIsNew: boolean, id?: string | number) => {
     const parsedData: FormFields = {
@@ -208,7 +217,10 @@ export default function ProductForm({product, isNew}: FormProductProps) {
           placeholder: 'Estantería del producto',
           value: dataForm.shelf_id ? String(dataForm.shelf_id) : '',
           onChange: handleInputChange,
-          options: shelves
+          options: shelves,
+          searchable: true,
+          searchPlaceholder: 'Buscar estantería...',
+          onSearch: searchShelves
         },
         {
           name: 'category_id',
@@ -217,7 +229,10 @@ export default function ProductForm({product, isNew}: FormProductProps) {
           placeholder: 'Categoría del producto',
           value: dataForm.category_id ? String(dataForm.category_id) : '',
           onChange: handleInputChange,
-          options: categories
+          options: categories,
+          searchable: true,
+          searchPlaceholder: 'Buscar categoría...',
+          onSearch: searchCategories
         },
       ],
     },
@@ -242,7 +257,7 @@ export default function ProductForm({product, isNew}: FormProductProps) {
         }
       ]
     }
-  ], [dataForm, categories, shelves]);
+  ], [dataForm, categories, shelves, searchCategories, searchShelves]);
 
   if (loadingData) {
     return (

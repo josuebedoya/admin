@@ -1,5 +1,5 @@
 "use client";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {Dropdown} from "../ui/dropdown/Dropdown";
 import {DropdownItem} from "../ui/dropdown/DropdownItem";
 
@@ -15,6 +15,9 @@ interface SelectProps {
   className?: string;
   defaultValue?: string;
   name: string;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  onSearch?: (query: string) => Promise<Option[]> | Option[];
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -24,25 +27,89 @@ const Select: React.FC<SelectProps> = ({
                                          className = "",
                                          defaultValue = "",
                                          name,
+                                         searchable = false,
+                                         searchPlaceholder = "Buscar...",
+                                         onSearch,
                                        }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState<string | number>(defaultValue);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [remoteOptions, setRemoteOptions] = useState<Option[]>(options);
+  const [isSearching, setIsSearching] = useState(false);
+  const onSearchRef = useRef(onSearch);
+
+  useEffect(() => {
+    onSearchRef.current = onSearch;
+  }, [onSearch]);
 
   // Sincronizar con defaultValue cuando cambie
   useEffect(() => {
     setSelectedValue(defaultValue);
   }, [defaultValue]);
 
-  // Encontrar el label de la opción seleccionada
-  const selectedOption = options.find(opt => opt.value === selectedValue);
+  useEffect(() => {
+    setRemoteOptions(options);
+  }, [options]);
+
+  useEffect(() => {
+    const currentOnSearch = onSearchRef.current;
+    if (!searchable || !currentOnSearch || !isOpen) {
+      return;
+    }
+
+    const query = searchTerm.trim();
+    if (!query) {
+      setIsSearching(false);
+      setRemoteOptions(options);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        setIsSearching(true);
+        const results = await currentOnSearch(query);
+        setRemoteOptions(Array.isArray(results) ? results : []);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [isOpen, options, searchTerm, searchable]);
+
+  const visibleOptions = useMemo(() => {
+    if (!searchable) {
+      return options;
+    }
+
+    if (onSearch) {
+      const normalizedSearch = searchTerm.trim().toLowerCase();
+      return normalizedSearch ? remoteOptions : options;
+    }
+
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    if (!normalizedSearch) {
+      return options;
+    }
+
+    return options.filter((option) => option.label.toLowerCase().includes(normalizedSearch));
+  }, [onSearch, options, remoteOptions, searchable, searchTerm]);
+
+  const selectedOption = [...visibleOptions, ...options].find((opt) => opt.value === selectedValue);
   const displayValue = selectedOption ? selectedOption.label : placeholder;
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
+    if (isOpen) {
+      setSearchTerm("");
+    }
   };
 
   const closeDropdown = () => {
     setIsOpen(false);
+    setSearchTerm("");
   };
 
   const handleSelect = (value: string | number) => {
@@ -80,8 +147,25 @@ const Select: React.FC<SelectProps> = ({
         onClose={closeDropdown}
         className="mt-2 w-full max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800 dark:bg-gray-900"
       >
+        {searchable && (
+          <div className="px-3 pt-3 pb-2 border-b border-gray-200 dark:border-gray-800">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder={searchPlaceholder}
+              className="w-full h-10 rounded-lg border border-gray-300 px-3 text-sm text-gray-800 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
+            />
+          </div>
+        )}
         <div className="py-1">
-          {options.map((option) => (
+          {isSearching && (
+            <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">Buscando...</div>
+          )}
+          {!isSearching && visibleOptions.length === 0 && (
+            <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">Sin resultados</div>
+          )}
+          {!isSearching && visibleOptions.map((option) => (
             <DropdownItem
               key={option.value}
               onItemClick={() => handleSelect(option.value)}

@@ -11,6 +11,9 @@ export type FieldType = {
   value: string | number;
   onChange: (name: string, value: string) => void;
   options?: { value: string | number; label: string }[];
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  onSearch?: (query: string) => Promise<{ value: string | number; label: string }[]>;
 }
 
 export type FieldGroupType = {

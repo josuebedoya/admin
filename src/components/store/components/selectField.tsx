@@ -8,6 +8,9 @@ type FieldProps = {
   value: string | number;
   onChange: (name: string, value: string) => void;
   options?: { value: string | number; label: string }[];
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  onSearch?: (query: string) => Promise<{ value: string | number; label: string }[]>;
 }
 
 const SelectField: React.FC<FieldProps> = ({...field}) => {
@@ -21,8 +24,11 @@ const SelectField: React.FC<FieldProps> = ({...field}) => {
         options={field.options || []}
         placeholder={field.placeholder}
         onChange={(val) => field.onChange(field.name, String(val))}
-        className="!h-14"
+        className="h-14!"
         defaultValue={String(field.value)}
+        searchable={field.searchable ?? true}
+        searchPlaceholder={field.searchPlaceholder}
+        onSearch={field.onSearch}
       />
     </div>
   )
