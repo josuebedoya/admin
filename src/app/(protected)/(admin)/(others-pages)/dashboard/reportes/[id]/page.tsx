@@ -77,12 +77,13 @@ export default async function ReportPage({ params, searchParams }: PageProps) {
             </div>
           ) : (
             <ReportProductsTable
-              reportId={id}
+              reportId={report.id}
+              reportName={report.name}
               items={products?.items || []}
               totalAmount={products?.count || 0}
               currentPage={page}
               pageSize={pageSize}
-              keyCache={`report-${id}-products`}
+              keyCache={`report-${report.id}-products`}
             />
           )}
         </ComponentCard>

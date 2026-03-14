@@ -9,13 +9,13 @@ const formattedMoney = (value: number) => {
 
 type DateFormat = 'short' | 'medium' | 'long' | 'numeric' | 'input';
 const formattedDate = (date: string | Date, format?: DateFormat) => {
-  if(!date) return '';
+  if (!date) return '';
 
   const newDate = date instanceof Date
     ? new Date(date.getFullYear(), date.getMonth(), date.getDate())
     : (() => {
-      const datePart = date?.split('T')[0] || date?.split(' ')[0];
-      const [year, month, day] = datePart.split('-').map(Number);
+      const datePart = date?.split('T')[ 0 ] || date?.split(' ')[ 0 ];
+      const [ year, month, day ] = datePart.split('-').map(Number);
       return new Date(year, month - 1, day);
     })();
 
@@ -51,9 +51,9 @@ const calculateProfit = (max: number, min: number, q: number) => {
   return Number((profit * q));
 };
 
-function calculateProfitPercent(max: number, min: number) {
-  if (min === 0) return 100;
-  return Number((((max - min) / min) * 100).toFixed(2));
+function calculateProfitPercent(sale: number, cost: number): number {
+  if (cost === 0) return 0;
+  return Number((((sale - cost) / cost) * 100).toFixed(2));
 }
 
 type Item = {
@@ -63,7 +63,7 @@ type Item = {
 }
 
 const getTotalAmount = (items: Item[], key: 'price' | 'price_sale') => {
-  const total = items.reduce((acc, p) => acc + p[key], 0);
+  const total = items.reduce((acc, p) => acc + p[ key ], 0);
   return total;
 };
 
@@ -71,10 +71,20 @@ const getTotalProfit = (items: Item[]) => {
   return items.reduce((acc, p) => acc + calculateProfit(p.price, p.price_sale, p.quantity), 0);
 };
 
-const getPromedioProfitPercent = (items: Item[]) => {
-  const totalProfitPercent = items.reduce((acc, p) => acc + calculateProfitPercent(p.price, p.price_sale), 0);
-  return Number((totalProfitPercent / items.length).toFixed(2));
-}
+const getPromedioProfitPercent = (items: Item[]): number => {
+  const totals = items.reduce(
+    (acc, p) => {
+      acc.cost += p.price_sale * p.quantity;
+      acc.sale += p.price * p.quantity;
+      return acc;
+    },
+    { cost: 0, sale: 0 }
+  );
+
+  if (totals.cost === 0) return 0;
+
+  return Number((((totals.sale - totals.cost) / totals.cost) * 100).toFixed(2));
+};
 
 const getTotalAmountProduct = (items: Item[]) => {
   const total = items.reduce((acc, p) => acc + (p.price * p.quantity), 0);

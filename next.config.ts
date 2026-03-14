@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  serverExternalPackages: ["canvas", "chart.js", "chartjs-node-canvas"],
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,

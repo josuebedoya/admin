@@ -8,7 +8,6 @@ import {
   calculateProfitPercent,
   formattedMoney as fMat,
   getPromedioProfitPercent,
-  getTotalAmount,
   getTotalAmountProduct,
   getTotalProfit
 } from "@/utils/index";
@@ -16,8 +15,8 @@ import { usePaginatedTable } from "@/hooks/usePaginatedTable";
 import { fetchProducts, saveProductSnapshot } from "@/server/actions/store";
 import { useRouter } from "next/navigation";
 import { ArrowRightIcon } from "@/icons";
-import Button from "../ui/button/Button";
 import ButtonReport from "./components/buttonReport";
+import ButtonDownloadReport from "./components/buttonDownladReport";
 
 interface TableProductsProps {
   items: {
@@ -47,6 +46,8 @@ interface TableProductsProps {
     position?: 'left' | 'right';
     onActionButton?: 'create' | 'back';
   };
+  idReport: string;
+  nameReport?: string;
   fetchFn?: (page: number, pageSize: number, orderBy?: string, ascending?: boolean, search?: string) => Promise<{
     items: TableProductsProps[ 'items' ];
     count: number;
@@ -67,6 +68,8 @@ const TableProducts = (
     disableServerFetch = false,
     button,
     fetchFn,
+    idReport,
+    nameReport
   }: TableProductsProps) => {
 
   // Usar el hook centralizado
@@ -125,8 +128,8 @@ const TableProducts = (
   const bodyRows = transformItemsToTableBody(items);
 
   if (isDashboard) {
-    const totalPrice = getTotalAmount(items, 'price');
-    const totalPriceSale = getTotalAmount(items, 'price_sale');
+    const totalPrice = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const totalPriceSale = items.reduce((acc, item) => acc + (item.price_sale * item.quantity), 0);
     const totalProfit = getTotalProfit(items);
     const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -134,6 +137,8 @@ const TableProducts = (
       row: [
         <Cell text="TOTAL" key="total-label" />,
         <Cell text="" key="total-name" />,
+        (showAll && <Cell text="" key="total-category" />),
+        (showAll && <Cell text="" key="total-shelf" />),
         <Cell text={totalQuantity} key="total-quantity" />,
         <Cell text={fMat(totalPrice)} key="total-price" />,
         <Cell text={fMat(totalPriceSale)} key="total-price-sale" />,
@@ -141,7 +146,7 @@ const TableProducts = (
         <Cell text={fMat(totalProfit)} key="total-profit" />,
         <Cell text={getPromedioProfitPercent(items) + '%'} key="total-profit-percent" />,
         <Cell text="" key="total-status" />
-      ]
+      ].filter(Boolean)
     });
   }
 
@@ -193,7 +198,10 @@ const TableProducts = (
       value: searchTerm,
       placeholder: 'Buscar en productos...'
     }}
-    headContent={!readonly && <ButtonReport onGenerate={saveProductSnapshot} />}
+    headContent={(<>
+      {!readonly && <ButtonReport onGenerate={saveProductSnapshot} />}
+      {readonly && <ButtonDownloadReport nameReport={nameReport} id={idReport} />}
+    </>)}
   />;
 };
 

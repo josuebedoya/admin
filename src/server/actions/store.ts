@@ -17,7 +17,6 @@ import { getProductSnapshotById } from '@/server/store/productSnapshotRepository
 import createReport from '../store/reportsRepository/createReport';
 import updateReport from '../store/reportsRepository/updateReport';
 import { formattedDate } from '@/utils';
-import { log } from 'console';
 import createProductSnapshot from '../store/productSnapshotRepository/createProductSnapshot';
 
 type TypeFetch = (
@@ -25,45 +24,46 @@ type TypeFetch = (
   pageSize: number,
   orderBy?: string,
   ascending?: boolean,
-  search?: string
+  search?: string,
+  getAll?: boolean
 ) => void;
 
-export async function fetchProducts(...[ page, pageSize, orderBy, ascending, search ]: Parameters<TypeFetch>) {
-  const { data, error } = await getProducts({ page, pageSize, orderBy, ascending, search });
+export async function fetchProducts(...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>) {
+  const { data, error } = await getProducts({ page, pageSize, orderBy, ascending, search, getAll });
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchShelves(...[ page, pageSize, orderBy, ascending, search ]: Parameters<TypeFetch>) {
-  const { data, error } = await getShelves({ page, pageSize, orderBy, ascending, search });
+export async function fetchShelves(...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>) {
+  const { data, error } = await getShelves({ page, pageSize, orderBy, ascending, search, getAll });
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchCategories(...[ page, pageSize, orderBy, ascending, search ]: Parameters<TypeFetch>) {
-  const { data, error } = await getCategories({ page, pageSize, orderBy, ascending, search });
+export async function fetchCategories(...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>) {
+  const { data, error } = await getCategories({ page, pageSize, orderBy, ascending, search, getAll });
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchDailySales(...[ page, pageSize, orderBy, ascending, search ]: Parameters<TypeFetch>) {
-  const { data, error } = await getDailySales({ page, pageSize, orderBy, ascending, search });
+export async function fetchDailySales(...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>) {
+  const { data, error } = await getDailySales({ page, pageSize, orderBy, ascending, search, getAll });
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchReports(...[ page, pageSize, orderBy, ascending, search ]: Parameters<TypeFetch>) {
-  const { data, error } = await getReports({ page, pageSize, orderBy, ascending, search });
+export async function fetchReports(...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>) {
+  const { data, error } = await getReports({ page, pageSize, orderBy, ascending, search, getAll });
   if (error) throw new Error(error);
   return data;
 }
 
 export async function fetchProductSnapshotsByReportId(
   reportId: string | number,
-  ...[ page, pageSize, orderBy, ascending, search ]: Parameters<TypeFetch>
+  ...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>
 ) {
   const { data, error } = await getProductSnapshotById({
-    id: reportId, page, pageSize, orderBy, ascending, search
+    id: reportId, page, pageSize, orderBy, ascending, search, getAll
   });
 
   if (error) throw new Error(error);

@@ -12,6 +12,7 @@ type Product = {
   type_unity: string;
   price: number;
   price_sale: number;
+  product_id: number | string;
 }
 
 type ResGetById = {
@@ -31,9 +32,10 @@ type Params = {
   orderBy?: string;
   ascending?: boolean;
   search?: string;
+  getAll?: boolean;
 }
 
-const getById = async ({ id, page, pageSize, orderBy, ascending, search }: Params): Promise<ResGetById> => {
+const getById = async ({ id, page, pageSize, orderBy, ascending, search, getAll }: Params): Promise<ResGetById> => {
 
   const { data, error, success, message } = await get({
     table: 'product_snapshot_report',
@@ -46,6 +48,7 @@ const getById = async ({ id, page, pageSize, orderBy, ascending, search }: Param
       query: search,
       columns: ['name', 'category', 'shelf', 'type_unity']
     } : undefined,
+    getAll
   });
 
   if (!success) {

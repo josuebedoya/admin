@@ -1,11 +1,12 @@
 'use client';
 
-import {useCallback} from 'react';
+import { useCallback } from 'react';
 import TableProducts from '@/components/store/tableProducts';
-import {fetchProductSnapshotsByReportId} from '@/server/actions/store';
+import { fetchProductSnapshotsByReportId } from '@/server/actions/store';
 
 type ReportProductsTableProps = {
   reportId: string | number;
+  reportName?: string;
   items: {
     id: string | number;
     name: string;
@@ -27,6 +28,7 @@ type ReportProductsTableProps = {
 
 export default function ReportProductsTable({
   reportId,
+  reportName,
   items,
   totalAmount = 0,
   currentPage = 1,
@@ -41,7 +43,7 @@ export default function ReportProductsTable({
     search?: string,
   ) => {
     return await fetchProductSnapshotsByReportId(reportId, page, size, orderBy, ascending, search);
-  }, [reportId]);
+  }, [ reportId ]);
 
   return (
     <TableProducts
@@ -59,6 +61,8 @@ export default function ReportProductsTable({
         onActionButton: 'back',
         position: 'left',
       }}
+      nameReport={reportName}
+      idReport={reportId.toString()}
     />
   );
 }
