@@ -46,7 +46,7 @@ interface TableProductsProps {
     position?: 'left' | 'right';
     onActionButton?: 'create' | 'back';
   };
-  idReport: string;
+  idReport?: string;
   nameReport?: string;
   fetchFn?: (page: number, pageSize: number, orderBy?: string, ascending?: boolean, search?: string) => Promise<{
     items: TableProductsProps[ 'items' ];
@@ -200,7 +200,7 @@ const TableProducts = (
     }}
     headContent={(<>
       {!readonly && <ButtonReport onGenerate={saveProductSnapshot} />}
-      {readonly && <ButtonDownloadReport nameReport={nameReport} id={idReport} />}
+      {readonly && <ButtonDownloadReport nameReport={nameReport} id={idReport || ''} />}
     </>)}
   />;
 };
