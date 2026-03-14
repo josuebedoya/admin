@@ -12,6 +12,7 @@ import updateCategory from '@/server/store/categoryRepository/updateCategory';
 import getDailySales from '@/server/store/dailySaleRepository/getDailySales';
 import createDailySale from '@/server/store/dailySaleRepository/createDailySale';
 import updateDailySale from '@/server/store/dailySaleRepository/updateDailySale';
+import getReports from '@/server/store/reportsRepository/getReports';
 
 type TypeFetch = (
   page: number,
@@ -41,6 +42,12 @@ export async function fetchCategories(...[page, pageSize, orderBy, ascending, se
 
 export async function fetchDailySales(...[page, pageSize, orderBy, ascending, search]: Parameters<TypeFetch>) {
   const {data, error} = await getDailySales({page, pageSize, orderBy, ascending, search});
+  if (error) throw new Error(error);
+  return data;
+}
+
+export async function fetchReports(...[page, pageSize, orderBy, ascending, search]: Parameters<TypeFetch>) {
+  const {data, error} = await getReports({page, pageSize, orderBy, ascending, search});
   if (error) throw new Error(error);
   return data;
 }

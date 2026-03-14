@@ -65,18 +65,19 @@ export default function BasicTableOne({data, stickyLastRow, pagination, sortable
   return (
     <div className="flex flex-col gap-0">
       {/* ── Controls ── */}
-      {buttonAdd && (
         <div className="flex justify-end gap-4 mb-4 lg:px-6">
           {search && <SearchEngine value={search.value} onChange={search.onChange} placeholder={search.placeholder}/>}
-          <Button
-            size='sm'
-            variant='primary'
-            onClick={buttonAdd.onClick}
-          >
-            + {' ' + buttonAdd.label}
-          </Button>
+          
+          {buttonAdd && (
+            <Button
+              size='sm'
+              variant='primary'
+              onClick={buttonAdd.onClick}
+            >
+              + {' ' + buttonAdd.label}
+            </Button>
+          )}
         </div>
-      )}
       {/* ── Tabla ── */}
       <div className=" rounded-xl border border-gray-200 dark:border-white/[0.05] bg-white dark:bg-gray-900 shadow-sm">
         <div className="max-w-full overflow-x-auto rounded-xl">

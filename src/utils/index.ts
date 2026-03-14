@@ -9,10 +9,12 @@ const formattedMoney = (value: number) => {
 
 type DateFormat = 'short' | 'medium' | 'long' | 'numeric' | 'input';
 const formattedDate = (date: string | Date, format?: DateFormat) => {
+  if(!date) return '';
+
   const newDate = date instanceof Date
     ? new Date(date.getFullYear(), date.getMonth(), date.getDate())
     : (() => {
-      const datePart = date.split('T')[0] || date.split(' ')[0];
+      const datePart = date?.split('T')[0] || date?.split(' ')[0];
       const [year, month, day] = datePart.split('-').map(Number);
       return new Date(year, month - 1, day);
     })();

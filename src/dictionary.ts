@@ -60,6 +60,7 @@ export const dictionary = {
     GET_DATA_ERROR: 'Error al obtener datos',
     PGRST205: 'Al parecer, no se pudo establecer una conexión con la base de datos. Error interno del servidor.',
     PRODUCT_NOT_FOUND: 'Producto no encontrado',
+    REPORT_NOT_FOUND: 'Reporte no encontrado',
     INVALID_AMOUNT_PRICE: 'Cantidad de precios no válida. Debe ser un numero entre 0 y $99.999.999,99',
     have_changes_without_save: 'Tienes cambios sin guardar. Si continúas, perderás la información editada.',
     have_changes_without_save_title: '¿Modificaste algo?',
@@ -109,6 +110,10 @@ export const dictionary = {
       products: {
         title: 'Dashboard de Productos',
         description: 'Visualiza los produts, ganancias, ventas y más detalles de tu tienda en el dashboard de productos. Administra tu inventario y optimiza tus ventas con facilidad.',
+      },
+      reports: {
+        title: 'Reportes',
+        description: 'Visualiza los reportes de tu tienda en el dashboard de reportes. Analiza las ventas, ganancias y otros datos clave para optimizar tu negocio con facilidad.',
       }
     }
   }

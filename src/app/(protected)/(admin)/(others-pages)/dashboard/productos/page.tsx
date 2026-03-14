@@ -24,9 +24,9 @@ export default async function Productos({ searchParams }: PageProps) {
 
   return (
     <div>
-      <PageBreadcrumb pageTitle={dictionary.admin.store.categories.title} />
+      <PageBreadcrumb pageTitle={dictionary.admin.dashboard.products.title} />
       <div className="space-y-6">
-        <ComponentCard title={dictionary.admin.store.categories.description}>
+        <ComponentCard title={dictionary.admin.dashboard.products.description}>
           {error ? (
             <div className="p-4 bg-red-100 text-red-700 rounded">
               {dictionary.msg[ message as keyof typeof dictionary.msg ] || 'Error al cargar los productos'}

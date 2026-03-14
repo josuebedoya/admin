@@ -40,6 +40,7 @@ const navItems: NavItem[] = [
       {name: "Ecommerce", path: "/", pro: false},
       {name: "Productos", path: "/dashboard/productos", pro: false},
       {name: "Ventas diarias", path: "/dashboard/ventas-diarias", pro: false},
+      {name: "Reportes", path: "/dashboard/reportes", pro: false},
     ]
   },
   {
