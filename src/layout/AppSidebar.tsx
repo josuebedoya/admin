@@ -10,11 +10,9 @@ import {
   GridIcon,
   HorizontaLDots,
   ListIcon,
-  PageIcon,
   PieChartIcon,
   PlugInIcon,
   Store,
-  TableIcon
 } from "../icons/index";
 import Logo from "@/components/Logo";
 
@@ -53,15 +51,7 @@ const navItems: NavItem[] = [
     name: "Forms",
     icon: <ListIcon/>,
     subItems: [{name: "Form Elements", path: "/form-elements", pro: false}],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon/>,
-    subItems: [
-      {name: "Blank Page", path: "/blank", pro: false},
-      {name: "404 Error", path: "/error-404", pro: false},
-    ],
-  },
+  }
 ];
 
 const othersItems: NavItem[] = [
