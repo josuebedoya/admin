@@ -108,7 +108,7 @@ export default function ProductForm({product, isNew}: FormProductProps) {
       category_id: rawData.category_id === '' || rawData.category_id == null ? null : rawData.category_id,
       quantity: rawData.quantity === '' || rawData.quantity == null ? null : Number(rawData.quantity),
       type_unity: rawData.type_unity ?? '',
-      status: rawData.status === 'true',
+      status: String(rawData.status) === 'true',
     };
 
     if (!parsedData.name) {

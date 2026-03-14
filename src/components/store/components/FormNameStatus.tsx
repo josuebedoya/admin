@@ -48,7 +48,7 @@ export default function FormNameStatus(
 
   const handleSubmit = async (rawData: Record<string, string>, currentIsNew: boolean, id?: string | number) => {
     const name = (rawData.name ?? '').trim();
-    const status = rawData.status === 'true';
+    const status = String(rawData.status) === 'true';
 
     if (!name) {
       return {success: false, message: 'El nombre es requerido'};
