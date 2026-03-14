@@ -1,8 +1,8 @@
 "use client";
 
 import {Table, TableBody, TableCell, TableHeader, TableRow} from "../ui/table";
+import ButtonControl from "./buttonControl";
 import Pagination from "./Pagination";
-import Button from "@/components/ui/button/Button";
 import SearchEngine from "@/components/common/searchEngine";
 
 type TableProps = {
@@ -29,15 +29,18 @@ type TableProps = {
   buttonAdd?: {
     onClick: () => void;
     label: string;
+    position?: 'left' | 'right';
+    icon?: React.ReactNode;
   };
   search?: {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string
-  }
+  },
+  headContent?: React.ReactNode;
 };
 
-export default function BasicTableOne({data, stickyLastRow, pagination, sortable, buttonAdd, search}: TableProps) {
+export default function BasicTableOne({data, stickyLastRow, pagination, sortable, buttonAdd, search, headContent}: TableProps) {
 
   const getSortIcon = (columnKey: string) => {
     if (!sortable || sortable.sortBy !== columnKey) {
@@ -65,18 +68,17 @@ export default function BasicTableOne({data, stickyLastRow, pagination, sortable
   return (
     <div className="flex flex-col gap-0">
       {/* ── Controls ── */}
-        <div className="flex justify-end gap-4 mb-4 lg:px-6">
+        <div className={`flex items-center mb-4 gap-2 ${buttonAdd?.position === 'left' ? 'justify-between' : 'justify-end'}`}>
+          {(buttonAdd && buttonAdd.position === 'left') && (
+            <ButtonControl {...buttonAdd}/>
+          )}
+
           {search && <SearchEngine value={search.value} onChange={search.onChange} placeholder={search.placeholder}/>}
           
-          {buttonAdd && (
-            <Button
-              size='sm'
-              variant='primary'
-              onClick={buttonAdd.onClick}
-            >
-              + {' ' + buttonAdd.label}
-            </Button>
+          {(buttonAdd && buttonAdd.position === 'right') && (
+            <ButtonControl {...buttonAdd}/>
           )}
+          {headContent}
         </div>
       {/* ── Tabla ── */}
       <div className=" rounded-xl border border-gray-200 dark:border-white/[0.05] bg-white dark:bg-gray-900 shadow-sm">

@@ -1,7 +1,7 @@
 'use client';
 
 import {useQuery} from '@tanstack/react-query';
-import {useCallback, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 
 interface UsePaginatedTableOptions<T> {
@@ -10,6 +10,7 @@ interface UsePaginatedTableOptions<T> {
   initialTotalCount: number;
   initialPage?: number;
   initialPageSize?: number;
+  enableServerFetch?: boolean;
   fetchFn:
     (page: number, pageSize: number, orderBy?: string, ascending?: boolean, search?: string) =>
       Promise<{ items: T[]; count: number }>;
@@ -37,6 +38,7 @@ export function usePaginatedTable<T>(
     initialTotalCount,
     initialPage = 1,
     initialPageSize = 10,
+    enableServerFetch = true,
     fetchFn,
   }: UsePaginatedTableOptions<T>): UsePaginatedTableReturn<T> {
   const router = useRouter();
@@ -47,7 +49,6 @@ export function usePaginatedTable<T>(
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  // Query con cache automático de TanStack Query
   const {data, isLoading, isFetching} = useQuery({
     queryKey: [queryKey, currentPage, pageSize, sortBy, sortOrder, searchTerm],
     queryFn: async () => {
@@ -59,14 +60,58 @@ export function usePaginatedTable<T>(
         searchTerm || undefined
       );
     },
+    enabled: enableServerFetch,
     placeholderData: (previousData) => previousData, // Mantener datos previos mientras carga
     staleTime: 1000 * 60 * 5, // 5 minutos
     gcTime: 1000 * 60 * 10, // 10 minutos
   });
 
-  // Usar datos iniciales si no hay datos en cache aún
-  const items = data?.items ?? initialData;
-  const totalCount = data?.count ?? initialTotalCount;
+  const localData = useMemo(() => {
+    let processedData = [...initialData];
+
+    if (searchTerm.trim()) {
+      const normalizedSearch = searchTerm.trim().toLowerCase();
+      processedData = processedData.filter((item) => {
+        return Object.values(item as Record<string, unknown>).some((value) => {
+          if (value == null) return false;
+          return String(value).toLowerCase().includes(normalizedSearch);
+        });
+      });
+    }
+
+    if (sortBy) {
+      processedData.sort((a, b) => {
+        const aValue = (a as Record<string, unknown>)[sortBy];
+        const bValue = (b as Record<string, unknown>)[sortBy];
+
+        if (aValue == null && bValue == null) return 0;
+        if (aValue == null) return sortOrder === 'asc' ? -1 : 1;
+        if (bValue == null) return sortOrder === 'asc' ? 1 : -1;
+
+        if (typeof aValue === 'number' && typeof bValue === 'number') {
+          return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+        }
+
+        const textA = String(aValue).toLowerCase();
+        const textB = String(bValue).toLowerCase();
+        if (textA < textB) return sortOrder === 'asc' ? -1 : 1;
+        if (textA > textB) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    const totalCount = processedData.length;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+
+    return {
+      items: processedData.slice(start, end),
+      count: totalCount,
+    };
+  }, [currentPage, initialData, pageSize, searchTerm, sortBy, sortOrder]);
+
+  const items = enableServerFetch ? (data?.items ?? initialData) : localData.items;
+  const totalCount = enableServerFetch ? (data?.count ?? initialTotalCount) : localData.count;
 
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);

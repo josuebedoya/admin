@@ -16,13 +16,14 @@ type Params = ParamsGetCommon & {
   table: string;
   columns?: string[] | string;
   count?: 'exact' | 'planned' | 'estimated';
+  getAll?: boolean;
   search?: {
     query: string;
     columns: string[];
   };
 }
 
-export type GetParams = ParamsGetCommon & { search?: string };
+export type GetParams = ParamsGetCommon & { search?: string; getAll?: boolean };
 
 export type ResGet = {
   data: {
@@ -42,11 +43,6 @@ const nullData = {
 const get = async ({table, ...config}: Params): Promise<ResGet> => {
 
   try {
-    const page = config.page || 1;
-    const pageSize = config.pageSize || 10;
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-
     let query = supabase
       .from(table)
       .select(
@@ -59,9 +55,15 @@ const get = async ({table, ...config}: Params): Promise<ResGet> => {
       query = query.or(searchQuery);
     }
 
-    query = query
-      .match(config.eq || {})
-      .range(from, to);
+    query = query.match(config.eq || {});
+
+    if (!config.getAll) {
+      const page = config.page || 1;
+      const pageSize = config.pageSize || 10;
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+      query = query.range(from, to);
+    }
 
     // Agregar ordenamiento si existe
     if (config.orderBy) {

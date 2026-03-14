@@ -86,6 +86,7 @@ export const dictionary = {
     create: 'Crear',
     cancel: 'Cancelar',
     confirm: 'Confirmar',
+    generate_report: 'Generar Reporte',
   },
   admin: {
     store: {
