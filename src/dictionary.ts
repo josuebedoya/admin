@@ -124,6 +124,22 @@ export const dictionary = {
       products: {
         title: 'Productos Eliminados',
         description: 'Gestiona los productos eliminados. Visualiza o restaura los productos que has eliminado de tu inventario.',
+      },
+      categories: {
+        title: 'Categorías Eliminadas',
+        description: 'Gestiona las categorías eliminadas. Visualiza o restaura las categorías que has eliminado de tu inventario.',
+      },
+      shelves: {
+        title: 'Estanterías Eliminadas',
+        description: 'Gestiona las estanterías eliminadas. Visualiza o restaura las estanterías que has eliminado de tu inventario.',
+      },
+      sales: {
+        title: 'Ventas Diarias Eliminadas',
+        description: 'Gestiona las ventas diarias eliminadas. Visualiza o restaura las ventas diarias que has eliminado de tu tienda.',
+      },
+      reports: {
+        title: 'Reportes Eliminados',
+        description: 'Gestiona los reportes eliminados. Visualiza o restaura los reportes que has eliminado de tu tienda.',
       }
     }
   }

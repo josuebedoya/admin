@@ -1,10 +1,5 @@
 import create, {createParams} from "@/server/services/create";
-
-type Shelve = {
-  id: number | string;
-  name: string;
-  status: boolean;
-}
+import {Shelve} from "@/server/store/shelveRepository/index";
 
 type ResCreateShelve = {
   data: {

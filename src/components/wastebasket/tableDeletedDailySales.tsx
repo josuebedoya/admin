@@ -1,35 +1,37 @@
 'use client';
 
-import {fetchProducts} from "@/server/actions/store";
-import {Product} from "@/server/store/productRepository";
+import {fetchDailySales} from "@/server/actions/store";
 import TableRestored from "@/components/wastebasket/components/tableRestored";
+import {DailySale} from "@/server/store/dailySaleRepository";
 
-interface TableProductsProps {
-  items: Product[];
+interface TableDailySalesProps {
+  items: DailySale[];
   totalAmount?: number;
   currentPage?: number;
   pageSize?: number;
   keyCache?: string;
 }
 
-const TableDeletedProducts = (
+const TableDeletedDailySales = (
   {
     items,
     currentPage = 1,
     pageSize = 10,
     keyCache,
     totalAmount
-  }: TableProductsProps) => {
+  }: TableDailySalesProps) => {
 
   return <TableRestored
     items={items}
-    keyCache={keyCache ?? 'products-deleted'}
-    fetchFn={fetchProducts}
-    module='products'
+    keyCache={keyCache ?? 'daily-sales-deleted'}
+    fetchFn={fetchDailySales}
+    module='daily-sales'
     pageSize={pageSize}
     totalAmount={totalAmount}
     currentPage={currentPage}
+    isSaleTable
   />
 };
 
-export default TableDeletedProducts;
+export default TableDeletedDailySales;
+

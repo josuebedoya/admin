@@ -1,17 +1,10 @@
 import get, {GetParams} from "@/server/services/get";
-
-type Sale = {
-  id: number | string;
-  transferred: number;
-  cashed: number;
-  note: number;
-  date_created: string;
-}
+import {DailySale} from "@/server/store/dailySaleRepository/index";
 
 type ResSale = {
   data: {
     count: number;
-    items: Sale[]
+    items: DailySale[]
   }
   error: string | null;
   success: boolean;

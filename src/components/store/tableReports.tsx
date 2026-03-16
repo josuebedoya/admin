@@ -5,6 +5,7 @@ import Cell from "@/components/store/components/cell";
 import {formattedDate} from "@/utils/index";
 import {usePaginatedTable} from "@/hooks/usePaginatedTable";
 import {fetchReports} from "@/server/actions/store";
+import {useState} from "react";
 
 interface TableReportsProps {
   items: {
@@ -17,12 +18,14 @@ interface TableReportsProps {
   pageSize?: number;
 }
 
-const TableReports = ({
-                        items: initialItems,
-                        totalAmount: initialTotalCount = 0,
-                        currentPage = 1,
-                        pageSize = 10,
-                      }: TableReportsProps) => {
+const TableReports = (
+  {
+    items: initialItems,
+    totalAmount: initialTotalCount = 0,
+    currentPage = 1,
+    pageSize = 10,
+  }: TableReportsProps) => {
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Usar el hook centralizado
   const {
@@ -38,7 +41,7 @@ const TableReports = ({
     searchTerm,
     handleSearchChange
   } = usePaginatedTable({
-    queryKey: 'reports',
+    queryKey: `'reports'-${refreshKey}`,
     initialData: initialItems,
     initialTotalCount,
     initialPage: currentPage,
@@ -53,9 +56,15 @@ const TableReports = ({
       row: [
         <Cell text={r?.id} path={`/dashboard/reportes/${r?.id}`} withLink key={i}/>,
         <Cell text={r?.name} path={`/dashboard/reportes/${r?.id}`} withLink key={i}/>,
-        <Cell text={formattedDate(r?.date_created, 'long')} path={`/dashboard/reportes/${r?.id}`} withLink
-              key={i} isLast
-              controls={{id: r.id, link: `/dashboard/reportes/${r?.id}`, op: {edit: false, view: true}}}/>,
+        <Cell
+          text={formattedDate(r?.date_created, 'long')} path={`/dashboard/reportes/${r?.id}`} withLink
+          key={i} isLast
+          controls={{
+            id: r.id, link: `/dashboard/reportes/${r?.id}`, op: {edit: false, view: true},
+            module: 'reports', onDeleted: () => {
+              setRefreshKey((prev) => prev + 1);
+            }
+          }}/>,
       ].filter(Boolean)
     }))
   };

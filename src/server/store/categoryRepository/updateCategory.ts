@@ -1,10 +1,5 @@
 import update, {updateParams} from "@/server/services/update";
-
-type Category = {
-  id: number | string;
-  name: string;
-  status: boolean;
-}
+import {Category} from "@/server/store/categoryRepository/index";
 
 type ResUpdateCategory = {
   data: {

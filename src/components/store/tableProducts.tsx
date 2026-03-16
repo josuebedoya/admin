@@ -114,15 +114,16 @@ const TableProducts = (
         (isDashboard && <Cell text={fMat(profit(p?.price, p?.price_sale, p?.quantity))} key={i}/>),
         (isDashboard && <Cell text={`${calculateProfitPercent(p?.price, p?.price_sale)}%`} key={i}/>),
 
-        <CellBadge isActive={p?.status} key={i} isLast
-                   controls={{
-                     id: p.id,
-                     link: `/tienda/productos/${p.id}`,
-                     module: 'products',
-                     onDeleted: () => {
-                       setRefreshKey((prev) => prev + 1);
-                     }
-                   }}
+        <CellBadge
+          isActive={p?.status} key={i} isLast
+          controls={{
+            id: p.id,
+            link: `/tienda/productos/${p.id}`,
+            module: 'products',
+            onDeleted: () => {
+              setRefreshKey((prev) => prev + 1);
+            }
+          }}
         />
       ].filter(Boolean)
     }))

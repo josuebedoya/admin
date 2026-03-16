@@ -6,6 +6,7 @@ import CellBadge from "@/components/store/components/cellBadge";
 import {usePaginatedTable} from "@/hooks/usePaginatedTable";
 import {fetchCategories} from "@/server/actions/store";
 import {useRouter} from "next/navigation";
+import {useState} from "react";
 
 interface TableCategoriesProps {
   items: {
@@ -19,14 +20,16 @@ interface TableCategoriesProps {
   pageSize?: number;
 }
 
-const TableCategories = ({
-                           items: initialItems,
-                           totalAmount: initialTotalCount = 0,
-                           currentPage = 1,
-                           pageSize = 10
-                         }: TableCategoriesProps) => {
+const TableCategories = (
+  {
+    items: initialItems,
+    totalAmount: initialTotalCount = 0,
+    currentPage = 1,
+    pageSize = 10
+  }: TableCategoriesProps) => {
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Usar el hook centralizado
+
   const {
     items,
     currentPage: page,
@@ -40,7 +43,7 @@ const TableCategories = ({
     searchTerm,
     handleSearchChange
   } = usePaginatedTable({
-    queryKey: 'categories',
+    queryKey: `'categories'-${refreshKey}`,
     initialData: initialItems,
     initialTotalCount,
     initialPage: currentPage,
@@ -58,7 +61,14 @@ const TableCategories = ({
         <Cell text={item?.id} path={`/tienda/categorias/${item?.id}`} withLink key={i}/>,
         <Cell text={item?.name} path={`/tienda/categorias/${item?.id}`} withLink key={i}/>,
         <CellBadge isActive={item.status} key={i}/>,
-        <Cell text={item?.products} isLast key={i} controls={{id: item.id, link: `/tienda/categorias/${item?.id}`}}/>,
+        <Cell
+          text={item?.products} isLast key={i}
+          controls={{
+            id: item.id, link: `/tienda/categorias/${item?.id}`, module: 'categories',
+            onDeleted: () => {
+              setRefreshKey((prev) => prev + 1);
+            }
+          }}/>,
       ]
     }))
   };

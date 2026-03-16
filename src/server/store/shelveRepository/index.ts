@@ -10,3 +10,12 @@ export {
   updateShelve,
 }
 
+export type Shelve = {
+  id: number | string;
+  name: string;
+  status: boolean;
+  products: number;
+  total_price: number;
+  total_price_sale: number;
+  date_deleted: string | null;
+}

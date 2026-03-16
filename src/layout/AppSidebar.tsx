@@ -3,25 +3,14 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useSidebar} from "@/context/SidebarContext";
-import {
-  BoxCubeIcon,
-  CalenderIcon,
-  ChevronDownIcon,
-  GridIcon,
-  HorizontaLDots,
-  ListIcon,
-  PieChartIcon,
-  PlugInIcon,
-  Store,
-  TrashBinIcon,
-} from "../icons/index";
+import {ChevronDownIcon, FolderIcon, GridIcon, HorizontaLDots, PlugInIcon, Store, TrashBinIcon,} from "../icons/index";
 import Logo from "@/components/Logo";
 
 type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: { name: string; path: string; pro?: boolean; new?: boolean, icon?: React.ReactNode }[];
 };
 
 const navItems: NavItem[] = [
@@ -44,16 +33,6 @@ const navItems: NavItem[] = [
       {name: "Reportes", path: "/dashboard/reportes", pro: false},
     ]
   },
-  {
-    icon: <CalenderIcon/>,
-    name: "Calendar",
-    path: "/calendar",
-  },
-  {
-    name: "Forms",
-    icon: <ListIcon/>,
-    subItems: [{name: "Form Elements", path: "/form-elements", pro: false}],
-  }
 ];
 
 const othersItems: NavItem[] = [
@@ -61,37 +40,19 @@ const othersItems: NavItem[] = [
     name: 'Papelera',
     icon: <TrashBinIcon/>,
     subItems: [
-      {name: "Productos eliminados", path: "/papelera/productos", pro: false},
-      {name: "Categorias eliminadas", path: "/papelera/categorias", pro: false},
-      {name: "Estanterias eliminadas", path: "/papelera/estanterias", pro: false},
+      {name: "Productos", path: "/papelera/productos", pro: false, icon: <FolderIcon/>},
+      {name: "Categorias", path: "/papelera/categorias", pro: false, icon: <FolderIcon/>},
+      {name: "Estanterias", path: "/papelera/estanterias", pro: false, icon: <FolderIcon/>},
+      {name: "Ventas diarias", path: "/papelera/ventas-diarias", pro: false, icon: <FolderIcon/>},
+      {name: "Reportes", path: "/papelera/reportes", pro: false, icon: <FolderIcon/>},
     ]
   },
   {
-    icon: <PieChartIcon/>,
-    name: "Charts",
-    subItems: [
-      {name: "Line Chart", path: "/line-chart", pro: false},
-      {name: "Bar Chart", path: "/bar-chart", pro: false},
-    ],
-  },
-  {
-    icon: <BoxCubeIcon/>,
-    name: "UI Elements",
-    subItems: [
-      {name: "Alerts", path: "/alerts", pro: false},
-      {name: "Avatar", path: "/avatars", pro: false},
-      {name: "Badge", path: "/badge", pro: false},
-      {name: "Buttons", path: "/buttons", pro: false},
-      {name: "Images", path: "/images", pro: false},
-      {name: "Videos", path: "/videos", pro: false},
-    ],
-  },
-  {
     icon: <PlugInIcon/>,
-    name: "Authentication",
+    name: "Autentificación",
     subItems: [
-      {name: "Sign In", path: "/signin", pro: false},
-      {name: "Sign Up", path: "/signup", pro: false},
+      {name: "Cambiar cuenta", path: "/signin", pro: false},
+      {name: "Registrar cuenta", path: "/signup", pro: false},
     ],
   },
 ];
@@ -184,15 +145,16 @@ const AppSidebar: React.FC = () => {
                   <li key={subItem.name}>
                     <Link
                       href={subItem.path}
-                      className={`menu-dropdown-item ${
+                      className={`menu-dropdown-item flex justify-between gap-2 w-full ${
                         isActive(subItem.path)
                           ? "menu-dropdown-item-active"
                           : "menu-dropdown-item-inactive"
                       }`}
                     >
                       {subItem.name}
-                      <span className="flex items-center gap-1 ml-auto">
-                        {subItem.new && (
+                      <span className='text-gray-400 text-xs'>{subItem.icon}</span>
+                      {(subItem.new || subItem.pro) && (
+                        <span className="flex items-center gap-1 ml-auto">
                           <span
                             className={`ml-auto ${
                               isActive(subItem.path)
@@ -200,21 +162,10 @@ const AppSidebar: React.FC = () => {
                                 : "menu-dropdown-badge-inactive"
                             } menu-dropdown-badge `}
                           >
-                            new
+                            {subItem.pro ? "PRO" : subItem.new ? "Nuevo" : ""}
                           </span>
-                        )}
-                        {subItem.pro && (
-                          <span
-                            className={`ml-auto ${
-                              isActive(subItem.path)
-                                ? "menu-dropdown-badge-active"
-                                : "menu-dropdown-badge-inactive"
-                            } menu-dropdown-badge `}
-                          >
-                            pro
-                          </span>
-                        )}
                       </span>
+                      )}
                     </Link>
                   </li>
                 ))}
@@ -321,7 +272,7 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Menu"
+                  "Menú"
                 ) : (
                   <HorizontaLDots/>
                 )}
@@ -329,7 +280,7 @@ const AppSidebar: React.FC = () => {
               {renderMenuItems(navItems, "main")}
             </div>
 
-            <div className="">
+            <div className="mt-10">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
                   !isExpanded && !isHovered
@@ -338,7 +289,7 @@ const AppSidebar: React.FC = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "Others"
+                  "Otros"
                 ) : (
                   <HorizontaLDots/>
                 )}

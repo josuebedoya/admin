@@ -2,7 +2,18 @@ import React, {useState} from 'react';
 import {EyeIcon, MenuDots, PencilIcon, RestoreIcon, TrashBinIcon} from "@/icons";
 import {Dropdown} from "@/components/ui/dropdown/Dropdown";
 import Link from "next/link";
-import {deleteProduct, restoreProduct} from "@/server/actions/store";
+import {
+  deleteCategory,
+  deleteDailySale,
+  deleteProduct,
+  deleteReport,
+  deleteShelf,
+  restoreCategory,
+  restoreDailySale,
+  restoreProduct,
+  restoreReport,
+  restoreShelf
+} from "@/server/actions/store";
 
 export type ControlsProps = {
   id?: string | number;
@@ -41,8 +52,12 @@ const Controls = (
   }
 
   const onDelete = async () => {
-    if (module === 'products' && id) {
-      await deleteProduct(id)
+    if (id) {
+      if (module === 'products') await deleteProduct(id);
+      if (module === 'categories') await deleteCategory(id);
+      if (module === 'shelves') await deleteShelf(id);
+      if (module === 'daily-sales') await deleteDailySale(id);
+      if (module === 'reports') await deleteReport(id);
     }
 
     await onDeleted?.();
@@ -50,8 +65,12 @@ const Controls = (
   }
 
   const onRestore = async () => {
-    if (module === 'products' && id) {
-      await restoreProduct(id)
+    if (id) {
+      if (module === 'products') await restoreProduct(id);
+      if (module === 'categories') await restoreCategory(id);
+      if (module === 'shelves') await restoreShelf(id);
+      if (module === 'daily-sales') await restoreDailySale(id);
+      if (module === 'reports') await restoreReport(id);
     }
     await onRestored?.();
     closeDropdown();

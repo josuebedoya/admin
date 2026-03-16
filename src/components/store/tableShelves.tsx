@@ -7,6 +7,7 @@ import {formattedMoney} from '@/utils';
 import {usePaginatedTable} from "@/hooks/usePaginatedTable";
 import {fetchShelves} from "@/server/actions/store";
 import {useRouter} from "next/navigation";
+import {useState} from "react";
 
 interface TableShelvesProps {
   items: {
@@ -23,13 +24,15 @@ interface TableShelvesProps {
   stickyLastRow?: boolean;
 }
 
-const TableShelves = ({
-                        items: initialItems,
-                        totalAmount: initialTotalCount = 0,
-                        currentPage = 1,
-                        pageSize = 10,
-                        stickyLastRow
-                      }: TableShelvesProps) => {
+const TableShelves = (
+  {
+    items: initialItems,
+    totalAmount: initialTotalCount = 0,
+    currentPage = 1,
+    pageSize = 10,
+    stickyLastRow
+  }: TableShelvesProps) => {
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Usar el hook centralizado
   const {
@@ -45,7 +48,7 @@ const TableShelves = ({
     searchTerm,
     handleSearchChange
   } = usePaginatedTable({
-    queryKey: 'shelves',
+    queryKey: `'shelves'-${refreshKey}`,
     initialData: initialItems,
     initialTotalCount,
     initialPage: currentPage,
@@ -65,8 +68,14 @@ const TableShelves = ({
         <CellBadge isActive={item.status} key={i}/>,
         <Cell text={item?.products} key={i}/>,
         <Cell text={formattedMoney(item?.total_price)} key={i}/>,
-        <Cell text={formattedMoney(item?.total_price_sale)} isLast key={i}
-              controls={{id: item.id, link: `/tienda/estanterias/${item?.id}`}}/>,
+        <Cell
+          text={formattedMoney(item?.total_price_sale)} isLast key={i}
+          controls={{
+            id: item.id, link: `/tienda/estanterias/${item?.id}`,
+            module: 'shelves', onDeleted: () => {
+              setRefreshKey((prev) => prev + 1);
+            }
+          }}/>,
       ]
     }))
   };

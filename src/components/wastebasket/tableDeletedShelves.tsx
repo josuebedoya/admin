@@ -1,35 +1,35 @@
 'use client';
 
-import {fetchProducts} from "@/server/actions/store";
-import {Product} from "@/server/store/productRepository";
+import {fetchShelves} from "@/server/actions/store";
 import TableRestored from "@/components/wastebasket/components/tableRestored";
+import {Shelve} from "@/server/store/shelveRepository";
 
-interface TableProductsProps {
-  items: Product[];
+interface TableShelvesProps {
+  items: Shelve[];
   totalAmount?: number;
   currentPage?: number;
   pageSize?: number;
   keyCache?: string;
 }
 
-const TableDeletedProducts = (
+const TableDeletedCategories = (
   {
     items,
     currentPage = 1,
     pageSize = 10,
     keyCache,
     totalAmount
-  }: TableProductsProps) => {
+  }: TableShelvesProps) => {
 
   return <TableRestored
     items={items}
-    keyCache={keyCache ?? 'products-deleted'}
-    fetchFn={fetchProducts}
-    module='products'
+    keyCache={keyCache ?? 'shelves-deleted'}
+    fetchFn={fetchShelves}
+    module='shelves'
     pageSize={pageSize}
     totalAmount={totalAmount}
     currentPage={currentPage}
   />
 };
 
-export default TableDeletedProducts;
+export default TableDeletedCategories;

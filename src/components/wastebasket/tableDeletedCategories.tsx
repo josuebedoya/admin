@@ -1,18 +1,18 @@
 'use client';
 
-import {fetchProducts} from "@/server/actions/store";
-import {Product} from "@/server/store/productRepository";
+import {fetchCategories} from "@/server/actions/store";
+import {Category} from "@/server/store/categoryRepository";
 import TableRestored from "@/components/wastebasket/components/tableRestored";
 
 interface TableProductsProps {
-  items: Product[];
+  items: Category[];
   totalAmount?: number;
   currentPage?: number;
   pageSize?: number;
   keyCache?: string;
 }
 
-const TableDeletedProducts = (
+const TableDeletedCategories = (
   {
     items,
     currentPage = 1,
@@ -23,13 +23,13 @@ const TableDeletedProducts = (
 
   return <TableRestored
     items={items}
-    keyCache={keyCache ?? 'products-deleted'}
-    fetchFn={fetchProducts}
-    module='products'
+    keyCache={keyCache ?? 'categories-deleted'}
+    fetchFn={fetchCategories}
+    module='categories'
     pageSize={pageSize}
     totalAmount={totalAmount}
     currentPage={currentPage}
   />
 };
 
-export default TableDeletedProducts;
+export default TableDeletedCategories;

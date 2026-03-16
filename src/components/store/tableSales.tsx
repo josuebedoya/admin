@@ -6,26 +6,24 @@ import {formattedDate, formattedMoney} from "@/utils";
 import {usePaginatedTable} from "@/hooks/usePaginatedTable";
 import {fetchDailySales} from "@/server/actions/store";
 import {useRouter} from "next/navigation";
+import {useState} from "react";
+import {DailySale} from "@/server/store/dailySaleRepository";
 
 interface TableSalesProps {
-  items: {
-    id: string | number;
-    transferred: number;
-    cashed: number;
-    note: number;
-    date_created: string;
-  }[];
+  items: DailySale[];
   totalAmount?: number;
   currentPage?: number;
   pageSize?: number;
 }
 
-const TableSales = ({
-                      items: initialItems,
-                      totalAmount: initialTotalCount = 0,
-                      currentPage = 1,
-                      pageSize = 10
-                    }: TableSalesProps) => {
+const TableSales = (
+  {
+    items: initialItems,
+    totalAmount: initialTotalCount = 0,
+    currentPage = 1,
+    pageSize = 10
+  }: TableSalesProps) => {
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Usar el hook centralizado
   const {
@@ -41,7 +39,7 @@ const TableSales = ({
     searchTerm,
     handleSearchChange
   } = usePaginatedTable({
-    queryKey: 'sales',
+    queryKey: `'sales'-${refreshKey}`,
     initialData: initialItems,
     initialTotalCount,
     initialPage: currentPage,
@@ -64,7 +62,12 @@ const TableSales = ({
           <Cell text={formattedMoney(item?.cashed)} key={i}/>,
           <Cell text={formattedMoney(item?.transferred + item?.cashed)} key={i}/>,
           <Cell text={item?.note} isLast key={i}
-                controls={{id: item.id, link: `/dashboard/ventas-diarias/${item?.id}`}}/>,
+                controls={{
+                  id: item.id, link: `/dashboard/ventas-diarias/${item?.id}`,
+                  module: 'daily-sales', onDeleted: () => {
+                    setRefreshKey((prev) => prev + 1);
+                  }
+                }}/>,
         ].filter(Boolean)
       }
     })

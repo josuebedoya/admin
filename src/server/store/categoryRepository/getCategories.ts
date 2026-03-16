@@ -1,11 +1,5 @@
 import get, {GetParams} from "@/server/services/get";
-
-type Category = {
-  id: number | string;
-  name: string;
-  status: boolean;
-  products: number;
-}
+import {Category} from "@/server/store/categoryRepository/index";
 
 type ResCategory = {
   data: {

@@ -3,7 +3,7 @@ import Link from "next/link";
 import Controls, {ControlsProps} from "@/components/store/components/controls";
 
 interface CellProps {
-  text: string | number;
+  text?: string | number | null;
   path?: string;
   withLink?: boolean;
   isLast?: boolean;

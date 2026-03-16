@@ -1,10 +1,5 @@
-import update, { updateParams } from "@/server/services/update";
-
-type Report = {
-  id: number | string;
-  name: string;
-  date_created: string;
-}
+import update, {updateParams} from "@/server/services/update";
+import {Report} from "@/server/store/reportsRepository/index";
 
 
 type ResUpdateReport = {
@@ -16,16 +11,16 @@ type ResUpdateReport = {
   message: string;
 }
 
-const updateReport = async ({ data, eq, returning = true }: updateParams): Promise<ResUpdateReport> => {
+const updateReport = async ({data, eq, returning = true}: updateParams): Promise<ResUpdateReport> => {
 
-  const { data: result, error, success, message } = await update({
-    table: 'reports',
+  const {data: result, error, success, message} = await update({
+    table: 'report',
     data,
     eq,
     returning
   });
 
-  return { data: result, error, success, message };
+  return {data: result, error, success, message};
 }
 
 export default updateReport;

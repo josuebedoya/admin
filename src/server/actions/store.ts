@@ -21,6 +21,14 @@ import createProductSnapshot from '../store/productSnapshotRepository/createProd
 import softDeleteProduct from "@/server/store/productRepository/softDeleteProduct";
 import deleteBy from "@/server/services/deleteBy";
 import softRestoreProduct from "@/server/store/productRepository/softRestoreProduct";
+import softDeleteShelf from "@/server/store/shelveRepository/softDeleteShelf";
+import softRestoreShelf from "@/server/store/shelveRepository/softRestoreShelf";
+import softDeleteDailySale from "@/server/store/dailySaleRepository/softDeleteDailySale";
+import softRestoreDailySale from "@/server/store/dailySaleRepository/softRestoreDailySale";
+import softDeleteReport from "@/server/store/reportsRepository/softDeleteReport";
+import softRestoreReport from "@/server/store/reportsRepository/softRestoreReport";
+import softDeleteCategory from "@/server/store/categoryRepository/softDeleteCategory";
+import softRestoreCategory from "@/server/store/categoryRepository/softRestoreCategory";
 
 type TypeFetch = (
   page: number,
@@ -238,7 +246,7 @@ export async function saveReport(data: any, isNew: boolean, reportId?: string | 
   }
 }
 
-export async function saveProductSnapshot(data: any, reportId?: string | number) {
+export async function saveProductSnapshot(data: any) {
   try {
     const inputName = typeof data === 'string' ? data : data?.nameReport;
     const nameReport = inputName?.trim() || `Reporte ${formattedDate(new Date(), 'medium')}`;
@@ -303,7 +311,48 @@ export async function deleteProduct(id: string | number, soft = true) {
   return await deleteBy({table: 'product', eq: {id}});
 }
 
+export async function deleteReport(id: string | number, soft = true) {
+  if (soft) return await softDeleteReport({id});
+
+  return await deleteBy({table: 'report', eq: {id}});
+}
+
+export async function deleteCategory(id: string | number, soft = true) {
+  if (soft) return await softDeleteCategory({id});
+
+  return await deleteBy({table: 'category', eq: {id}});
+}
+
+export async function deleteShelf(id: string | number, soft = true) {
+  if (soft) return await softDeleteShelf({id});
+
+  return await deleteBy({table: 'shelf', eq: {id}});
+}
+
+export async function deleteDailySale(id: string | number, soft = true) {
+  if (soft) return await softDeleteDailySale({id});
+
+  return await deleteBy({table: 'daily_sale', eq: {id}});
+}
+
+
 // Soft restore
 export async function restoreProduct(id: string | number) {
   return await softRestoreProduct({id});
+}
+
+export async function restoreShelf(id: string | number) {
+  return await softRestoreShelf({id});
+}
+
+export async function restoreCategory(id: string | number) {
+  return await softRestoreCategory({id});
+}
+
+export async function restoreDailySale(id: string | number) {
+  return await softRestoreDailySale({id});
+}
+
+export async function restoreReport(id: string | number) {
+  return await softRestoreReport({id});
 }

@@ -1,10 +1,5 @@
-import create, { createParams } from "@/server/services/create";
-
-type Report = {
-  id: number | string;
-  name: string;
-  date_created: string;
-}
+import create, {createParams} from "@/server/services/create";
+import {Report} from "@/server/store/reportsRepository/index";
 
 type ResCreateReport = {
   data: {
@@ -15,15 +10,15 @@ type ResCreateReport = {
   message: string;
 }
 
-const createReport = async ({ data, returning = true }: createParams): Promise<ResCreateReport> => {
+const createReport = async ({data, returning = true}: createParams): Promise<ResCreateReport> => {
 
-  const { data: result, error, success, message } = await create({
+  const {data: result, error, success, message} = await create({
     table: 'report',
     data,
     returning
   });
 
-  return { data: result, error, success, message };
+  return {data: result, error, success, message};
 }
 
 export default createReport;

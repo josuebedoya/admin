@@ -1,10 +1,5 @@
 import get, {GetParams} from "@/server/services/get";
-
-type Report = {
-  id: number | string;
-  name: string;
-  date_created: string;
-}
+import {Report} from "@/server/store/reportsRepository/index";
 
 type ResReport = {
   data: {
@@ -23,7 +18,7 @@ const getReports = async ({search, ...params}: GetParams = {}): Promise<ResRepor
     count: 'estimated',
     search: search ? {
       query: search,
-      columns: ['name','date_created']
+      columns: ['name', 'date_created']
     } : undefined,
     ...params
   });

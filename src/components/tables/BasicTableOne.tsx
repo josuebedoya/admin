@@ -22,7 +22,7 @@ type TableProps = {
   };
   stickyLastRow?: boolean;
   sortable?: {
-    columnKeys: string[]; // Nombres de columnas reales para ordenar (ej: ['id', 'name', 'category', 'shelf'])
+    columnKeys: string[];
     onSort: (column: string) => void;
     sortBy: string | null;
     sortOrder: 'asc' | 'desc';
@@ -41,15 +41,16 @@ type TableProps = {
   headContent?: React.ReactNode;
 };
 
-export default function BasicTableOne({
-                                        data,
-                                        stickyLastRow,
-                                        pagination,
-                                        sortable,
-                                        buttonAdd,
-                                        search,
-                                        headContent
-                                      }: TableProps) {
+export default function BasicTableOne(
+  {
+    data,
+    stickyLastRow,
+    pagination,
+    sortable,
+    buttonAdd,
+    search,
+    headContent
+  }: TableProps) {
 
   const getSortIcon = (columnKey: string) => {
     if (!sortable || sortable.sortBy !== columnKey) {
@@ -74,7 +75,7 @@ export default function BasicTableOne({
     );
   };
 
-  const emptyState = !data?.body || data.body.length === 0;
+  const emptyState = !data?.body || data.body.length === 0 || (data.body.length === 1 && stickyLastRow);
 
   return (
     <div className="flex flex-col gap-0">

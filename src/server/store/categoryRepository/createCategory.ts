@@ -1,10 +1,5 @@
 import create, {createParams} from "@/server/services/create";
-
-type Category = {
-  id: number | string;
-  name: string;
-  status: boolean;
-}
+import {Category} from "@/server/store/categoryRepository/index";
 
 type ResCreateCategory = {
   data: {

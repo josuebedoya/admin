@@ -1,15 +1,5 @@
 import update, {updateParams} from "@/server/services/update";
-
-type ShelveUpdate = {
-  name?: string;
-  status?: boolean;
-}
-
-type Shelve = {
-  id: number | string;
-  name: string;
-  status: boolean;
-}
+import {Shelve} from "@/server/store/shelveRepository/index";
 
 type ResUpdateShelve = {
   data: {

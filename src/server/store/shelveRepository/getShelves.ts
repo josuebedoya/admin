@@ -1,13 +1,5 @@
 import get, {GetParams} from "@/server/services/get";
-
-type Shelve = {
-  id: number | string;
-  name: string;
-  status: boolean;
-  products: number;
-  total_price: number;
-  total_price_sale: number;
-}
+import {Shelve} from "@/server/store/shelveRepository/index";
 
 type ResShelf = {
   data: {
