@@ -8,7 +8,7 @@ export type FieldType = {
   label: string;
   type: string;
   placeholder: string;
-  value: string | number;
+  value: string | number | null;
   onChange: (name: string, value: string) => void;
   options?: { value: string | number; label: string }[];
   searchable?: boolean;
@@ -59,7 +59,6 @@ const ComponentField = (field: FieldType) => {
 
 const RenderFields: React.FC<RenderFieldsProps> = ({fields}) => {
   return fields.map((field, index) => {
-      // Si el campo es un grupo, renderizamos sus subcampos
       if ('group' in field) {
         return (
           <div key={`group-${index}`} className="mb-5 lg:mb-8 flex flex-col lg:flex-row gap-4">

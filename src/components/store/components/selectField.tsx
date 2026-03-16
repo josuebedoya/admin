@@ -5,7 +5,7 @@ type FieldProps = {
   name: string;
   label: string;
   placeholder: string;
-  value: string | number;
+  value: string | number | null;
   onChange: (name: string, value: string) => void;
   options?: { value: string | number; label: string }[];
   searchable?: boolean;

@@ -1,9 +1,15 @@
 import get from "@/server/services/get";
 import {Product} from "@/server/store/productRepository";
 
+export type ProductExcel = Product & {
+  shelf_name?: string;
+  category_name?: string;
+  product_id: string;
+}
+
 type ResGetById = {
   data: {
-    items: Product[];
+    items: ProductExcel[];
     count: number;
   };
   error: string | null;

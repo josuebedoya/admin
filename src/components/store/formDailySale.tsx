@@ -6,22 +6,17 @@ import FormBase from "@/components/store/components/FormBase";
 import {dictionary} from "@/dictionary";
 import {MAX_PRICE} from "@/components/store/resources";
 import {formattedDate} from "@/utils";
+import {DailySale} from "@/server/store/dailySaleRepository";
 
 type FormFields = {
   transferred: number | null;
   cashed: number | null;
-  note: string;
+  note: string | null;
   date_created: string;
 };
 
 type FormDailySaleProps = {
-  dailySale?: {
-    id: string | number;
-    transferred: number;
-    cashed: number;
-    note: string;
-    date_created: string;
-  } | null;
+  dailySale?: DailySale | null;
   isNew: boolean;
 };
 

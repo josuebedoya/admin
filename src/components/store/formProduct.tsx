@@ -7,6 +7,7 @@ import {fetchCategories, fetchShelves, saveProduct} from "@/server/actions/store
 import {MAX_PRICE, STATUS_OPTIONS, TYPE_UNITIES} from "@/components/store/resources";
 import FormBase from "@/components/store/components/FormBase";
 import {dictionary} from "@/dictionary";
+import {Product} from "@/server/store/productRepository";
 
 type FormFields = {
   name: string;
@@ -22,19 +23,7 @@ type FormFields = {
 }
 
 type FormProductProps = {
-  product?: {
-    id: string | number;
-    name: string;
-    status: boolean;
-    category_id: string | number;
-    shelf_id: string | number;
-    category: string;
-    shelf: string;
-    quantity: number;
-    type_unity: string;
-    price: number;
-    price_sale: number;
-  } | null;
+  product?: Product | null;
   isNew: boolean;
 };
 

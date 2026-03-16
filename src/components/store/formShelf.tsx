@@ -2,9 +2,10 @@
 
 import FormNameStatus from "./components/FormNameStatus";
 import {saveShelve} from "@/server/actions/store";
+import {Shelve} from "@/server/store/shelveRepository";
 
 type FormShelfProps = {
-  shelf?: { id: string | number; name: string; status: boolean } | null;
+  shelf?: Shelve | null;
   isNew: boolean;
 };
 

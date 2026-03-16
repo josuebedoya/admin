@@ -1,10 +1,11 @@
 'use client';
 
 import FormNameStatus from "./components/FormNameStatus";
-import {saveCategory,saveDailySale} from "@/server/actions/store";
+import {saveCategory} from "@/server/actions/store";
+import {Category} from "@/server/store/categoryRepository";
 
 type FormCategoryProps = {
-  category?: { id: string | number; name: string; status: boolean } | null;
+  category?: Category | null;
   isNew: boolean;
 };
 
