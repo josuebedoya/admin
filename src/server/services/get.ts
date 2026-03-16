@@ -21,9 +21,10 @@ type Params = ParamsGetCommon & {
     query: string;
     columns: string[];
   };
+  getDeleted?: boolean;
 }
 
-export type GetParams = ParamsGetCommon & { search?: string; getAll?: boolean };
+export type GetParams = ParamsGetCommon & { search?: string; getAll?: boolean, getDeleted?: boolean };
 
 export type ResGet = {
   data: {
@@ -55,7 +56,14 @@ const get = async ({table, ...config}: Params): Promise<ResGet> => {
       query = query.or(searchQuery);
     }
 
-    query = query.match(config.eq || {});
+    if (!config.getDeleted) {
+      query = query.is('date_deleted', null);
+    } else {
+      console.log('trayendo eliminados')
+      query = query.not('date_deleted', 'is', 'null');
+    }
+
+    query = query.match((config.eq) || {});
 
     if (!config.getAll) {
       const page = config.page || 1;

@@ -1,18 +1,5 @@
 import get, {GetParams} from "@/server/services/get";
-
-type Product = {
-  id: number | string;
-  name: string;
-  status: boolean;
-  category_id: number | string;
-  shelf_id: number | string;
-  category: string;
-  shelf: string;
-  quantity: number;
-  type_unity: string;
-  price: number;
-  price_sale: number;
-}
+import {Product} from "@/server/store/productRepository/index";
 
 type ResProduct = {
   data: {

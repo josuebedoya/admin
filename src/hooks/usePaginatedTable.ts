@@ -11,8 +11,11 @@ interface UsePaginatedTableOptions<T> {
   initialPage?: number;
   initialPageSize?: number;
   enableServerFetch?: boolean;
+  getAll?: boolean;
+  getDeleted?: boolean;
   fetchFn:
-    (page: number, pageSize: number, orderBy?: string, ascending?: boolean, search?: string) =>
+    (page: number, pageSize: number, orderBy?: string, ascending?: boolean, search?: string, getAll?: boolean,
+     getDeleted?: boolean) =>
       Promise<{ items: T[]; count: number }>;
 }
 
@@ -40,6 +43,8 @@ export function usePaginatedTable<T>(
     initialPageSize = 10,
     enableServerFetch = true,
     fetchFn,
+    getAll = false,
+    getDeleted = false,
   }: UsePaginatedTableOptions<T>): UsePaginatedTableReturn<T> {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -50,14 +55,16 @@ export function usePaginatedTable<T>(
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const {data, isLoading, isFetching} = useQuery({
-    queryKey: [queryKey, currentPage, pageSize, sortBy, sortOrder, searchTerm],
+    queryKey: [queryKey, currentPage, pageSize, sortBy, sortOrder, searchTerm, getAll, getDeleted],
     queryFn: async () => {
       return await fetchFn(
         currentPage,
         pageSize,
         sortBy || undefined,
         sortOrder === 'asc',
-        searchTerm || undefined
+        searchTerm || undefined,
+        getAll,
+        getDeleted
       );
     },
     enabled: enableServerFetch,

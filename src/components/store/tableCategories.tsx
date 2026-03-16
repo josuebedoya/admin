@@ -58,7 +58,7 @@ const TableCategories = ({
         <Cell text={item?.id} path={`/tienda/categorias/${item?.id}`} withLink key={i}/>,
         <Cell text={item?.name} path={`/tienda/categorias/${item?.id}`} withLink key={i}/>,
         <CellBadge isActive={item.status} key={i}/>,
-        <Cell text={item?.products} isLast key={i}/>,
+        <Cell text={item?.products} isLast key={i} controls={{id: item.id, link: `/tienda/categorias/${item?.id}`}}/>,
       ]
     }))
   };

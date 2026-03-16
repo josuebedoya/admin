@@ -65,7 +65,8 @@ const createProductSnapshot = async ({ data }: createParams): Promise<ResCreateP
     shelf_id: p.shelf_id,
     quantity: p.quantity,
     type_unity: p.type_unity,
-    status: p.status
+    status: p.status,
+    date_deleted: p.date_deleted ?? null
   }));
 
   // insert snapshots into product_snapshot table

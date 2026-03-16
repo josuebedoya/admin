@@ -8,14 +8,14 @@ const formattedMoney = (value: number) => {
 };
 
 type DateFormat = 'short' | 'medium' | 'long' | 'numeric' | 'input';
-const formattedDate = (date: string | Date, format?: DateFormat) => {
+const formattedDate = (date: string | Date | null, format?: DateFormat) => {
   if (!date) return '';
 
   const newDate = date instanceof Date
     ? new Date(date.getFullYear(), date.getMonth(), date.getDate())
     : (() => {
-      const datePart = date?.split('T')[ 0 ] || date?.split(' ')[ 0 ];
-      const [ year, month, day ] = datePart.split('-').map(Number);
+      const datePart = date?.split('T')[0] || date?.split(' ')[0];
+      const [year, month, day] = datePart.split('-').map(Number);
       return new Date(year, month - 1, day);
     })();
 
@@ -63,7 +63,7 @@ type Item = {
 }
 
 const getTotalAmount = (items: Item[], key: 'price' | 'price_sale') => {
-  const total = items.reduce((acc, p) => acc + p[ key ], 0);
+  const total = items.reduce((acc, p) => acc + p[key], 0);
   return total;
 };
 
@@ -78,7 +78,7 @@ const getPromedioProfitPercent = (items: Item[]): number => {
       acc.sale += p.price * p.quantity;
       return acc;
     },
-    { cost: 0, sale: 0 }
+    {cost: 0, sale: 0}
   );
 
   if (totals.cost === 0) return 0;

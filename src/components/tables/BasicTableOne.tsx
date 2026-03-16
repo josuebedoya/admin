@@ -4,6 +4,7 @@ import {Table, TableBody, TableCell, TableHeader, TableRow} from "../ui/table";
 import ButtonControl from "./buttonControl";
 import Pagination from "./Pagination";
 import SearchEngine from "@/components/common/searchEngine";
+import Alert from "@/components/ui/alert/Alert";
 
 type TableProps = {
   data: {
@@ -40,7 +41,15 @@ type TableProps = {
   headContent?: React.ReactNode;
 };
 
-export default function BasicTableOne({data, stickyLastRow, pagination, sortable, buttonAdd, search, headContent}: TableProps) {
+export default function BasicTableOne({
+                                        data,
+                                        stickyLastRow,
+                                        pagination,
+                                        sortable,
+                                        buttonAdd,
+                                        search,
+                                        headContent
+                                      }: TableProps) {
 
   const getSortIcon = (columnKey: string) => {
     if (!sortable || sortable.sortBy !== columnKey) {
@@ -65,88 +74,95 @@ export default function BasicTableOne({data, stickyLastRow, pagination, sortable
     );
   };
 
+  const emptyState = !data?.body || data.body.length === 0;
+
   return (
     <div className="flex flex-col gap-0">
       {/* ── Controls ── */}
-        <div className={`flex items-center mb-4 gap-2 ${buttonAdd?.position === 'left' ? 'justify-between' : 'justify-end'}`}>
-          {(buttonAdd && buttonAdd.position === 'left') && (
-            <ButtonControl {...buttonAdd}/>
-          )}
+      <div
+        className={`flex items-center mb-4 gap-2 ${buttonAdd?.position === 'left' ? 'justify-between' : 'justify-end'}`}>
+        {(buttonAdd && buttonAdd.position === 'left') && (
+          <ButtonControl {...buttonAdd}/>
+        )}
 
-          {search && <SearchEngine value={search.value} onChange={search.onChange} placeholder={search.placeholder}/>}
-          
-          {(buttonAdd && buttonAdd.position === 'right') && (
-            <ButtonControl {...buttonAdd}/>
-          )}
-          {headContent}
-        </div>
+        {search && <SearchEngine value={search.value} onChange={search.onChange} placeholder={search.placeholder}/>}
+
+        {(buttonAdd && buttonAdd.position === 'right') && (
+          <ButtonControl {...buttonAdd}/>
+        )}
+        {headContent}
+      </div>
       {/* ── Tabla ── */}
       <div className=" rounded-xl border border-gray-200 dark:border-white/[0.05] bg-white dark:bg-gray-900 shadow-sm">
         <div className="max-w-full overflow-x-auto rounded-xl">
           <div className="min-w-full xl:min-w-[1102px] overflow-y-auto max-h-[60vh] lg:max-h-[70vh] scrollbar-primary">
-            <Table>
-              {/* Header */}
-              <TableHeader>
-                <TableRow
-                  className="bg-gray-50/50 dark:bg-white/[0.02] border-b border-gray-200 dark:border-white/[0.05]">
-                  {data?.headers?.map((h, i) => {
-                    const columnKey = sortable?.columnKeys?.[i];
-                    const isSortable = sortable && columnKey && columnKey !== '';
-                    return (
-                      <TableCell
-                        key={i}
-                        isHeader
-                        className="px-3 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap sticky top-0 z-10 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm select-none"
-                      >
-                        <div
-                          className={`flex items-center gap-2 ${isSortable ? 'cursor-pointer group' : ''}`}
-                          onClick={() => isSortable && sortable.onSort(columnKey)}
+            {!emptyState ? (
+              <Table>
+                {/* Header */}
+                <TableHeader>
+                  <TableRow
+                    className="bg-gray-50/50 dark:bg-white/[0.02] border-b border-gray-200 dark:border-white/[0.05]">
+                    {data?.headers?.map((h, i) => {
+                      const columnKey = sortable?.columnKeys?.[i];
+                      const isSortable = sortable && columnKey && columnKey !== '';
+                      return (
+                        <TableCell
+                          key={i}
+                          isHeader
+                          className="px-3 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap sticky top-0 z-10 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm select-none"
                         >
+                          <div
+                            className={`flex items-center gap-2 ${isSortable ? 'cursor-pointer group' : ''}`}
+                            onClick={() => isSortable && sortable.onSort(columnKey)}
+                          >
                           <span
                             className="group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors duration-200">{h}</span>
-                          {isSortable && (
-                            <span
-                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-brand-500">
+                            {isSortable && (
+                              <span
+                                className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-brand-500">
                               {getSortIcon(columnKey)}
                             </span>
-                          )}
-                        </div>
-                      </TableCell>
+                            )}
+                          </div>
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                </TableHeader>
+
+                {/* Body */}
+                <TableBody>
+                  {data?.body?.map((b, i) => {
+                    const isLastRow = i === data.body.length - 1;
+                    return (
+                      <TableRow
+                        key={i}
+                        className={`group transition-colors duration-150 border-b border-gray-100 dark:border-white/[0.02] last:border-b-0
+                        ${isLastRow && stickyLastRow
+                          ? 'sticky bottom-0 z-10 bg-gray-50 dark:bg-gray-800 font-medium'
+                          : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-white/[0.02]'
+                        }`}
+                      >
+                        {b?.row?.map((c: any, j: number) => (
+                          <TableCell
+                            key={j}
+                            className={`px-3 py-3 text-sm whitespace-nowrap text-start
+                            ${isLastRow && stickyLastRow
+                              ? 'text-gray-900 dark:text-white'
+                              : 'text-gray-600 dark:text-gray-300'
+                            }`}
+                          >
+                            {c}
+                          </TableCell>
+                        ))}
+                      </TableRow>
                     );
                   })}
-                </TableRow>
-              </TableHeader>
-
-              {/* Body */}
-              <TableBody>
-                {data?.body?.map((b, i) => {
-                  const isLastRow = i === data.body.length - 1;
-                  return (
-                    <TableRow
-                      key={i}
-                      className={`group transition-colors duration-150 border-b border-gray-100 dark:border-white/[0.02] last:border-b-0
-                        ${isLastRow && stickyLastRow
-                        ? 'sticky bottom-0 z-10 bg-gray-50 dark:bg-gray-800 font-medium'
-                        : 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-white/[0.02]'
-                      }`}
-                    >
-                      {b?.row?.map((c: any, j: number) => (
-                        <TableCell
-                          key={j}
-                          className={`px-3 py-3 text-sm whitespace-nowrap text-start
-                            ${isLastRow && stickyLastRow
-                            ? 'text-gray-900 dark:text-white'
-                            : 'text-gray-600 dark:text-gray-300'
-                          }`}
-                        >
-                          {c}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                </TableBody>
+              </Table>
+            ) : <Alert variant='info' title='No hay elementos'
+                       message='No se encontraron elementos para mostrar en la tabla.'/>
+            }
           </div>
         </div>
 

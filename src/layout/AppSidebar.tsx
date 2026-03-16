@@ -13,6 +13,7 @@ import {
   PieChartIcon,
   PlugInIcon,
   Store,
+  TrashBinIcon,
 } from "../icons/index";
 import Logo from "@/components/Logo";
 
@@ -56,6 +57,15 @@ const navItems: NavItem[] = [
 ];
 
 const othersItems: NavItem[] = [
+  {
+    name: 'Papelera',
+    icon: <TrashBinIcon/>,
+    subItems: [
+      {name: "Productos eliminados", path: "/papelera/productos", pro: false},
+      {name: "Categorias eliminadas", path: "/papelera/categorias", pro: false},
+      {name: "Estanterias eliminadas", path: "/papelera/estanterias", pro: false},
+    ]
+  },
   {
     icon: <PieChartIcon/>,
     name: "Charts",

@@ -65,7 +65,8 @@ const TableShelves = ({
         <CellBadge isActive={item.status} key={i}/>,
         <Cell text={item?.products} key={i}/>,
         <Cell text={formattedMoney(item?.total_price)} key={i}/>,
-        <Cell text={formattedMoney(item?.total_price_sale)} isLast key={i}/>,
+        <Cell text={formattedMoney(item?.total_price_sale)} isLast key={i}
+              controls={{id: item.id, link: `/tienda/estanterias/${item?.id}`}}/>,
       ]
     }))
   };
@@ -84,7 +85,7 @@ const TableShelves = ({
       <Cell text="" key="total-status"/>,
       <Cell text={totalProducts} key="total-products"/>,
       <Cell text={formattedMoney(totalPrice)} key="total-price"/>,
-      <Cell text={formattedMoney(totalPriceSale)} isLast key="total-price-sale"/>,
+      <Cell text={formattedMoney(totalPriceSale)} key="total-price-sale"/>,
     ]
   });
 

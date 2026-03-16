@@ -11,27 +11,17 @@ import {
   getTotalAmountProduct,
   getTotalProfit
 } from "@/utils/index";
-import { usePaginatedTable } from "@/hooks/usePaginatedTable";
-import { fetchProducts, saveProductSnapshot } from "@/server/actions/store";
-import { useRouter } from "next/navigation";
-import { ArrowRightIcon } from "@/icons";
+import {usePaginatedTable} from "@/hooks/usePaginatedTable";
+import {fetchProducts, saveProductSnapshot} from "@/server/actions/store";
+import {useRouter} from "next/navigation";
+import {ArrowRightIcon} from "@/icons";
 import ButtonReport from "./components/buttonReport";
 import ButtonDownloadReport from "./components/buttonDownladReport";
+import {Product} from "@/server/store/productRepository";
+import {useState} from "react";
 
 interface TableProductsProps {
-  items: {
-    id: string | number;
-    name: string;
-    status: boolean;
-    category: string;
-    quantity: number;
-    price: number;
-    price_sale: number;
-    type_unity: string;
-    category_id: string | number;
-    shelf: string;
-    shelf_id: string | number;
-  }[];
+  items: Product[];
   totalAmount?: number;
   isDashboard?: boolean;
   currentPage?: number;
@@ -72,6 +62,8 @@ const TableProducts = (
     nameReport
   }: TableProductsProps) => {
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
   // Usar el hook centralizado
   const {
     items,
@@ -86,7 +78,7 @@ const TableProducts = (
     searchTerm,
     handleSearchChange
   } = usePaginatedTable({
-    queryKey: keyCache ?? 'products',
+    queryKey: `${keyCache ?? 'products'}-${refreshKey}`,
     initialData: initialItems,
     initialTotalCount,
     initialPage: currentPage,
@@ -96,8 +88,8 @@ const TableProducts = (
   });
   const router = useRouter();
 
-  const tableHeaders = [ 'ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO', 'ESTADO' ];
-  const dashboardHeaders = [ 'ID', 'NOMBRE', 'CANTIDAD', 'PRECIO VENTA', 'PRECIO COMPRA', 'TOTAL PRODUCTO', 'GANANCIA', 'GANANCIA %', 'ESTADO' ];
+  const tableHeaders = ['ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO', 'ESTADO'];
+  const dashboardHeaders = ['ID', 'NOMBRE', 'CANTIDAD', 'PRECIO VENTA', 'PRECIO COMPRA', 'TOTAL PRODUCTO', 'GANANCIA', 'GANANCIA %', 'ESTADO'];
 
   if (showAll) {
     dashboardHeaders.splice(2, 0, 'CATEGORÍA', 'ESTANTERÍA');
@@ -106,21 +98,32 @@ const TableProducts = (
   const transformItemsToTableBody = (products: TableProductsProps[ 'items' ]) => {
     return products?.map((p, i) => ({
       row: [
-        <Cell text={p?.id} path={`/tienda/productos/${p?.id}`} withLink={!readonly} key={i} />,
-        <Cell text={p?.name} path={`/tienda/productos/${p?.id}`} withLink={!readonly} key={i} />,
+        <Cell text={p?.id} path={`/tienda/productos/${p?.id}`} withLink={!readonly} key={i}/>,
+        <Cell text={p?.name} path={`/tienda/productos/${p?.id}`} withLink={!readonly} key={i}/>,
 
-        ((!isDashboard || showAll) && <Cell text={p?.category} path={`/tienda/categorias/${p?.category_id}`} withLink={!readonly} key={i} />),
-        ((!isDashboard || showAll) && <Cell text={p?.shelf} path={`/tienda/estanterias/${p?.shelf_id}`} withLink={!readonly} key={i} />),
+        ((!isDashboard || showAll) &&
+          <Cell text={p?.category} path={`/tienda/categorias/${p?.category_id}`} withLink={!readonly} key={i}/>),
+        ((!isDashboard || showAll) &&
+          <Cell text={p?.shelf} path={`/tienda/estanterias/${p?.shelf_id}`} withLink={!readonly} key={i}/>),
 
-        <Cell text={`${p?.quantity} - ${p?.type_unity}`} key={i} />,
+        <Cell text={`${p?.quantity} - ${p?.type_unity}`} key={i}/>,
 
-        <Cell text={fMat(p?.price)} key={i} />,
-        (isDashboard && <Cell text={fMat(p?.price_sale)} key={i} />),
-        (isDashboard && <Cell text={fMat(p?.price * p?.quantity)} key={i} />),
-        (isDashboard && <Cell text={fMat(profit(p?.price, p?.price_sale, p?.quantity))} key={i} />),
-        (isDashboard && <Cell text={`${calculateProfitPercent(p?.price, p?.price_sale)}%`} key={i} />),
+        <Cell text={fMat(p?.price)} key={i}/>,
+        (isDashboard && <Cell text={fMat(p?.price_sale)} key={i}/>),
+        (isDashboard && <Cell text={fMat(p?.price * p?.quantity)} key={i}/>),
+        (isDashboard && <Cell text={fMat(profit(p?.price, p?.price_sale, p?.quantity))} key={i}/>),
+        (isDashboard && <Cell text={`${calculateProfitPercent(p?.price, p?.price_sale)}%`} key={i}/>),
 
-        <CellBadge isActive={p?.status} key={i} />
+        <CellBadge isActive={p?.status} key={i} isLast
+                   controls={{
+                     id: p.id,
+                     link: `/tienda/productos/${p.id}`,
+                     module: 'products',
+                     onDeleted: () => {
+                       setRefreshKey((prev) => prev + 1);
+                     }
+                   }}
+        />
       ].filter(Boolean)
     }))
   };
@@ -135,17 +138,17 @@ const TableProducts = (
 
     bodyRows.push({
       row: [
-        <Cell text="TOTAL" key="total-label" />,
-        <Cell text="" key="total-name" />,
-        (showAll && <Cell text="" key="total-category" />),
-        (showAll && <Cell text="" key="total-shelf" />),
-        <Cell text={totalQuantity} key="total-quantity" />,
-        <Cell text={fMat(totalPrice)} key="total-price" />,
-        <Cell text={fMat(totalPriceSale)} key="total-price-sale" />,
-        <Cell text={fMat(getTotalAmountProduct(items))} key="total-product" />,
-        <Cell text={fMat(totalProfit)} key="total-profit" />,
-        <Cell text={getPromedioProfitPercent(items) + '%'} key="total-profit-percent" />,
-        <Cell text="" key="total-status" />
+        <Cell text="TOTAL" key="total-label"/>,
+        <Cell text="" key="total-name"/>,
+        (showAll && <Cell text="" key="total-category"/>),
+        (showAll && <Cell text="" key="total-shelf"/>),
+        <Cell text={totalQuantity} key="total-quantity"/>,
+        <Cell text={fMat(totalPrice)} key="total-price"/>,
+        <Cell text={fMat(totalPriceSale)} key="total-price-sale"/>,
+        <Cell text={fMat(getTotalAmountProduct(items))} key="total-product"/>,
+        <Cell text={fMat(totalProfit)} key="total-profit"/>,
+        <Cell text={getPromedioProfitPercent(items) + '%'} key="total-profit-percent"/>,
+        <Cell text="" key="total-status"/>
       ].filter(Boolean)
     });
   }
@@ -168,8 +171,8 @@ const TableProducts = (
   // Sortable data
   const sortableData = {
     columnKeys: isDashboard
-      ? [ 'id', 'name', 'quantity', 'price', 'price_sale', '', '', '', 'status' ]
-      : [ 'id', 'name', 'category', 'shelf', 'quantity', 'price', 'status' ],
+      ? ['id', 'name', 'quantity', 'price', 'price_sale', '', '', '', 'status']
+      : ['id', 'name', 'category', 'shelf', 'quantity', 'price', 'status'],
     onSort: handleSort,
     sortBy,
     sortOrder,
@@ -191,7 +194,7 @@ const TableProducts = (
     sortable={sortableData}
     buttonAdd={{
       onClick: actionButton, label: button?.label || 'Agregar Producto', position: button?.position || 'right',
-      icon: button?.onActionButton === 'back' ? (<div className="rotate-180"><ArrowRightIcon /></div>) : '+'
+      icon: button?.onActionButton === 'back' ? (<div className="rotate-180"><ArrowRightIcon/></div>) : '+'
     }}
     search={{
       onChange: handleSearchChange,
@@ -199,8 +202,8 @@ const TableProducts = (
       placeholder: 'Buscar en productos...'
     }}
     headContent={(<>
-      {!readonly && <ButtonReport onGenerate={saveProductSnapshot} />}
-      {readonly && <ButtonDownloadReport nameReport={nameReport} id={idReport || ''} />}
+      {!readonly && <ButtonReport onGenerate={saveProductSnapshot}/>}
+      {readonly && <ButtonDownloadReport nameReport={nameReport} id={idReport || ''}/>}
     </>)}
   />;
 };

@@ -2,9 +2,9 @@
 
 import BasicTableOne from "@/components/tables/BasicTableOne";
 import Cell from "@/components/store/components/cell";
-import { formattedDate } from "@/utils/index";
-import { usePaginatedTable } from "@/hooks/usePaginatedTable";
-import { fetchReports } from "@/server/actions/store";
+import {formattedDate} from "@/utils/index";
+import {usePaginatedTable} from "@/hooks/usePaginatedTable";
+import {fetchReports} from "@/server/actions/store";
 
 interface TableReportsProps {
   items: {
@@ -18,11 +18,11 @@ interface TableReportsProps {
 }
 
 const TableReports = ({
-  items: initialItems,
-  totalAmount: initialTotalCount = 0,
-  currentPage = 1,
-  pageSize = 10,
-}: TableReportsProps) => {
+                        items: initialItems,
+                        totalAmount: initialTotalCount = 0,
+                        currentPage = 1,
+                        pageSize = 10,
+                      }: TableReportsProps) => {
 
   // Usar el hook centralizado
   const {
@@ -46,15 +46,16 @@ const TableReports = ({
     fetchFn: fetchReports,
   });
 
-  const tableHeaders = [ 'ID', 'NOMBRE', 'FECHA DE CREACIÓN' ];
+  const tableHeaders = ['ID', 'NOMBRE', 'FECHA DE CREACIÓN'];
 
   const transformItemsToTableBody = (products: TableReportsProps[ 'items' ]) => {
     return products?.map((r, i) => ({
       row: [
-        <Cell text={r?.id} path={`/dashboard/reportes/${r?.id}`} withLink key={i} />,
-        <Cell text={r?.name} path={`/dashboard/reportes/${r?.id}`} withLink key={i} />,
+        <Cell text={r?.id} path={`/dashboard/reportes/${r?.id}`} withLink key={i}/>,
+        <Cell text={r?.name} path={`/dashboard/reportes/${r?.id}`} withLink key={i}/>,
         <Cell text={formattedDate(r?.date_created, 'long')} path={`/dashboard/reportes/${r?.id}`} withLink
-          key={i} isLast />,
+              key={i} isLast
+              controls={{id: r.id, link: `/dashboard/reportes/${r?.id}`, op: {edit: false, view: true}}}/>,
       ].filter(Boolean)
     }))
   };
@@ -78,7 +79,7 @@ const TableReports = ({
 
   // Sortable data
   const sortableData = {
-    columnKeys: [ 'id', 'name', 'quantity', 'date_created' ],
+    columnKeys: ['id', 'name', 'quantity', 'date_created'],
     onSort: handleSort,
     sortBy,
     sortOrder,

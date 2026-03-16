@@ -13,11 +13,14 @@ import getDailySales from '@/server/store/dailySaleRepository/getDailySales';
 import createDailySale from '@/server/store/dailySaleRepository/createDailySale';
 import updateDailySale from '@/server/store/dailySaleRepository/updateDailySale';
 import getReports from '@/server/store/reportsRepository/getReports';
-import { getProductSnapshotById } from '@/server/store/productSnapshotRepository';
+import {getProductSnapshotById} from '@/server/store/productSnapshotRepository';
 import createReport from '../store/reportsRepository/createReport';
 import updateReport from '../store/reportsRepository/updateReport';
-import { formattedDate } from '@/utils';
+import {formattedDate} from '@/utils';
 import createProductSnapshot from '../store/productSnapshotRepository/createProductSnapshot';
+import softDeleteProduct from "@/server/store/productRepository/softDeleteProduct";
+import deleteBy from "@/server/services/deleteBy";
+import softRestoreProduct from "@/server/store/productRepository/softRestoreProduct";
 
 type TypeFetch = (
   page: number,
@@ -25,55 +28,60 @@ type TypeFetch = (
   orderBy?: string,
   ascending?: boolean,
   search?: string,
-  getAll?: boolean
+  getAll?: boolean,
+  getDeleted?: boolean
 ) => void;
 
-export async function fetchProducts(...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>) {
-  const { data, error } = await getProducts({ page, pageSize, orderBy, ascending, search, getAll });
+
+// Fetch
+export async function fetchProducts(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>) {
+  const {data, error} = await getProducts({page, pageSize, orderBy, ascending, search, getAll, getDeleted});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchShelves(...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>) {
-  const { data, error } = await getShelves({ page, pageSize, orderBy, ascending, search, getAll });
+export async function fetchShelves(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>) {
+  const {data, error} = await getShelves({page, pageSize, orderBy, ascending, search, getAll, getDeleted});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchCategories(...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>) {
-  const { data, error } = await getCategories({ page, pageSize, orderBy, ascending, search, getAll });
+export async function fetchCategories(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>) {
+  const {data, error} = await getCategories({page, pageSize, orderBy, ascending, search, getAll, getDeleted});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchDailySales(...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>) {
-  const { data, error } = await getDailySales({ page, pageSize, orderBy, ascending, search, getAll });
+export async function fetchDailySales(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>) {
+  const {data, error} = await getDailySales({page, pageSize, orderBy, ascending, search, getAll, getDeleted});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchReports(...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>) {
-  const { data, error } = await getReports({ page, pageSize, orderBy, ascending, search, getAll });
+export async function fetchReports(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>) {
+  const {data, error} = await getReports({page, pageSize, orderBy, ascending, search, getAll, getDeleted});
   if (error) throw new Error(error);
   return data;
 }
 
 export async function fetchProductSnapshotsByReportId(
   reportId: string | number,
-  ...[ page, pageSize, orderBy, ascending, search, getAll ]: Parameters<TypeFetch>
+  ...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>
 ) {
-  const { data, error } = await getProductSnapshotById({
-    id: reportId, page, pageSize, orderBy, ascending, search, getAll
+  const {data, error} = await getProductSnapshotById({
+    id: reportId, page, pageSize, orderBy, ascending, search, getAll, getDeleted
   });
 
   if (error) throw new Error(error);
   return data;
 }
 
+
+// Save
 export async function saveProduct(data: any, isNew: boolean, productId?: string | number) {
   try {
     if (isNew) {
-      const result = await createProduct({ data, returning: true });
+      const result = await createProduct({data, returning: true});
       return result;
     } else {
       if (!productId) {
@@ -87,7 +95,7 @@ export async function saveProduct(data: any, isNew: boolean, productId?: string 
       }
       const result = await updateProduct({
         data,
-        eq: { id: productId },
+        eq: {id: productId},
         returning: true
       });
       return result;
@@ -97,7 +105,7 @@ export async function saveProduct(data: any, isNew: boolean, productId?: string 
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'SAVE_PRODUCT_ERROR',
-      data: { items: [] }
+      data: {items: []}
     };
   }
 }
@@ -105,7 +113,7 @@ export async function saveProduct(data: any, isNew: boolean, productId?: string 
 export async function saveCategory(data: any, isNew: boolean, categoryId?: string | number) {
   try {
     if (isNew) {
-      const result = await createCategory({ data, returning: true });
+      const result = await createCategory({data, returning: true});
       return result;
     } else {
       if (!categoryId) {
@@ -119,7 +127,7 @@ export async function saveCategory(data: any, isNew: boolean, categoryId?: strin
       }
       const result = await updateCategory({
         data,
-        eq: { id: categoryId },
+        eq: {id: categoryId},
         returning: true
       });
       return result;
@@ -129,7 +137,7 @@ export async function saveCategory(data: any, isNew: boolean, categoryId?: strin
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'SAVE_CATEGORY_ERROR',
-      data: { items: [] }
+      data: {items: []}
     };
   }
 }
@@ -137,7 +145,7 @@ export async function saveCategory(data: any, isNew: boolean, categoryId?: strin
 export async function saveShelve(data: any, isNew: boolean, shelveId?: string | number) {
   try {
     if (isNew) {
-      const result = await createShelve({ data, returning: true });
+      const result = await createShelve({data, returning: true});
       return result;
     } else {
       if (!shelveId) {
@@ -151,7 +159,7 @@ export async function saveShelve(data: any, isNew: boolean, shelveId?: string | 
       }
       const result = await updateShelve({
         data,
-        eq: { id: shelveId },
+        eq: {id: shelveId},
         returning: true
       });
       return result;
@@ -161,7 +169,7 @@ export async function saveShelve(data: any, isNew: boolean, shelveId?: string | 
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'SAVE_SHELVE_ERROR',
-      data: { items: [] }
+      data: {items: []}
     };
   }
 }
@@ -169,7 +177,7 @@ export async function saveShelve(data: any, isNew: boolean, shelveId?: string | 
 export async function saveDailySale(data: any, isNew: boolean, dailySaleId?: string | number) {
   try {
     if (isNew) {
-      const result = await createDailySale({ data, returning: true });
+      const result = await createDailySale({data, returning: true});
       return result;
     } else {
       if (!dailySaleId) {
@@ -183,7 +191,7 @@ export async function saveDailySale(data: any, isNew: boolean, dailySaleId?: str
       }
       const result = await updateDailySale({
         data,
-        eq: { id: dailySaleId },
+        eq: {id: dailySaleId},
         returning: true
       });
       return result;
@@ -193,7 +201,7 @@ export async function saveDailySale(data: any, isNew: boolean, dailySaleId?: str
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'SAVE_DAILY_SALE_ERROR',
-      data: { items: [] }
+      data: {items: []}
     };
   }
 }
@@ -201,7 +209,7 @@ export async function saveDailySale(data: any, isNew: boolean, dailySaleId?: str
 export async function saveReport(data: any, isNew: boolean, reportId?: string | number) {
   try {
     if (isNew) {
-      const result = await createReport({ data, returning: true });
+      const result = await createReport({data, returning: true});
       return result;
     } else {
       if (!reportId) {
@@ -215,7 +223,7 @@ export async function saveReport(data: any, isNew: boolean, reportId?: string | 
       }
       const result = await updateReport({
         data,
-        eq: { id: reportId },
+        eq: {id: reportId},
         returning: true
       });
       return result;
@@ -225,7 +233,7 @@ export async function saveReport(data: any, isNew: boolean, reportId?: string | 
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'SAVE_REPORT_ERROR',
-      data: { items: [] }
+      data: {items: []}
     };
   }
 }
@@ -236,14 +244,14 @@ export async function saveProductSnapshot(data: any, reportId?: string | number)
     const nameReport = inputName?.trim() || `Reporte ${formattedDate(new Date(), 'medium')}`;
 
     // create a report
-    const { data: dataReport, error, success } = await saveReport({ name: nameReport }, true);
+    const {data: dataReport, error, success} = await saveReport({name: nameReport}, true);
 
     if (!success || error) {
       return {
         success,
         error: error || 'Failed to save report',
         message: 'SAVE_PRODUCT_SNAPSHOT_ERROR',
-        data: { items: [] }
+        data: {items: []}
       };
     }
 
@@ -254,19 +262,19 @@ export async function saveProductSnapshot(data: any, reportId?: string | number)
         success: false,
         error: 'Report was not created successfully',
         message: 'SAVE_PRODUCT_SNAPSHOT_ERROR',
-        data: { items: [] }
+        data: {items: []}
       };
     }
 
     // create product snapshot using the new report's id
-    const snapshotResult = await createProductSnapshot({ data: { report_id: report.id }, returning: true });
+    const snapshotResult = await createProductSnapshot({data: {report_id: report.id}, returning: true});
 
     if (!snapshotResult.success) {
       return {
         success: false,
         error: snapshotResult.error || 'Failed to save product snapshot',
         message: 'SAVE_PRODUCT_SNAPSHOT_ERROR',
-        data: { items: [] }
+        data: {items: []}
       };
     }
 
@@ -274,7 +282,7 @@ export async function saveProductSnapshot(data: any, reportId?: string | number)
       success: true,
       error: null,
       message: 'SAVE_PRODUCT_SNAPSHOT_SUCCESS',
-      data: { report, snapshots: snapshotResult.data?.items ?? [] }
+      data: {report, snapshots: snapshotResult.data?.items ?? []}
     };
 
   } catch (error) {
@@ -282,7 +290,20 @@ export async function saveProductSnapshot(data: any, reportId?: string | number)
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'SAVE_PRODUCT_SNAPSHOT_ERROR',
-      data: { items: [] }
+      data: {items: []}
     };
   }
+}
+
+
+// Soft delete
+export async function deleteProduct(id: string | number, soft = true) {
+  if (soft) return await softDeleteProduct({id});
+
+  return await deleteBy({table: 'product', eq: {id}});
+}
+
+// Soft restore
+export async function restoreProduct(id: string | number) {
+  return await softRestoreProduct({id});
 }

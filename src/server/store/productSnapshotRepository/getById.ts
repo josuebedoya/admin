@@ -33,12 +33,13 @@ type Params = {
   ascending?: boolean;
   search?: string;
   getAll?: boolean;
+  getDeleted?: boolean;
 }
 
 const getById = async ({ id, page, pageSize, orderBy, ascending, search, getAll }: Params): Promise<ResGetById> => {
 
   const { data, error, success, message } = await get({
-    table: 'product_snapshot_report',
+    table: 'product_snapshot',
     page,
     pageSize,
     orderBy,

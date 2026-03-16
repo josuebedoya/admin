@@ -119,6 +119,12 @@ export const dictionary = {
         title: 'Reportes',
         description: 'Visualiza los reportes de tu tienda en el dashboard de reportes. Analiza las ventas, ganancias y otros datos clave para optimizar tu negocio con facilidad.',
       }
+    },
+    wastebasket: {
+      products: {
+        title: 'Productos Eliminados',
+        description: 'Gestiona los productos eliminados. Visualiza o restaura los productos que has eliminado de tu inventario.',
+      }
     }
   }
 }

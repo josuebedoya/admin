@@ -63,7 +63,8 @@ const TableSales = ({
           <Cell text={formattedMoney(item?.transferred)} key={i}/>,
           <Cell text={formattedMoney(item?.cashed)} key={i}/>,
           <Cell text={formattedMoney(item?.transferred + item?.cashed)} key={i}/>,
-          <Cell text={item?.note} isLast key={i}/>,
+          <Cell text={item?.note} isLast key={i}
+                controls={{id: item.id, link: `/dashboard/ventas-diarias/${item?.id}`}}/>,
         ].filter(Boolean)
       }
     })
