@@ -27,10 +27,16 @@ const navItems: NavItem[] = [
     icon: <GridIcon/>,
     name: "Dashboard",
     subItems: [
-      {name: "Ecommerce", path: "/", pro: false},
       {name: "Productos", path: "/dashboard/productos", pro: false},
       {name: "Ventas diarias", path: "/dashboard/ventas-diarias", pro: false},
       {name: "Reportes", path: "/dashboard/reportes", pro: false},
+    ]
+  },
+  {
+    icon: <GridIcon/>,
+    name: "Análisis",
+    subItems: [
+      {name: "Géneral", path: "/", pro: false},
     ]
   },
 ];
@@ -53,6 +59,7 @@ const othersItems: NavItem[] = [
     subItems: [
       {name: "Cambiar cuenta", path: "/signin", pro: false},
       {name: "Registrar cuenta", path: "/signup", pro: false},
+      {name: "Tú perfil", path: "/profile", pro: false},
     ],
   },
 ];

@@ -1,28 +1,30 @@
-import React, { ReactNode } from "react";
+import React, {ReactNode} from "react";
 
 interface ButtonProps {
-  children: ReactNode; // Button text or content
-  size?: "sm" | "md"; // Button size
-  variant?: "primary" | "outline"; // Button variant
-  startIcon?: ReactNode; // Icon before the text
-  endIcon?: ReactNode; // Icon after the text
-  onClick?: () => void; // Click handler
-  disabled?: boolean; // Disabled state
-  className?: string; // Disabled state
-  title?: string; // Tooltip text
+  children: ReactNode,
+  size?: "sm" | "md",
+  variant?: "primary" | "outline",
+  startIcon?: ReactNode,
+  endIcon?: ReactNode,
+  onClick?: () => void,
+  disabled?: boolean,
+  className?: string,
+  title?: string,
+  type?: "submit" | "reset" | "button" | undefined
 }
 
 const Button: React.FC<ButtonProps> = ({
-  children,
-  size = "md",
-  variant = "primary",
-  startIcon,
-  endIcon,
-  onClick,
-  className = "",
-  disabled = false,
-  title,
-}) => {
+                                         children,
+                                         size = "md",
+                                         variant = "primary",
+                                         startIcon,
+                                         endIcon,
+                                         onClick,
+                                         className = "",
+                                         disabled = false,
+                                         title,
+                                         type
+                                       }) => {
   // Size Classes
   const sizeClasses = {
     sm: "px-4 py-3 text-sm",
@@ -44,6 +46,7 @@ const Button: React.FC<ButtonProps> = ({
       } ${variantClasses[variant]} ${
         disabled ? "cursor-not-allowed opacity-50" : ""
       }`}
+      type={type}
       onClick={onClick}
       disabled={disabled}
       title={title}

@@ -9,17 +9,20 @@ interface DropdownItemProps {
   baseClassName?: string;
   className?: string;
   children: React.ReactNode;
+  target?: string;
 }
 
-export const DropdownItem: React.FC<DropdownItemProps> = ({
-  tag = "button",
-  href,
-  onClick,
-  onItemClick,
-  baseClassName = "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900",
-  className = "",
-  children,
-}) => {
+export const DropdownItem: React.FC<DropdownItemProps> = (
+  {
+    tag = "button",
+    href,
+    onClick,
+    onItemClick,
+    baseClassName = "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900",
+    className = "",
+    children,
+    target = '_self'
+  }) => {
   const combinedClasses = `${baseClassName} ${className}`.trim();
 
   const handleClick = (event: React.MouseEvent) => {
@@ -32,7 +35,7 @@ export const DropdownItem: React.FC<DropdownItemProps> = ({
 
   if (tag === "a" && href) {
     return (
-      <Link href={href} className={combinedClasses} onClick={handleClick}>
+      <Link href={href} className={combinedClasses} onClick={handleClick} target={target}>
         {children}
       </Link>
     );
