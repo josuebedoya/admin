@@ -77,19 +77,26 @@ export default function BasicTableOne(
 
   const emptyState = !data?.body || data.body.length === 0 || (data.body.length === 1 && stickyLastRow);
 
+  const btnData = buttonAdd ? {
+    onClick: buttonAdd.onClick,
+    label: buttonAdd.label,
+    icon: buttonAdd.icon,
+    position: buttonAdd.position ?? 'right',
+  } : null;
+
   return (
     <div className="flex flex-col gap-0">
       {/* ── Controls ── */}
       <div
-        className={`flex items-center mb-4 gap-2 ${buttonAdd?.position === 'left' ? 'justify-between' : 'justify-end'}`}>
-        {(buttonAdd && buttonAdd.position === 'left') && (
-          <ButtonControl {...buttonAdd}/>
+        className={`flex items-center mb-4 gap-2 ${btnData?.position === 'left' ? 'justify-between' : 'justify-end'}`}>
+        {(btnData && btnData.position === 'left') && (
+          <ButtonControl {...btnData}/>
         )}
 
         {search && <SearchEngine value={search.value} onChange={search.onChange} placeholder={search.placeholder}/>}
 
-        {(buttonAdd && buttonAdd.position === 'right') && (
-          <ButtonControl {...buttonAdd}/>
+        {(btnData && btnData.position === 'right') && (
+          <ButtonControl {...btnData}/>
         )}
         {headContent}
       </div>

@@ -8,16 +8,38 @@ const formattedMoney = (value: number) => {
 };
 
 type DateFormat = 'short' | 'medium' | 'long' | 'numeric' | 'input';
-const formattedDate = (date: string | Date | null, format?: DateFormat) => {
+type DateFields = 'year' | 'month' | 'day';
+
+const formattedDate = (date: string | Date | null, format?: DateFormat, get?: DateFields[]) => {
   if (!date) return '';
 
-  const newDate = date instanceof Date
-    ? new Date(date.getFullYear(), date.getMonth(), date.getDate())
-    : (() => {
-      const datePart = date?.split('T')[0] || date?.split(' ')[0];
-      const [year, month, day] = datePart.split('-').map(Number);
-      return new Date(year, month - 1, day);
-    })();
+  const newDate = date instanceof Date ? new Date(date.getFullYear(), date.getMonth(), date.getDate()) : (() => {
+    const datePart = (date as string).split('T')[0].split(' ')[0];
+    const [year, month, day] = datePart.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  })();
+
+  if (get) {
+    const options: Intl.DateTimeFormatOptions = {};
+
+    if (get.includes('day')) {
+      if (format === 'long') options.weekday = 'long';
+      else if (['short', 'medium', 'input'].includes(format || '')) options.weekday = 'short';
+      else options.day = 'numeric';
+    }
+
+    if (get.includes('month')) {
+      if (['short', 'medium', 'input'].includes(format || '')) options.month = 'short';
+      else if (format === 'numeric') options.month = '2-digit';
+      else options.month = 'long';
+    }
+
+    if (get.includes('year')) {
+      options.year = 'numeric';
+    }
+
+    return newDate.toLocaleDateString('es-CO', options);
+  }
 
   if (format === 'input') {
     const year = newDate.getFullYear();
@@ -26,11 +48,7 @@ const formattedDate = (date: string | Date | null, format?: DateFormat) => {
     return `${year}-${month}-${day}`;
   }
 
-  const op: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  };
+  const op: Intl.DateTimeFormatOptions = {year: 'numeric', month: 'long', day: 'numeric',};
 
   if (format === 'short') {
     op.month = 'short';
@@ -91,6 +109,32 @@ const getTotalAmountProduct = (items: Item[]) => {
   return total;
 }
 
+const getArrayBackDays = (numDays: number): string[] => {
+  const dates: string[] = [];
+  const today = new Date();
+
+  for (let i = 0; i < numDays; i++) {
+    const pastDate = new Date(today);
+    pastDate.setDate(today.getDate() - i);
+    dates.push(formattedDate(pastDate, 'input'));
+  }
+
+  return dates;
+};
+
+const slugify = (text: string) => {
+  return text
+    .toString()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+}
+
 export {
   formattedMoney,
   formattedDate,
@@ -99,5 +143,7 @@ export {
   getTotalAmount,
   getTotalProfit,
   getPromedioProfitPercent,
-  getTotalAmountProduct
+  getTotalAmountProduct,
+  getArrayBackDays,
+  slugify
 }

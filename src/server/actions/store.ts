@@ -37,47 +37,48 @@ type TypeFetch = (
   ascending?: boolean,
   search?: string,
   getAll?: boolean,
-  getDeleted?: boolean
+  getDeleted?: boolean,
+  onlyCount?: boolean
 ) => void;
 
 
 // Fetch
-export async function fetchProducts(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>) {
-  const {data, error} = await getProducts({page, pageSize, orderBy, ascending, search, getAll, getDeleted});
+export async function fetchProducts(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
+  const {data, error} = await getProducts({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchShelves(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>) {
-  const {data, error} = await getShelves({page, pageSize, orderBy, ascending, search, getAll, getDeleted});
+export async function fetchShelves(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
+  const {data, error} = await getShelves({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchCategories(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>) {
-  const {data, error} = await getCategories({page, pageSize, orderBy, ascending, search, getAll, getDeleted});
+export async function fetchCategories(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
+  const {data, error} = await getCategories({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchDailySales(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>) {
-  const {data, error} = await getDailySales({page, pageSize, orderBy, ascending, search, getAll, getDeleted});
+export async function fetchDailySales(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
+  const {data, error} = await getDailySales({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
   if (error) throw new Error(error);
   return data;
 }
 
-export async function fetchReports(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>) {
-  const {data, error} = await getReports({page, pageSize, orderBy, ascending, search, getAll, getDeleted});
+export async function fetchReports(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
+  const {data, error} = await getReports({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
   if (error) throw new Error(error);
   return data;
 }
 
 export async function fetchProductSnapshotsByReportId(
   reportId: string | number,
-  ...[page, pageSize, orderBy, ascending, search, getAll, getDeleted]: Parameters<TypeFetch>
+  ...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>
 ) {
   const {data, error} = await getProductSnapshotById({
-    id: reportId, page, pageSize, orderBy, ascending, search, getAll, getDeleted
+    id: reportId, page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount
   });
 
   if (error) throw new Error(error);

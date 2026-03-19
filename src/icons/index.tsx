@@ -54,6 +54,7 @@ import BellIcon from "./bell.svg";
 import StoreIcon from "./store.svg";
 import MenuDotsIcon from "./option.svg";
 import RestoreIcon from "./restore.svg";
+import ProductsIcon from "./products.svg";
 
 const Store = () => <span className='svg-img'><StoreIcon/></span>
 const MenuDots = () => <span className='svg-img'><MenuDotsIcon/></span>
@@ -114,5 +115,6 @@ export {
   ChatIcon,
   Store,
   MenuDots,
-  RestoreIcon
+  RestoreIcon,
+  ProductsIcon
 };

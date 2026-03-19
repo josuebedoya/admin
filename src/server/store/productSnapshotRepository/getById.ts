@@ -26,9 +26,10 @@ type Params = {
   search?: string;
   getAll?: boolean;
   getDeleted?: boolean;
+  onlyCount?: boolean;
 }
 
-const getById = async ({id, page, pageSize, orderBy, ascending, search, getAll}: Params): Promise<ResGetById> => {
+const getById = async ({id, page, pageSize, orderBy, ascending, search, getAll, onlyCount}: Params): Promise<ResGetById> => {
 
   const {data, error, success, message} = await get({
     table: 'product_snapshot',
@@ -41,7 +42,8 @@ const getById = async ({id, page, pageSize, orderBy, ascending, search, getAll}:
       query: search,
       columns: ['name', 'category', 'shelf', 'type_unity']
     } : undefined,
-    getAll
+    getAll,
+    onlyCount
   });
 
   if (!success) {

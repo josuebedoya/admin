@@ -101,7 +101,7 @@ const TableSales = (
     data={dataTable}
     pagination={paginationData}
     sortable={sortableData}
-    buttonAdd={{onClick: openFormNewSale, label: 'Agregar Venta'}}
+    buttonAdd={{onClick: openFormNewSale, label: 'Agregar Venta', position: 'right'}}
     search={{
       onChange: handleSearchChange,
       value: searchTerm,

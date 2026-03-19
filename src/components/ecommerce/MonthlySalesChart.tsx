@@ -1,23 +1,28 @@
 "use client";
-import { ApexOptions } from "apexcharts";
+import {ApexOptions} from "apexcharts";
 import dynamic from "next/dynamic";
-import { MoreDotIcon } from "@/icons";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { useState } from "react";
-import { Dropdown } from "../ui/dropdown/Dropdown";
+import {formattedDate, formattedMoney, getArrayBackDays, slugify} from "@/utils";
+import {DailySale} from "@/server/store/dailySaleRepository";
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-export default function MonthlySalesChart() {
+
+type Params = {
+  sales: DailySale[]
+}
+export default function MonthlySalesChart({sales}: Params) {
+  const backWeekend = getArrayBackDays(7)
+  const backWeekendDays = backWeekend.map(date => formattedDate(date, "long", ['day']))?.reverse();
+
   const options: ApexOptions = {
-    colors: ["#465fff"],
+    colors: ["#3B82F6"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "bar",
-      height: 180,
+      height: 250,
       toolbar: {
         show: false,
       },
@@ -25,7 +30,7 @@ export default function MonthlySalesChart() {
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: "39%",
+        columnWidth: "45%",
         borderRadius: 5,
         borderRadiusApplication: "end",
       },
@@ -39,20 +44,7 @@ export default function MonthlySalesChart() {
       colors: ["transparent"],
     },
     xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      categories: backWeekendDays,
       axisBorder: {
         show: false,
       },
@@ -87,56 +79,59 @@ export default function MonthlySalesChart() {
         show: false,
       },
       y: {
-        formatter: (val: number) => `${val}`,
+        formatter: (val: number) => formattedMoney(val),
       },
     },
   };
-  const series = [
+
+  type DayKey =
+    | 'lunes'
+    | 'martes'
+    | 'miercoles'
+    | 'jueves'
+    | 'viernes'
+    | 'sabado'
+    | 'domingo';
+
+  const dayKeys: DayKey[] = backWeekendDays.map(d => slugify(d) as DayKey);
+
+  const groupedSales = sales.reduce<Record<DayKey, number>>(
+    (acc, sale) => {
+      const daySale = formattedDate(sale.date_created, "long", ["day"]);
+      const normalizedDay = slugify(daySale) as DayKey;
+      const totalSale = sale.transferred + sale.cashed;
+
+      if (dayKeys.includes(normalizedDay)) {
+        acc[normalizedDay] += totalSale;
+      }
+
+      return acc;
+    },
     {
-      name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+      lunes: 0,
+      martes: 0,
+      miercoles: 0,
+      jueves: 0,
+      viernes: 0,
+      sabado: 0,
+      domingo: 0,
+    }
+  );
+
+  const series: { name: string; data: number[] }[] = [
+    {
+      name: "Venta",
+      data: dayKeys.map(d => groupedSales[d]),
     },
   ];
-  const [isOpen, setIsOpen] = useState(false);
-
-  function toggleDropdown() {
-    setIsOpen(!isOpen);
-  }
-
-  function closeDropdown() {
-    setIsOpen(false);
-  }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
+    <div
+      className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Monthly Sales
+          Ventas Semanales
         </h3>
-
-        <div className="relative inline-block">
-          <button onClick={toggleDropdown} className="dropdown-toggle">
-            <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
-          </button>
-          <Dropdown
-            isOpen={isOpen}
-            onClose={closeDropdown}
-            className="w-40 p-2"
-          >
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              View More
-            </DropdownItem>
-            <DropdownItem
-              onItemClick={closeDropdown}
-              className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-            >
-              Delete
-            </DropdownItem>
-          </Dropdown>
-        </div>
       </div>
 
       <div className="max-w-full overflow-x-auto custom-scrollbar">

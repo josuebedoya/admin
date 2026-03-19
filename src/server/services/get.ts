@@ -10,6 +10,13 @@ type ParamsGetCommon = {
   pageSize?: number;
   orderBy?: string;
   ascending?: boolean;
+  onlyCount?: boolean;
+  gte?: {
+    [key: string]: string | number | boolean;
+  };
+  lt?: {
+    [key: string]: string | number | boolean;
+  };
 }
 
 type Params = ParamsGetCommon & {
@@ -24,7 +31,12 @@ type Params = ParamsGetCommon & {
   getDeleted?: boolean;
 }
 
-export type GetParams = ParamsGetCommon & { search?: string; getAll?: boolean, getDeleted?: boolean };
+export type GetParams = ParamsGetCommon & {
+  search?: string;
+  getAll?: boolean,
+  getDeleted?: boolean,
+  onlyCount?: boolean
+};
 
 export type ResGet = {
   data: {
@@ -41,21 +53,23 @@ const nullData = {
   items: []
 }
 
-const get = async ({table, ...config}: Params): Promise<ResGet> => {
+const get = async ({table, onlyCount = false, ...config}: Params): Promise<ResGet> => {
 
   try {
     let query = supabase
       .from(table)
       .select(
         [...config.columns || ''].join(', '),
-        {count: config.count || 'exact'}
+        {count: config.count || 'exact', head: onlyCount}
       );
 
+    // Search filters o queries given
     if (config.search && config.search.query && config.search.columns.length > 0) {
       const searchQuery = config.search.columns.map(col => `${col}.ilike.%${config.search!.query}%`).join(',');
       query = query.or(searchQuery);
     }
 
+    // Date deleted filters
     if (!config.getDeleted) {
       query = query.is('date_deleted', null);
     } else {
@@ -63,8 +77,24 @@ const get = async ({table, ...config}: Params): Promise<ResGet> => {
       query = query.not('date_deleted', 'is', 'null');
     }
 
+    // Eq conditions filters
     query = query.match((config.eq) || {});
 
+    // GTE filters
+    if (config.gte) {
+      Object.entries(config.gte).forEach(([key, value]) => {
+        query = query.gte(key, value as any);
+      });
+    }
+
+    // LT filters
+    if (config.lt) {
+      Object.entries(config.lt).forEach(([key, value]) => {
+        query = query.lt(key, value as any);
+      });
+    }
+
+    // Get all or paginate items
     if (!config.getAll) {
       const page = config.page || 1;
       const pageSize = config.pageSize || 10;
@@ -73,7 +103,7 @@ const get = async ({table, ...config}: Params): Promise<ResGet> => {
       query = query.range(from, to);
     }
 
-    // Agregar ordenamiento si existe
+    // Order by
     if (config.orderBy) {
       query = query.order(config.orderBy, {ascending: config.ascending ?? true});
     } else {
