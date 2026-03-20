@@ -67,6 +67,12 @@ export async function fetchDailySales(...[page, pageSize, orderBy, ascending, se
   return data;
 }
 
+export async function fetchDailySalesWithQuery(query: any) {
+  const {data, error} = await getDailySales({...query, getAll: true});
+  if (error) throw new Error(error);
+  return data;
+}
+
 export async function fetchReports(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
   const {data, error} = await getReports({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
   if (error) throw new Error(error);

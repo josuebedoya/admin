@@ -1,30 +1,65 @@
 "use client";
-import { useEffect, useRef } from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import dynamic from "next/dynamic";
-import { ApexOptions } from "apexcharts";
+import {ApexOptions} from "apexcharts";
 import flatpickr from "flatpickr";
-import ChartTab from "../common/ChartTab";
-import { CalenderIcon } from "../../icons";
+import {DailySale} from "@/server/store/dailySaleRepository";
+import {formattedMoney} from "@/utils";
+import {fetchDailySalesWithQuery} from "@/server/actions/store";
 
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+const Chart = dynamic(() => import("react-apexcharts"), {ssr: false});
 
-export default function StatisticsChart() {
+type Params = {
+  sales: DailySale[];
+  onDateRangeChange?: (from: Date, to: Date) => void;
+  isLoading?: boolean;
+};
+
+export default function StatisticsChart({sales: initialSales, onDateRangeChange, isLoading: initialLoading}: Params) {
   const datePickerRef = useRef<HTMLInputElement>(null);
+  const [sales, setSales] = useState<DailySale[]>(initialSales);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setSales(initialSales);
+  }, [initialSales]);
+
+  const handleDateRangeChange = useCallback(async (selectedDates: Date[]) => {
+    if (selectedDates.length !== 2) return;
+
+    const [from, to] = selectedDates;
+    setLoading(true);
+
+    try {
+      const query = {
+        gte: {date_created: from.toISOString()},
+        lt: {date_created: to.toISOString()}
+      };
+
+      const data = await fetchDailySalesWithQuery(query);
+      setSales(data?.items || []);
+      onDateRangeChange?.(from, to);
+    } catch (err) {
+      console.error('Error fetching sales for date range:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [onDateRangeChange]);
 
   useEffect(() => {
     if (!datePickerRef.current) return;
 
     const today = new Date();
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 6);
+    const elevenMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 11, 1);
 
     const fp = flatpickr(datePickerRef.current, {
       mode: "range",
       static: true,
       monthSelectorType: "static",
       dateFormat: "M d",
-      defaultDate: [sevenDaysAgo, today],
+      defaultDate: [elevenMonthsAgo, today],
       clickOpens: true,
+      onChange: (selectedDates) => handleDateRangeChange(selectedDates),
       prevArrow:
         '<svg class="stroke-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 15L7.5 10L12.5 5" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       nextArrow:
@@ -36,28 +71,77 @@ export default function StatisticsChart() {
         fp.destroy();
       }
     };
-  }, []);
+  }, [handleDateRangeChange]);
+
+  const {categories, monthlyTotals, accumulatedTotals, totalSales} = useMemo(() => {
+    const now = new Date();
+    const monthKeys: string[] = [];
+
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      monthKeys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+    }
+
+    const totalsMap = monthKeys.reduce<Record<string, number>>((acc, key) => {
+      acc[key] = 0;
+      return acc;
+    }, {});
+
+    for (const sale of sales ?? []) {
+      const saleDate = new Date(sale.date_created);
+      if (Number.isNaN(saleDate.getTime())) continue;
+
+      const saleKey = `${saleDate.getFullYear()}-${String(saleDate.getMonth() + 1).padStart(2, "0")}`;
+      if (!(saleKey in totalsMap)) continue;
+
+      totalsMap[saleKey] += (sale.transferred || 0) + (sale.cashed || 0);
+    }
+
+    const monthFormatter = new Intl.DateTimeFormat("es-ES", {
+      month: "long",
+      year: "numeric",
+    });
+
+    const monthlyTotalsArray = monthKeys.map((key) => totalsMap[key] ?? 0);
+    const total = monthlyTotalsArray.reduce((sum, value) => sum + value, 0);
+
+    // Calcular total acumulado por mes
+    const accumulatedTotals = monthlyTotalsArray.reduce<number[]>((acc, value) => {
+      const lastAccumulated = acc[acc.length - 1] ?? 0;
+      acc.push(lastAccumulated + value);
+      return acc;
+    }, []);
+
+    return {
+      categories: monthKeys.map((key) => {
+        const [year, month] = key.split("-").map(Number);
+        return monthFormatter.format(new Date(year, month - 1, 1));
+      }),
+      monthlyTotals: monthlyTotalsArray,
+      accumulatedTotals,
+      totalSales: total,
+    };
+  }, [sales]);
 
   const options: ApexOptions = {
     legend: {
-      show: false, // Hide legend
+      show: true,
       position: "top",
       horizontalAlign: "left",
     },
-    colors: ["#465FFF", "#9CB9FF"], // Define line colors
+    colors: ["#465FFF", "#10B981"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       height: 310,
-      type: "line", // Set the chart type to 'line'
+      type: "area",
       toolbar: {
-        show: false, // Hide chart toolbar
+        show: false,
       },
     },
     stroke: {
-      curve: "straight", // Define the line style (straight, smooth, or step)
-      width: [2, 2], // Line width for each dataset
+      curve: "straight",
+      width: [2, 2],
     },
-
     fill: {
       type: "gradient",
       gradient: {
@@ -66,69 +150,57 @@ export default function StatisticsChart() {
       },
     },
     markers: {
-      size: 0, // Size of the marker points
-      strokeColors: "#fff", // Marker border color
+      size: 0,
+      strokeColors: "#fff",
       strokeWidth: 2,
       hover: {
-        size: 6, // Marker size on hover
+        size: 6,
       },
     },
     grid: {
       xaxis: {
         lines: {
-          show: false, // Hide grid lines on x-axis
+          show: false,
         },
       },
       yaxis: {
         lines: {
-          show: true, // Show grid lines on y-axis
+          show: true,
         },
       },
     },
     dataLabels: {
-      enabled: false, // Disable data labels
+      enabled: false,
     },
     tooltip: {
-      enabled: true, // Enable tooltip
-      x: {
-        format: "dd MMM yyyy", // Format for x-axis tooltip
+      enabled: true,
+      y: {
+        formatter: (val: number) => formattedMoney(val),
       },
     },
     xaxis: {
-      type: "category", // Category-based x-axis
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
+      type: "category",
+      categories,
       axisBorder: {
-        show: false, // Hide x-axis border
+        show: false,
       },
       axisTicks: {
-        show: false, // Hide x-axis ticks
+        show: false,
       },
       tooltip: {
-        enabled: false, // Disable tooltip for x-axis points
+        enabled: false,
       },
     },
     yaxis: {
       labels: {
         style: {
-          fontSize: "12px", // Adjust font size for y-axis labels
-          colors: ["#6B7280"], // Color of the labels
+          fontSize: "12px",
+          colors: ["#6B7280"],
         },
+        formatter: (val: number) => formattedMoney(val),
       },
       title: {
-        text: "", // Remove y-axis title
+        text: "",
         style: {
           fontSize: "0px",
         },
@@ -138,41 +210,59 @@ export default function StatisticsChart() {
 
   const series = [
     {
-      name: "Sales",
-      data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+      name: "Ventas Mes",
+      data: monthlyTotals,
     },
     {
-      name: "Revenue",
-      data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+      name: "Total acumulado",
+      data: accumulatedTotals,
     },
   ];
+
+  if (initialLoading) {
+    return (
+      <div
+        className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6 animate-pulse">
+        <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
+          <div className="w-full space-y-3">
+            <div className="h-6 w-1/3 bg-gray-100 dark:bg-gray-800 rounded"></div>
+            <div className="h-4 w-1/4 bg-gray-100 dark:bg-gray-800 rounded"></div>
+          </div>
+        </div>
+        <div className="h-[310px] bg-gray-100 dark:bg-gray-800 rounded w-full"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-      <div className="flex flex-col gap-5 mb-6 sm:flex-row sm:justify-between">
+    <div
+      className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
+      <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
         <div className="w-full">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Statistics
+            Ventas mensuales (últimos 12 meses)
           </h3>
-          <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-            Target you've set for each month
+          <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">
+            Total de ventas: <span
+            className="font-semibold text-gray-800 dark:text-white">{formattedMoney(totalSales)}</span>
           </p>
-        </div>
-        <div className="flex items-center gap-3 sm:justify-end">
-          <ChartTab />
-          <div className="relative inline-flex items-center">
-            <CalenderIcon className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 lg:left-3 lg:top-1/2 lg:translate-x-0 lg:-translate-y-1/2  text-gray-500 dark:text-gray-400 pointer-events-none z-10" />
-            <input
-              ref={datePickerRef}
-              className="h-10 w-10 lg:w-40 lg:h-auto  lg:pl-10 lg:pr-3 lg:py-2 rounded-lg border border-gray-200 bg-white text-sm font-medium text-transparent lg:text-gray-700 outline-none dark:border-gray-700 dark:bg-gray-800 dark:lg:text-gray-300 cursor-pointer"
-              placeholder="Select date range"
-            />
-          </div>
         </div>
       </div>
 
-      <div className="max-w-full overflow-x-auto custom-scrollbar">
-        <div className="min-w-[1000px] xl:min-w-full">
-          <Chart options={options} series={series} type="area" height={310} />
+      <div className="custom-scrollbar max-w-full overflow-x-auto">
+        <div className="min-w-[1000px] xl:min-w-full relative">
+          {loading && (
+            <div
+              className="absolute inset-0 bg-white/50 dark:bg-white/5 z-20 flex items-center justify-center rounded-lg">
+              <svg className="animate-spin h-8 w-8 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                   viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </div>
+          )}
+          <Chart options={options} series={series} type="area" height={310}/>
         </div>
       </div>
     </div>

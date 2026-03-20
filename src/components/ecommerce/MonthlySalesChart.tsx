@@ -12,8 +12,9 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 
 type Params = {
   sales: DailySale[]
+  isLoading?: boolean;
 }
-export default function MonthlySalesChart({sales}: Params) {
+export default function MonthlySalesChart({sales, isLoading}: Params) {
   const backWeekend = getArrayBackDays(7)
   const backWeekendDays = backWeekend.map(date => formattedDate(date, "long", ['day']))?.reverse();
 
@@ -124,6 +125,16 @@ export default function MonthlySalesChart({sales}: Params) {
       data: dayKeys.map(d => groupedSales[d]),
     },
   ];
+
+  if(isLoading){
+    return <div
+      className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6 animate-pulse">
+      <div className="flex items-center justify-between mb-4">
+        <div className="h-6 w-1/3 bg-gray-100 dark:bg-gray-800 rounded"></div>
+      </div>
+      <div className="h-[250px] bg-gray-100 dark:bg-gray-800 rounded w-full"></div>
+    </div>
+  }
 
   return (
     <div

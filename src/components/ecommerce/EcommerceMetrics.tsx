@@ -6,12 +6,26 @@ import {formattedMoney} from "@/utils";
 
 type Params = {
   productsCount: number;
-  salesCount?: number;
-  totalSalesAmount?: number;
+  salesCount: number;
+  totalSalesAmount: number;
+  isLoading?: boolean;
 }
 
+export const EcommerceMetrics = ({productsCount, salesCount, totalSalesAmount, isLoading}: Params) => {
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+        {[1, 2].map((i) => (
+          <div key={i} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 animate-pulse">
+            <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800 mb-4"></div>
+            <div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-1/3 mb-2"></div>
+            <div className="h-6 bg-gray-100 dark:bg-gray-800 rounded w-1/2"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
-export const EcommerceMetrics = ({productsCount, salesCount, totalSalesAmount}: Params) => {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
       {/* <!-- Metric Item Start --> */}

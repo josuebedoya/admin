@@ -1,12 +1,9 @@
 "use client";
 // import Chart from "react-apexcharts";
-import { ApexOptions } from "apexcharts";
+import {ApexOptions} from "apexcharts";
 
 import dynamic from "next/dynamic";
-import { Dropdown } from "../ui/dropdown/Dropdown";
-import { MoreDotIcon } from "@/icons";
-import { useState } from "react";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
+import {useState} from "react";
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
@@ -78,36 +75,11 @@ export default function MonthlyTarget() {
         <div className="flex justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              Monthly Target
+              Ventas Mensuales
             </h3>
             <p className="mt-1 font-normal text-gray-500 text-theme-sm dark:text-gray-400">
-              Target you’ve set for each month
+              Rendimientos de este mes
             </p>
-          </div>
-          <div className="relative inline-block">
-            <button onClick={toggleDropdown} className="dropdown-toggle">
-              <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
-            </button>
-            <Dropdown
-              isOpen={isOpen}
-              onClose={closeDropdown}
-              className="w-40 p-2"
-            >
-              <DropdownItem
-                tag="a"
-                onItemClick={closeDropdown}
-                className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-              >
-                View More
-              </DropdownItem>
-              <DropdownItem
-                tag="a"
-                onItemClick={closeDropdown}
-                className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
-              >
-                Delete
-              </DropdownItem>
-            </Dropdown>
           </div>
         </div>
         <div className="relative ">
@@ -120,13 +92,15 @@ export default function MonthlyTarget() {
             />
           </div>
 
-          <span className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-[95%] rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-600 dark:bg-success-500/15 dark:text-success-500">
+          <span
+            className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-[95%] rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-600 dark:bg-success-500/15 dark:text-success-500">
             +10%
           </span>
         </div>
         <p className="mx-auto mt-10 w-full max-w-[380px] text-center text-sm text-gray-500 sm:text-base">
-          You earn $3287 today, it&apos;s higher than last month. Keep up your
-          good work!
+          Este mes obtienes una ganancia de <strong>$1.234.832,00</strong> lo genera un <strong>10%</strong> más que el
+          mes anterior.
+          <br/> Buen trabajo!
         </p>
       </div>
 
@@ -135,7 +109,8 @@ export default function MonthlyTarget() {
           <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
             Target
           </p>
-          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
+          <p
+            className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
             $20K
             <svg
               width="16"
@@ -160,7 +135,8 @@ export default function MonthlyTarget() {
           <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
             Revenue
           </p>
-          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
+          <p
+            className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
             $20K
             <svg
               width="16"
@@ -185,7 +161,8 @@ export default function MonthlyTarget() {
           <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
             Today
           </p>
-          <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
+          <p
+            className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
             $20K
             <svg
               width="16"
