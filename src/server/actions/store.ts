@@ -29,6 +29,7 @@ import softDeleteReport from "@/server/store/reportsRepository/softDeleteReport"
 import softRestoreReport from "@/server/store/reportsRepository/softRestoreReport";
 import softDeleteCategory from "@/server/store/categoryRepository/softDeleteCategory";
 import softRestoreCategory from "@/server/store/categoryRepository/softRestoreCategory";
+import get from "@/server/services/get";
 
 type TypeFetch = (
   page: number,
@@ -56,13 +57,31 @@ export async function fetchShelves(...[page, pageSize, orderBy, ascending, searc
 }
 
 export async function fetchCategories(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
-  const {data, error} = await getCategories({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
+  const {data, error} = await getCategories({
+    page,
+    pageSize,
+    orderBy,
+    ascending,
+    search,
+    getAll,
+    getDeleted,
+    onlyCount
+  });
   if (error) throw new Error(error);
   return data;
 }
 
 export async function fetchDailySales(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
-  const {data, error} = await getDailySales({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
+  const {data, error} = await getDailySales({
+    page,
+    pageSize,
+    orderBy,
+    ascending,
+    search,
+    getAll,
+    getDeleted,
+    onlyCount
+  });
   if (error) throw new Error(error);
   return data;
 }
@@ -362,4 +381,18 @@ export async function restoreDailySale(id: string | number) {
 
 export async function restoreReport(id: string | number) {
   return await softRestoreReport({id});
+}
+
+export async function fetchProductsTotalPrice() {
+
+  const {data, success} = await get({
+    table: 'product',
+    columns: ['price', 'quantity'],
+    getAll: true,
+    page: 1,
+    pageSize: 1,
+  })
+
+  if (!success) return 0;
+  return data?.items.reduce((sum, p) => sum + ((p.price || 0) * (p.quantity || 0)), 0) || 0;
 }
