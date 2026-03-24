@@ -17,7 +17,7 @@ const SelectSize: React.FC<SelectSizeProps> = ({onChangeSelect, total}) => {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[14px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
+      <span className="text-xs md:text-[14px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
         Mostrar
       </span>
       <Select
@@ -29,7 +29,7 @@ const SelectSize: React.FC<SelectSizeProps> = ({onChangeSelect, total}) => {
         searchable={false}
         searchPlaceholder="Buscar tamaño..."
       />
-      <span className="text-[14px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
+      <span className="text-xs md:text-[14px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
         de{" "}
         <span className="font-semibold text-gray-700 dark:text-gray-200">
           {total}

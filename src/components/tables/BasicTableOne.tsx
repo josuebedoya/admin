@@ -117,7 +117,7 @@ export default function BasicTableOne(
                         <TableCell
                           key={i}
                           isHeader
-                          className="px-3 py-3 text-start text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap sticky top-0 z-10 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm select-none"
+                          className="px-3 py-3 text-start text-[11px] md:text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap sticky top-0 z-10 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm select-none"
                         >
                           <div
                             className={`flex items-center gap-2 ${isSortable ? 'cursor-pointer group' : ''}`}

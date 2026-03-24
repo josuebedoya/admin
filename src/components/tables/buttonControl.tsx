@@ -13,8 +13,8 @@ const ButtonControl = ({onClick, label, icon}: ButtonControlProps) => {
       variant='primary'
       onClick={onClick}
     >
-      {icon && <span className="mr-2">{icon}</span>}
-      {label}
+      {icon && <span className="min-md:mr-2">{icon}</span>}
+      {<span className="max-md:hidden">{label}</span>}
     </Button>
   );
 }

@@ -3,7 +3,16 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useSidebar} from "@/context/SidebarContext";
-import {ChevronDownIcon, FolderIcon, GridIcon, HorizontaLDots, PlugInIcon, Store, TrashBinIcon,} from "../icons/index";
+import {
+  ChevronDownIcon,
+  FolderIcon,
+  GraphicIcon,
+  GridIcon,
+  HorizontaLDots,
+  PlugInIcon,
+  Store,
+  TrashBinIcon,
+} from "../icons/index";
 import Logo from "@/components/Logo";
 
 type NavItem = {
@@ -33,7 +42,7 @@ const navItems: NavItem[] = [
     ]
   },
   {
-    icon: <GridIcon/>,
+    icon: <GraphicIcon/>,
     name: "Análisis",
     subItems: [
       {name: "Géneral", path: "/", pro: false},
@@ -65,8 +74,16 @@ const othersItems: NavItem[] = [
 ];
 
 const AppSidebar: React.FC = () => {
-  const {isExpanded, isMobileOpen, isHovered, setIsHovered} = useSidebar();
+  const {isExpanded, isMobileOpen, isHovered, setIsHovered, toggleSidebar, toggleMobileSidebar} = useSidebar();
   const pathname = usePathname();
+
+  const handleToggle = () => {
+    if (window.innerWidth >= 1024) {
+      toggleSidebar();
+    } else {
+      toggleMobileSidebar();
+    }
+  };
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -149,7 +166,9 @@ const AppSidebar: React.FC = () => {
             >
               <ul className="mt-2 space-y-1 ml-9">
                 {nav.subItems.map((subItem) => (
-                  <li key={subItem.name}>
+                  <li key={subItem.name}
+                      onClick={handleToggle}
+                  >
                     <Link
                       href={subItem.path}
                       className={`menu-dropdown-item flex justify-between gap-2 w-full ${

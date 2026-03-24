@@ -57,6 +57,7 @@ import RestoreIcon from "./restore.svg";
 import ProductsIcon from "./products.svg";
 import LoaderIcon from "./loader.svg";
 import TargetIcon from "./target.svg";
+import GraphicIcon from "./graphic.svg";
 
 const Store = () => <span className='svg-img'><StoreIcon/></span>
 const MenuDots = () => <span className='svg-img'><MenuDotsIcon/></span>
@@ -120,5 +121,6 @@ export {
   RestoreIcon,
   ProductsIcon,
   LoaderIcon,
-  TargetIcon
+  TargetIcon,
+  GraphicIcon
 };
