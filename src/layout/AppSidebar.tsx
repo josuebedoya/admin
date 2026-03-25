@@ -12,6 +12,7 @@ import {
   PlugInIcon,
   Store,
   TrashBinIcon,
+  UserIcon,
 } from "../icons/index";
 import Logo from "@/components/Logo";
 
@@ -71,6 +72,13 @@ const othersItems: NavItem[] = [
       {name: "Tú perfil", path: "/profile", pro: false},
     ],
   },
+  {
+    name: 'Usuarios',
+    icon: <UserIcon/>,
+    subItems: [
+      {name: 'Lista de usuarios', path: '/usuarios', pro: false},
+    ]
+  }
 ];
 
 const AppSidebar: React.FC = () => {

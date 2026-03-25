@@ -11,7 +11,7 @@ import {useModal} from "@/hooks/useModal";
 import {Modal} from "@/components/ui/modal";
 import {redirect, useRouter} from "next/navigation";
 import Alert from "@/components/ui/alert/Alert";
-import { signUpAction } from "@/server/auth/actions";
+import {signUpAction} from "@/server/auth/actions";
 import Logo from "@/components/Logo";
 
 export default function SignInForm() {
@@ -34,7 +34,8 @@ export default function SignInForm() {
   });
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('')
-  const {isOpen, openModal, closeModal} = useModal();
+  const [success, setSuccess] = useState<boolean>(false);
+  const {isOpen, closeModal} = useModal();
   const [user, setUser] = useState<{ name: string }>({name: ''});
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,7 +70,9 @@ export default function SignInForm() {
 
     setUser(data?.user?.user_metadata);
     setLoading(false);
-    openModal();
+    setSuccess(true);
+    setMessage(dictionary.msg.confirm_email);
+    // openModal(); // Se comenta para evitar abrir el modal de bienvenida
   };
 
   const start = () => {
@@ -105,8 +108,8 @@ export default function SignInForm() {
           <div>
             {message && (
               <Alert
-                variant="error"
-                title="Error"
+                variant={success ? "success" : "error"}
+                title={success ? "Registro Exitoso" : "Error"}
                 message={message}
                 showLink={false}
               />

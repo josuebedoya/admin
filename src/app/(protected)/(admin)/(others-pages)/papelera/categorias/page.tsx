@@ -2,8 +2,9 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import {Metadata} from "next";
 import {dictionary} from "@/dictionary";
-import TableDeletedCategories from "@/components/wastebasket/tableDeletedCategories";
+import TableDeletedCategory from "@/components/wastebasket/tableDeletedCategories";
 import {getCategories} from "@/server/store/categoryRepository";
+import { requireAdmin } from "@/server/auth/requireAdmin";
 
 export const metadata: Metadata = {
   title: "Categorías Eliminadas - Admin",
@@ -14,7 +15,8 @@ type PageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function PageCategories({searchParams}: PageProps) {
+export default async function TrashProducts({searchParams}: PageProps) {
+  await requireAdmin();
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;
@@ -31,7 +33,7 @@ export default async function PageCategories({searchParams}: PageProps) {
               {dictionary.msg[message as keyof typeof dictionary.msg] || 'Error al cargar los productos'}
             </div>
           ) : (
-            <TableDeletedCategories
+            <TableDeletedCategory
               items={categories.items || []}
               totalAmount={categories.count || 0}
               currentPage={page}

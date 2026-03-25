@@ -2,8 +2,9 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import {Metadata} from "next";
 import {dictionary} from "@/dictionary";
+import getDailySales from "@/server/store/dailySaleRepository/getDailySales";
 import TableDeletedDailySales from "@/components/wastebasket/tableDeletedDailySales";
-import {getDailySales} from "@/server/store/dailySaleRepository";
+import { requireAdmin } from "@/server/auth/requireAdmin";
 
 export const metadata: Metadata = {
   title: "Ventas diarias eliminadas - Admin",
@@ -14,7 +15,8 @@ type PageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function PageDailySales({searchParams}: PageProps) {
+export default async function TrashProducts({searchParams}: PageProps) {
+  await requireAdmin();
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;

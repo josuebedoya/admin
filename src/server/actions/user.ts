@@ -32,7 +32,7 @@ export async function updateUserProfile({firstName, lastName, phone}: UpdateUser
         last_name: lastName,
         name: `${firstName} ${lastName}`.trim(),
         full_name: `${firstName} ${lastName}`.trim(),
-        phone: phone // A veces se guarda en metadata, depende de configuración supabase
+        phone: phone
       }
     });
 
@@ -46,12 +46,21 @@ export async function updateUserProfile({firstName, lastName, phone}: UpdateUser
       });
     }
 
-
-    const {error: updateTableError} = await supabase
+    // 2. Actualizar tabla profiles
+    const {error: updateProfileError} = await supabase
       .from('profiles')
       .update({name: `${firstName} ${lastName}`, phone})
       .eq('id', user.id);
 
+    if (updateProfileError) {
+      return ResApi({
+        data: null,
+        success: false,
+        message: "Error actualizando perfil",
+        error: updateProfileError.message,
+        status: 500
+      });
+    }
 
     revalidatePath("/profile");
     revalidatePath("/", "layout");

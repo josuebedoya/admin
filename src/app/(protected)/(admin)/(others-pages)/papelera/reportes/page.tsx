@@ -4,6 +4,7 @@ import {Metadata} from "next";
 import {dictionary} from "@/dictionary";
 import {getReports} from "@/server/store/reportsRepository";
 import TableDeletedReports from "@/components/wastebasket/tableDeletedReports";
+import { requireAdmin } from "@/server/auth/requireAdmin";
 
 export const metadata: Metadata = {
   title: "Reportes eliminados - Admin",
@@ -14,7 +15,8 @@ type PageProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function PageReports({searchParams}: PageProps) {
+export default async function TrashProducts({searchParams}: PageProps) {
+  await requireAdmin();
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;

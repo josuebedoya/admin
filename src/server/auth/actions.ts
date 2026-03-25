@@ -1,8 +1,12 @@
 'use server';
 
-import { createAuthClient } from "@/server/auth/client";
+import {createAuthClient} from "@/server/auth/client";
 import ResApi from "@/server/resApi";
-import { redirect } from 'next/navigation';
+import getUsers from "@/server/auth/getUsers";
+import {TypeFetch} from "@/server/actions/store";
+import {checkAdminPermission} from "@/server/auth/checkPermission";
+import updateUser from "@/server/auth/updateUser";
+import getRoles from "@/server/auth/getRoles";
 
 type SignInParams = {
   email: string;
@@ -15,7 +19,7 @@ type SignUpParams = {
   name: string;
 }
 
-export async function signInAction({ email, password }: SignInParams) {
+export async function signInAction({email, password}: SignInParams) {
   try {
     if (!email || !password) {
       return ResApi({
@@ -28,7 +32,7 @@ export async function signInAction({ email, password }: SignInParams) {
     }
 
     const supabase = await createAuthClient();
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const {data, error} = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -67,7 +71,7 @@ export async function signInAction({ email, password }: SignInParams) {
 export async function signOutAction() {
   try {
     const supabase = await createAuthClient();
-    const { error } = await supabase.auth.signOut();
+    const {error} = await supabase.auth.signOut();
 
     if (error) {
       console.error('Error signing out:', error.message);
@@ -101,7 +105,7 @@ export async function signOutAction() {
   }
 }
 
-export async function signUpAction({ email, password, name }: SignUpParams) {
+export async function signUpAction({email, password, name}: SignUpParams) {
   try {
     if (!email || !password || !name) {
       return ResApi({
@@ -114,7 +118,7 @@ export async function signUpAction({ email, password, name }: SignUpParams) {
     }
 
     const supabase = await createAuthClient();
-    const { data, error } = await supabase.auth.signUp({
+    const {data, error} = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -158,7 +162,7 @@ export async function signUpAction({ email, password, name }: SignUpParams) {
 export async function getSessionAction() {
   try {
     const supabase = await createAuthClient();
-    const { data, error } = await supabase.auth.getSession();
+    const {data, error} = await supabase.auth.getSession();
 
     if (error) {
       console.error('Error getting session:', error.message);
@@ -205,7 +209,7 @@ export async function sendPasswordResetAction(email: string) {
 
     const url = process.env.NEXT_PUBLIC_SITE_URL;
     const supabase = await createAuthClient();
-    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    const {data, error} = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${url}/reset-password`
     });
 
@@ -253,7 +257,7 @@ export async function updatePasswordAction(password: string) {
     }
 
     const supabase = await createAuthClient();
-    const { data, error } = await supabase.auth.updateUser({
+    const {data, error} = await supabase.auth.updateUser({
       password,
     });
 
@@ -285,5 +289,56 @@ export async function updatePasswordAction(password: string) {
       error: error instanceof Error ? error.message : String(error),
       status: 500
     });
+  }
+}
+
+export async function fetchUsers(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
+  const {data, error} = await getUsers({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
+  if (error) throw new Error(error);
+  return data;
+}
+
+export async function fetchRoles(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
+  const {data, error} = await getRoles({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
+  if (error) throw new Error(error);
+  return data;
+}
+
+export async function saveUser(data: any, userId?: string | number) {
+  try {
+    const {hasPermission, error: permError, status} = await checkAdminPermission();
+    if (!hasPermission) {
+      return {
+        success: false,
+        error: permError,
+        message: 'PERMISSION_DENIED',
+        data: null,
+        status: status
+      };
+    }
+
+    if (!userId) {
+      return {
+        success: false,
+        error: 'Product ID is required for update',
+        message: 'Product ID is required for update',
+        data: null,
+        status: 400
+      };
+    }
+    const result = await updateUser({
+      data,
+      eq: {id: userId},
+      returning: true
+    });
+
+    return result;
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      message: 'SAVE_PRODUCT_ERROR',
+      data: {items: []}
+    };
   }
 }

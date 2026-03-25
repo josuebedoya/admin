@@ -1,5 +1,6 @@
 'use server';
 
+import {checkAdminPermission} from '@/server/auth/checkPermission';
 import getProducts from '@/server/store/productRepository/getProducts';
 import createProduct from '@/server/store/productRepository/createProduct';
 import updateProduct from '@/server/store/productRepository/updateProduct';
@@ -31,7 +32,7 @@ import softDeleteCategory from "@/server/store/categoryRepository/softDeleteCate
 import softRestoreCategory from "@/server/store/categoryRepository/softRestoreCategory";
 import get from "@/server/services/get";
 
-type TypeFetch = (
+export type TypeFetch = (
   page: number,
   pageSize: number,
   orderBy?: string,
@@ -41,7 +42,6 @@ type TypeFetch = (
   getDeleted?: boolean,
   onlyCount?: boolean
 ) => void;
-
 
 // Fetch
 export async function fetchProducts(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
@@ -110,10 +110,21 @@ export async function fetchProductSnapshotsByReportId(
   return data;
 }
 
-
 // Save
 export async function saveProduct(data: any, isNew: boolean, productId?: string | number) {
   try {
+    // Verificar permisos de administrador
+    const {hasPermission, error: permError, status} = await checkAdminPermission();
+    if (!hasPermission) {
+      return {
+        success: false,
+        error: permError,
+        message: 'PERMISSION_DENIED',
+        data: null,
+        status: status
+      };
+    }
+
     if (isNew) {
       const result = await createProduct({data, returning: true});
       return result;
@@ -146,6 +157,18 @@ export async function saveProduct(data: any, isNew: boolean, productId?: string 
 
 export async function saveCategory(data: any, isNew: boolean, categoryId?: string | number) {
   try {
+    // Verificar permisos de administrador
+    const {hasPermission, error: permError, status} = await checkAdminPermission();
+    if (!hasPermission) {
+      return {
+        success: false,
+        error: permError,
+        message: 'PERMISSION_DENIED',
+        data: null,
+        status: status
+      };
+    }
+
     if (isNew) {
       const result = await createCategory({data, returning: true});
       return result;
@@ -178,6 +201,18 @@ export async function saveCategory(data: any, isNew: boolean, categoryId?: strin
 
 export async function saveShelve(data: any, isNew: boolean, shelveId?: string | number) {
   try {
+    // Verificar permisos de administrador
+    const {hasPermission, error: permError, status} = await checkAdminPermission();
+    if (!hasPermission) {
+      return {
+        success: false,
+        error: permError,
+        message: 'PERMISSION_DENIED',
+        data: null,
+        status: status
+      };
+    }
+
     if (isNew) {
       const result = await createShelve({data, returning: true});
       return result;
@@ -210,6 +245,18 @@ export async function saveShelve(data: any, isNew: boolean, shelveId?: string | 
 
 export async function saveDailySale(data: any, isNew: boolean, dailySaleId?: string | number) {
   try {
+    // Verificar permisos de administrador
+    const {hasPermission, error: permError, status} = await checkAdminPermission();
+    if (!hasPermission) {
+      return {
+        success: false,
+        error: permError,
+        message: 'PERMISSION_DENIED',
+        data: null,
+        status: status
+      };
+    }
+
     if (isNew) {
       const result = await createDailySale({data, returning: true});
       return result;
@@ -242,6 +289,18 @@ export async function saveDailySale(data: any, isNew: boolean, dailySaleId?: str
 
 export async function saveReport(data: any, isNew: boolean, reportId?: string | number) {
   try {
+    // Verificar permisos de administrador
+    const {hasPermission, error: permError, status} = await checkAdminPermission();
+    if (!hasPermission) {
+      return {
+        success: false,
+        error: permError,
+        message: 'PERMISSION_DENIED',
+        data: null,
+        status: status
+      };
+    }
+
     if (isNew) {
       const result = await createReport({data, returning: true});
       return result;
@@ -274,6 +333,18 @@ export async function saveReport(data: any, isNew: boolean, reportId?: string | 
 
 export async function saveProductSnapshot(data: any) {
   try {
+    // Verificar permisos de administrador
+    const {hasPermission, error: permError, status} = await checkAdminPermission();
+    if (!hasPermission) {
+      return {
+        success: false,
+        error: permError,
+        message: 'PERMISSION_DENIED',
+        data: null,
+        status: status
+      };
+    }
+
     const inputName = typeof data === 'string' ? data : data?.nameReport;
     const nameReport = inputName?.trim() || `Reporte ${formattedDate(new Date(), 'medium')}`;
 
@@ -332,30 +403,76 @@ export async function saveProductSnapshot(data: any) {
 
 // Soft delete
 export async function deleteProduct(id: string | number, soft = true) {
-  if (soft) return await softDeleteProduct({id});
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {
+      success: false,
+      error: permError,
+      message: 'PERMISSION_DENIED',
+      status: status
+    };
+  }
 
+  if (soft) return await softDeleteProduct({id});
   return await deleteBy({table: 'product', eq: {id}});
 }
 
 export async function deleteReport(id: string | number, soft = true) {
-  if (soft) return await softDeleteReport({id});
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {
+      success: false,
+      error: permError,
+      message: 'PERMISSION_DENIED',
+      status: status
+    };
+  }
 
+  if (soft) return await softDeleteReport({id});
   return await deleteBy({table: 'report', eq: {id}});
 }
 
 export async function deleteCategory(id: string | number, soft = true) {
-  if (soft) return await softDeleteCategory({id});
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {
+      success: false,
+      error: permError,
+      message: 'PERMISSION_DENIED',
+      status: status
+    };
+  }
 
+  if (soft) return await softDeleteCategory({id});
   return await deleteBy({table: 'category', eq: {id}});
 }
 
 export async function deleteShelf(id: string | number, soft = true) {
-  if (soft) return await softDeleteShelf({id});
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {
+      success: false,
+      error: permError,
+      message: 'PERMISSION_DENIED',
+      status: status
+    };
+  }
 
+  if (soft) return await softDeleteShelf({id});
   return await deleteBy({table: 'shelf', eq: {id}});
 }
 
 export async function deleteDailySale(id: string | number, soft = true) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {
+      success: false,
+      error: permError,
+      message: 'PERMISSION_DENIED',
+      status: status
+    };
+  }
+
   if (soft) return await softDeleteDailySale({id});
 
   return await deleteBy({table: 'daily_sale', eq: {id}});
@@ -364,22 +481,72 @@ export async function deleteDailySale(id: string | number, soft = true) {
 
 // Soft restore
 export async function restoreProduct(id: string | number) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {
+      success: false,
+      error: permError,
+      message: 'PERMISSION_DENIED',
+      status: status
+    };
+  }
+
   return await softRestoreProduct({id});
 }
 
 export async function restoreShelf(id: string | number) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {
+      success: false,
+      error: permError,
+      message: 'PERMISSION_DENIED',
+      status: status
+    };
+  }
+
   return await softRestoreShelf({id});
 }
 
 export async function restoreCategory(id: string | number) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {
+      success: false,
+      error: permError,
+      message: 'PERMISSION_DENIED',
+      status: status
+    };
+  }
+
   return await softRestoreCategory({id});
 }
 
 export async function restoreDailySale(id: string | number) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {
+      success: false,
+      error: permError,
+      message: 'PERMISSION_DENIED',
+      status: status
+    };
+  }
+
   return await softRestoreDailySale({id});
 }
 
 export async function restoreReport(id: string | number) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {
+      success: false,
+      error: permError,
+      message: 'PERMISSION_DENIED',
+      status: status
+    };
+  }
+
   return await softRestoreReport({id});
 }
 

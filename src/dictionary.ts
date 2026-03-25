@@ -47,6 +47,7 @@ export const dictionary = {
     SEND_EMAIL_FAILED: 'Error al enviar el correo electrónico',
     over_email_send_rate_limit: 'Has Superado el límite de envíos de correos electrónicos. Por favor, espera un momento antes de intentarlo nuevamente.',
     SEND_EMAIL_SUCCESS: 'Hemos enviado un correo electrónico con instrucciones para restablecer tu contraseña. Por favor, revisa tu bandeja de entrada.',
+    confirm_email: 'Le hemos enviado un correo electrónico para que confirme su cuenta, si no le a llegado verifique su bandeja de span',
     PASSWORD_DONT_MATCH: 'Las contraseñas no coinciden',
     UP_USER_FAILED: 'Error al actualizar datos del usuario',
     UP_USER_ERROR: 'Error al actualizar datos del usuario',
@@ -70,6 +71,9 @@ export const dictionary = {
     CREATE_DATA_FAILED: 'Error al crear el registro',
     CREATE_DATA_SUCCESS: 'Registro creado exitosamente',
     CREATE_DATA_ERROR: 'Error al crear el registro',
+    PROFILE_NOT_FOUND: 'Perfil no encontrado',
+    PERMISSION_DENIED: 'No tienes permiso para realizar esta acción',
+    PGRST204: 'Algo fallo enviando los datos al servidor. Al parecer estan en un formato no válido'
   },
 
   welcome: {
@@ -141,6 +145,10 @@ export const dictionary = {
         title: 'Reportes Eliminados',
         description: 'Gestiona los reportes eliminados. Visualiza o restaura los reportes que has eliminado de tu tienda.',
       }
+    },
+    users: {
+      title: 'Usuarios',
+      description: 'Administra los usuarios, y sus roles para la administración',
     }
   }
 }
