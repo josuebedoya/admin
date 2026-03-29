@@ -1,7 +1,7 @@
 'use client';
 
 import {useQuery} from '@tanstack/react-query';
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
 
 interface UsePaginatedTableOptions<T> {
@@ -48,11 +48,9 @@ export function usePaginatedTable<T>(
   }: UsePaginatedTableOptions<T>): UsePaginatedTableReturn<T> {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const pageSizeStorageKey = `paginated-table:${queryKey}:pageSize`;
-  const pageSizeCookieKey = 'table-page-size';
+  const pageSizeStorageKey = 'table-page-size';
   const pageSizeFromQuery = Number(searchParams.get('pageSize'));
   const hasValidQueryPageSize = Number.isInteger(pageSizeFromQuery) && pageSizeFromQuery > 0;
-  const needsStorageResolution = !hasValidQueryPageSize;
   const initialResolvedPageSize = hasValidQueryPageSize ? pageSizeFromQuery : initialPageSize;
 
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -60,48 +58,22 @@ export function usePaginatedTable<T>(
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const hasInitializedPageSizeRef = useRef(false);
-  const [isPageSizeReady, setIsPageSizeReady] = useState(() => !needsStorageResolution);
+  const shouldUseInitialData =
+    currentPage === initialPage
+    && pageSize === initialResolvedPageSize
+    && sortBy === null
+    && sortOrder === 'asc'
+    && !searchTerm;
 
   useEffect(() => {
     if (typeof window === 'undefined') {
       return;
     }
 
-    if (!hasInitializedPageSizeRef.current) {
-      hasInitializedPageSizeRef.current = true;
-
-      if (!needsStorageResolution) {
-        const readyTimeoutId = window.setTimeout(() => {
-          setIsPageSizeReady(true);
-        }, 0);
-
-        return () => {
-          window.clearTimeout(readyTimeoutId);
-        };
-      }
-
-      const pageSizeFromStorage = Number(window.localStorage.getItem(pageSizeStorageKey));
-
-      const resolveTimeoutId = window.setTimeout(() => {
-        if (
-          Number.isInteger(pageSizeFromStorage)
-          && pageSizeFromStorage > 0
-          && pageSizeFromStorage !== pageSize
-        ) {
-          setPageSize(pageSizeFromStorage);
-        }
-        setIsPageSizeReady(true);
-      }, 0);
-
-      return () => {
-        window.clearTimeout(resolveTimeoutId);
-      };
-    }
 
     window.localStorage.setItem(pageSizeStorageKey, pageSize.toString());
-    document.cookie = `${pageSizeCookieKey}=${encodeURIComponent(pageSize.toString())}; path=/; max-age=31536000; samesite=lax`;
-  }, [needsStorageResolution, pageSize, pageSizeStorageKey]);
+    document.cookie = `${pageSizeStorageKey}=${encodeURIComponent(pageSize.toString())}; path=/; max-age=31536000; samesite=lax`;
+  }, [pageSize, pageSizeStorageKey]);
 
   const {data, isLoading, isFetching} = useQuery({
     queryKey: [queryKey, currentPage, pageSize, sortBy, sortOrder, searchTerm, getAll, getDeleted],
@@ -116,11 +88,13 @@ export function usePaginatedTable<T>(
         getDeleted
       );
     },
-    initialData: {
-      items: initialData,
-      count: initialTotalCount,
-    },
-    enabled: enableServerFetch && isPageSizeReady,
+    initialData: shouldUseInitialData
+      ? {
+        items: initialData,
+        count: initialTotalCount,
+      }
+      : undefined,
+    enabled: enableServerFetch,
     refetchOnMount: false,
     placeholderData: (previousData) => previousData, // Mantener datos previos mientras carga
     staleTime: 1000 * 60 * 5, // 5 minutos

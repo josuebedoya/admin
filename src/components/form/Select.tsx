@@ -14,6 +14,7 @@ interface SelectProps {
   onChange: (value: string | number) => void;
   className?: string;
   defaultValue?: string;
+  value?: string | number;
   name: string;
   searchable?: boolean;
   searchPlaceholder?: string;
@@ -26,17 +27,20 @@ const Select: React.FC<SelectProps> = ({
                                          onChange,
                                          className = "",
                                          defaultValue = "",
+                                         value,
                                          name,
                                          searchable = false,
                                          searchPlaceholder = "Buscar...",
                                          onSearch,
                                        }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState<string | number>(defaultValue);
+  const [internalSelectedValue, setInternalSelectedValue] = useState<string | number>(defaultValue);
   const [searchTerm, setSearchTerm] = useState("");
   const [remoteOptions, setRemoteOptions] = useState<Option[]>(options);
   const [isSearching, setIsSearching] = useState(false);
   const onSearchRef = useRef(onSearch);
+  const isControlled = value !== undefined;
+  const selectedValue = isControlled ? value : internalSelectedValue;
 
   useEffect(() => {
     onSearchRef.current = onSearch;
@@ -44,8 +48,10 @@ const Select: React.FC<SelectProps> = ({
 
   // Sincronizar con defaultValue cuando cambie
   useEffect(() => {
-    setSelectedValue(defaultValue);
-  }, [defaultValue]);
+    if (!isControlled) {
+      setInternalSelectedValue(defaultValue);
+    }
+  }, [defaultValue, isControlled]);
 
   useEffect(() => {
     setRemoteOptions(options);
@@ -113,7 +119,9 @@ const Select: React.FC<SelectProps> = ({
   };
 
   const handleSelect = (value: string | number) => {
-    setSelectedValue(value);
+    if (!isControlled) {
+      setInternalSelectedValue(value);
+    }
     onChange(value);
     closeDropdown();
   };

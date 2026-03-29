@@ -1,7 +1,7 @@
 'use client';
 
 import SelectSize from "./selectSize";
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 
 type PaginationProps = {
   currentPage: number;
@@ -18,25 +18,16 @@ const Pagination: React.FC<PaginationProps> = ({
                                                  onPageSizeChange,
                                                  pageSize = 10,
                                                }) => {
-  const [sizePage, setSizePage] = useState(pageSize);
-  const [totalPages, setTotalPages] = useState(Math.ceil(totalAmount / sizePage) || 1);
+  const totalPages = Math.ceil(totalAmount / pageSize) || 1;
 
   useEffect(() => {
-    setSizePage(pageSize);
-  }, [pageSize]);
-
-  useEffect(() => {
-    const newTotalPages = Math.ceil(totalAmount / sizePage) || 1;
-    setTotalPages(newTotalPages);
-
-    if (currentPage > newTotalPages) {
-      onPageChange(newTotalPages);
+    if (currentPage > totalPages) {
+      onPageChange(totalPages);
     }
-  }, [totalAmount, sizePage, onPageChange, currentPage]);
+  }, [totalPages, onPageChange, currentPage]);
 
   const handlePageSizeChange = (value: string | number) => {
     const newSize = Number(value);
-    setSizePage(newSize);
     if (onPageSizeChange) {
       onPageSizeChange(newSize);
     }
@@ -58,7 +49,7 @@ const Pagination: React.FC<PaginationProps> = ({
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
 
       {/* Selector de tamaño */}
-      <SelectSize onChangeSelect={handlePageSizeChange} total={totalAmount} pageSize={sizePage}/>
+      <SelectSize onChangeSelect={handlePageSizeChange} total={totalAmount} pageSize={pageSize}/>
 
       {/* Navegación */}
       <div className="flex items-center gap-2">
