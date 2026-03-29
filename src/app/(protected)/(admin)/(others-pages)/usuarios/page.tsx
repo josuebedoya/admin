@@ -5,6 +5,7 @@ import {dictionary} from "@/dictionary";
 import TableUsers from "@/components/auth/tableUsers";
 import getUsers from "@/server/auth/getUsers";
 import {requireAdmin} from "@/server/auth/requireAdmin";
+import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
 export const metadata: Metadata = {
   title: "Usuarios - Admin",
@@ -21,7 +22,7 @@ export default async function Users({searchParams}: PageProps) {
 
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const pageSize = Number(params.pageSize) || 10;
+  const pageSize = await getPageSizeFromParams(params);
 
   const {data: users, error, message} = await getUsers({page, pageSize});
 

@@ -4,6 +4,7 @@ import {Metadata} from "next";
 import {dictionary} from "@/dictionary";
 import TableSales from "@/components/store/tableSales";
 import getDailySales from "@/server/store/dailySaleRepository/getDailySales";
+import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
 export const metadata: Metadata = {
   title: "Ventas Diarias - Admin",
@@ -18,7 +19,7 @@ type PageProps = {
 export default async function Sales({searchParams}: PageProps) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const pageSize = Number(params.pageSize) || 10;
+  const pageSize = await getPageSizeFromParams(params);
 
   const {data: dailySales, error, message} = await getDailySales({page, pageSize});
 

@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import { dictionary } from "@/dictionary";
 import TableProducts from "@/components/store/tableProducts";
 import getProducts from "@/server/store/productRepository/getProducts";
+import { getPageSizeFromParams } from "@/server/utils/getPageSizeFromParams";
 
 export const metadata: Metadata = {
   title: "Dashboard productos - Admin",
@@ -18,7 +19,7 @@ type PageProps = {
 export default async function Productos({ searchParams }: PageProps) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const pageSize = Number(params.pageSize) || 10;
+  const pageSize = await getPageSizeFromParams(params);
 
   const { data: products, error, message } = await getProducts({ page, pageSize });
 

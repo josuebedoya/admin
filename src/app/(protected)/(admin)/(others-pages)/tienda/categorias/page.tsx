@@ -5,6 +5,7 @@ import React from "react";
 import {dictionary} from "@/dictionary";
 import TableCategories from "@/components/store/tableCategories";
 import getCategories from "@/server/store/categoryRepository/getCategories";
+import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
 export const metadata: Metadata = {
   title: "Categorías - Admin",
@@ -19,7 +20,7 @@ type PageProps = {
 export default async function Categories({ searchParams }: PageProps) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const pageSize = Number(params.pageSize) || 10;
+  const pageSize = await getPageSizeFromParams(params);
 
   const {data: categories, error, message} = await getCategories({ page, pageSize });
 

@@ -4,6 +4,7 @@ import { Metadata } from "next";
 import { dictionary } from "@/dictionary";
 import TableReports from "@/components/store/tableReports";
 import getReports from "@/server/store/reportsRepository/getReports";
+import { getPageSizeFromParams } from "@/server/utils/getPageSizeFromParams";
 
 export const metadata: Metadata = {
   title: "Reportes - Admin",
@@ -18,7 +19,7 @@ type PageProps = {
 export default async function Reports({ searchParams }: PageProps) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const pageSize = Number(params.pageSize) || 10;
+  const pageSize = await getPageSizeFromParams(params);
 
   const { data: reports, error, message } = await getReports({ page, pageSize });
 

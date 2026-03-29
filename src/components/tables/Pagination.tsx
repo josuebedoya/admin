@@ -58,7 +58,7 @@ const Pagination: React.FC<PaginationProps> = ({
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
 
       {/* Selector de tamaño */}
-      <SelectSize onChangeSelect={handlePageSizeChange} total={totalAmount}/>
+      <SelectSize onChangeSelect={handlePageSizeChange} total={totalAmount} pageSize={sizePage}/>
 
       {/* Navegación */}
       <div className="flex items-center gap-2">

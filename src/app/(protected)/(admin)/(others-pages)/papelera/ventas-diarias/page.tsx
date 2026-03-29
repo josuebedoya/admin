@@ -5,6 +5,7 @@ import {dictionary} from "@/dictionary";
 import getDailySales from "@/server/store/dailySaleRepository/getDailySales";
 import TableDeletedDailySales from "@/components/wastebasket/tableDeletedDailySales";
 import { requireAdmin } from "@/server/auth/requireAdmin";
+import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
 export const metadata: Metadata = {
   title: "Ventas diarias eliminadas - Admin",
@@ -19,7 +20,7 @@ export default async function TrashProducts({searchParams}: PageProps) {
   await requireAdmin();
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const pageSize = Number(params.pageSize) || 10;
+  const pageSize = await getPageSizeFromParams(params);
 
   const {data: dailySales, error, message} = await getDailySales({page, pageSize, getDeleted: true});
 

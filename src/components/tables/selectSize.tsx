@@ -3,12 +3,13 @@ import Select from "@/components/form/Select";
 type SelectSizeProps = {
   onChangeSelect: (value: string | number) => void;
   total: number;
+  pageSize: number;
 };
 
-const SelectSize: React.FC<SelectSizeProps> = ({onChangeSelect, total}) => {
+const SelectSize: React.FC<SelectSizeProps> = ({onChangeSelect, total, pageSize}) => {
   const options = [
     {value: "5", label: "5"},
-    {value: "10", label: "10", selected: true},
+    {value: "10", label: "10"},
     {value: "20", label: "20"},
     {value: "50", label: "50"},
     {value: "100", label: "100"},
@@ -25,7 +26,7 @@ const SelectSize: React.FC<SelectSizeProps> = ({onChangeSelect, total}) => {
         options={options}
         onChange={onChangeSelect}
         className="dark:bg-dark-900 w-[72px]! h-8! px-2! py-0! text-xs!"
-        defaultValue="10"
+        defaultValue={String(pageSize)}
         searchable={false}
         searchPlaceholder="Buscar tamaño..."
       />
