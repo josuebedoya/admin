@@ -185,7 +185,8 @@ export default function ProductForm({product, isNew}: FormProductProps) {
           type: 'number',
           placeholder: '0.00',
           value: dataForm.price ?? '',
-          onChange: handleInputChange
+          onChange: handleInputChange,
+          step: 0.01
         },
         {
           name: 'price_sale',
@@ -193,7 +194,8 @@ export default function ProductForm({product, isNew}: FormProductProps) {
           type: 'number',
           placeholder: '0.00',
           value: dataForm.price_sale ?? '',
-          onChange: handleInputChange
+          onChange: handleInputChange,
+          step: 0.01
         },
       ],
     },
@@ -233,7 +235,8 @@ export default function ProductForm({product, isNew}: FormProductProps) {
           type: 'number',
           placeholder: 'Cantidad en stock',
           value: dataForm.quantity ?? '',
-          onChange: handleInputChange
+          onChange: handleInputChange,
+          step: 0.01
         },
         {
           name: 'type_unity',

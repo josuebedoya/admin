@@ -14,6 +14,7 @@ export type FieldType = {
   searchable?: boolean;
   searchPlaceholder?: string;
   onSearch?: (query: string) => Promise<{ value: string | number; label: string }[]>;
+  step?: number;
 }
 
 export type FieldGroupType = {
@@ -24,7 +25,7 @@ type RenderFieldsProps = {
   fields: (FieldType | FieldGroupType)[];
 }
 
-const ComponentField = (field: FieldType) => {
+const ComponentField = ({step = 0.01, ...field}: FieldType) => {
   switch (field.type) {
     case 'select':
       return (

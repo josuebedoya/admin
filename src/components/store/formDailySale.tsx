@@ -87,7 +87,8 @@ export default function DailySaleForm({dailySale, isNew}: FormDailySaleProps) {
           type: 'number',
           placeholder: '0.00',
           value: dataForm.transferred ?? '',
-          onChange: handleInputChange
+          onChange: handleInputChange,
+          step: 0.01,
         },
         {
           name: 'cashed',
@@ -95,7 +96,8 @@ export default function DailySaleForm({dailySale, isNew}: FormDailySaleProps) {
           type: 'number',
           placeholder: '0.00',
           value: dataForm.cashed ?? '',
-          onChange: handleInputChange
+          onChange: handleInputChange,
+          step: 0.01,
         },
       ]
     },

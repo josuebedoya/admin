@@ -8,9 +8,10 @@ type FieldProps = {
   type: string;
   value: string | number | null;
   onChange: (name: string, value: string) => void;
+  step?: number;
 }
 
-const Field: React.FC<FieldProps> = ({name, label, placeholder, type, value, onChange}) => {
+const Field: React.FC<FieldProps> = ({name, label, placeholder, type, value, onChange, step}) => {
   return (
     <div className="w-full">
       <Label className="text-md">
@@ -22,6 +23,7 @@ const Field: React.FC<FieldProps> = ({name, label, placeholder, type, value, onC
         type={type}
         onChange={(e) => onChange(name, e.target.value)}
         defaultValue={value || ''}
+        step={step}
         className="!h-14"
       />
     </div>
