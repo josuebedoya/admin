@@ -52,6 +52,7 @@ const ComponentField = ({step = 0.01, ...field}: FieldType) => {
       return (
         <Field
           key={field.name}
+          step={step}
           {...field}
         />
       );
