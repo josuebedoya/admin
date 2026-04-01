@@ -1,5 +1,6 @@
 import supabase from "@/server/client";
 import ResApi from "@/server/resApi";
+import { enhancedSearch } from "@/utils/searchUtils";
 
 type ParamsGetCommon = {
   columns?: string[] | string;
@@ -60,14 +61,11 @@ const get = async ({table, onlyCount = false, ...config}: Params): Promise<ResGe
       .from(table)
       .select(
         [...config.columns || ''].join(', '),
-        {count: config.count || 'exact', head: onlyCount}
+        {count: config.search ? 'estimated' : (config.count || 'exact'), head: onlyCount}
       );
 
-    // Search filters o queries given
-    if (config.search && config.search.query && config.search.columns.length > 0) {
-      const searchQuery = config.search.columns.map(col => `${col}.ilike.%${config.search!.query}%`).join(',');
-      query = query.or(searchQuery);
-    }
+    // REMOVED: Database-level search - will be done with enhanced search on the results
+    // This allows us to support fuzzy matching and accent-insensitive search
 
     // Date deleted filters
     if (!config.getDeleted) {
@@ -94,23 +92,16 @@ const get = async ({table, onlyCount = false, ...config}: Params): Promise<ResGe
       });
     }
 
-    // Get all or paginate items
-    if (!config.getAll) {
-      const page = config.page || 1;
-      const pageSize = config.pageSize || 10;
-      const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-      query = query.range(from, to);
-    }
-
-    // Order by
-    if (config.orderBy) {
+    // Order by - only if no search (search results will be ordered manually)
+    if (config.orderBy && !config.search) {
       query = query.order(config.orderBy, {ascending: config.ascending ?? true});
-    } else {
+    } else if (!config.search) {
       query = query.order('id', {ascending: false});
     }
 
-    const {data, error, count} = await query;
+    // Get all data if searching or if specifically requested
+    // We'll handle pagination after filtering
+    let {data, error, count} = await query;
 
     if (error) {
       console.error('Error triying get data from table: ', table, error.message)
@@ -121,6 +112,50 @@ const get = async ({table, onlyCount = false, ...config}: Params): Promise<ResGe
         error: error.message,
         status: 401
       });
+    }
+
+    // Apply enhanced search filtering if search query exists
+    if (config.search && config.search.query && config.search.columns.length > 0) {
+      data = (data || []).filter((item: any) => {
+        return config.search!.columns.some((column: string) => {
+          const value = item[column];
+          if (value == null) return false;
+          return enhancedSearch(String(value), config.search!.query);
+        });
+      });
+      // Update count after filtering
+      count = data.length;
+    }
+
+    // Apply sorting if search was performed
+    if (config.search && config.orderBy) {
+      (data || []).sort((a: any, b: any) => {
+        const aValue = a[config.orderBy!];
+        const bValue = b[config.orderBy!];
+
+        if (aValue == null && bValue == null) return 0;
+        if (aValue == null) return config.ascending ? -1 : 1;
+        if (bValue == null) return config.ascending ? 1 : -1;
+
+        if (typeof aValue === 'number' && typeof bValue === 'number') {
+          return config.ascending ? aValue - bValue : bValue - aValue;
+        }
+
+        const textA = String(aValue).toLowerCase();
+        const textB = String(bValue).toLowerCase();
+        if (textA < textB) return config.ascending ? -1 : 1;
+        if (textA > textB) return config.ascending ? 1 : -1;
+        return 0;
+      });
+    }
+
+    // Apply pagination after filtering (for search results)
+    if (!config.getAll && (config.search || count! > 0)) {
+      const page = config.page || 1;
+      const pageSize = config.pageSize || 10;
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize;
+      data = (data || []).slice(from, to);
     }
 
     return ResApi({

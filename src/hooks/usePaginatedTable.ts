@@ -3,6 +3,7 @@
 import {useQuery} from '@tanstack/react-query';
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useRouter, useSearchParams} from 'next/navigation';
+import {enhancedSearch} from '@/utils/searchUtils';
 
 interface UsePaginatedTableOptions<T> {
   queryKey: string;
@@ -105,11 +106,10 @@ export function usePaginatedTable<T>(
     let processedData = [...initialData];
 
     if (searchTerm.trim()) {
-      const normalizedSearch = searchTerm.trim().toLowerCase();
       processedData = processedData.filter((item) => {
         return Object.values(item as Record<string, unknown>).some((value) => {
           if (value == null) return false;
-          return String(value).toLowerCase().includes(normalizedSearch);
+          return enhancedSearch(String(value), searchTerm);
         });
       });
     }
