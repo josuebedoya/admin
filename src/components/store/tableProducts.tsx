@@ -110,7 +110,7 @@ const TableProducts = (
 
         <Cell text={fMat(p?.price)} key={i}/>,
         (isDashboard && <Cell text={fMat(p?.price_sale)} key={i}/>),
-        (isDashboard && <Cell text={fMat(p?.price * p?.quantity)} key={i}/>),
+        (isDashboard && <Cell text={fMat(p?.price_sale * p?.quantity)} key={i}/>),
         (isDashboard && <Cell text={fMat(profit(p?.price, p?.price_sale, p?.quantity))} key={i}/>),
         (isDashboard && <Cell text={`${calculateProfitPercent(p?.price, p?.price_sale)}%`} key={i}/>),
 
