@@ -19,6 +19,7 @@ import ButtonReport from "./components/buttonReport";
 import ButtonDownloadReport from "./components/buttonDownladReport";
 import {Product} from "@/server/store/productRepository";
 import {useState} from "react";
+import {TYPE_UNITIES} from "@/components/store/resources";
 
 interface TableProductsProps {
   items: Product[];
@@ -106,7 +107,7 @@ const TableProducts = (
         ((!isDashboard || showAll) &&
           <Cell text={p?.shelf} path={`/tienda/estanterias/${p?.shelf_id}`} withLink={!readonly} key={i}/>),
 
-        <Cell text={`${p?.quantity} - ${p?.type_unity}`} key={i}/>,
+        <Cell text={`${p?.quantity} - ${TYPE_UNITIES?.find(t => t.value === p?.type_unity)?.label}`} key={i}/>,
 
         <Cell text={fMat(p?.price)} key={i}/>,
         (isDashboard && <Cell text={fMat(p?.price_sale)} key={i}/>),

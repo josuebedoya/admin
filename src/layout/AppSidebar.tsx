@@ -47,6 +47,7 @@ const navItems: NavItem[] = [
     name: "Análisis",
     subItems: [
       {name: "Géneral", path: "/", pro: false},
+      {name: "Productos", path: "/analisis/productos", pro: false},
     ]
   },
 ];

@@ -4,12 +4,12 @@ export const STATUS_OPTIONS = [
 ];
 
 export const TYPE_UNITIES = [
-  {value: 'unity', label: 'Unidad'},
-  {value: 'kl', label: 'Kilogramo'},
-  {value: 'lt', label: 'Litro'},
-  {value: 'six_pack', label: 'Six Pack'},
-  {value: 'box', label: 'Caja'},
-  {value: 'dozen', label: 'Docena'}
+  {value: 'unity', label: 'Unidad/es'},
+  {value: 'kl', label: 'Kilogramo/s'},
+  {value: 'lt', label: 'Litro/s'},
+  {value: 'six_pack', label: 'Six Pack/s'},
+  {value: 'box', label: 'Caja/s'},
+  {value: 'dozen', label: 'Docena/s'},
 ];
 
 export const MAX_PRICE = 99999999.99;
