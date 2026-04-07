@@ -31,9 +31,12 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
     setLoading(true);
 
     try {
+      const toEndOfDay = new Date(to);
+      toEndOfDay.setHours(23, 59, 59, 999);
+
       const query = {
         gte: {date_created: from.toISOString()},
-        lt: {date_created: to.toISOString()}
+        lte: {date_created: toEndOfDay.toISOString()}
       };
 
       const data = await fetchDailySalesWithQuery(query);
@@ -50,14 +53,14 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
     if (!datePickerRef.current) return;
 
     const today = new Date();
-    const elevenMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
     const fp = flatpickr(datePickerRef.current, {
       mode: "range",
       static: true,
       monthSelectorType: "static",
       dateFormat: "M d",
-      defaultDate: [elevenMonthsAgo, today],
+      defaultDate: [firstDayOfMonth, today],
       clickOpens: true,
       onChange: (selectedDates) => handleDateRangeChange(selectedDates),
       prevArrow:
@@ -237,15 +240,38 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
   return (
     <div
       className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-      <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
+      <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between items-center">
         <div className="w-full">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Ventas mensuales (últimos 12 meses)
+            Ventas mensuales
           </h3>
           <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">
             Total de ventas: <span
             className="font-semibold text-gray-800 dark:text-white">{formattedMoney(totalSales)}</span>
           </p>
+        </div>
+
+        <div className="w-full sm:w-1/3">
+          <div className="relative">
+            <input
+              ref={datePickerRef}
+              type="text"
+              placeholder="Rango de fechas"
+              className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3  dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30  bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700  dark:focus:border-brand-800"
+            />
+            <span
+              className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z"
+                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M16 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 2V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 10H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                        strokeLinejoin="round"/>
+                </svg>
+              </span>
+          </div>
         </div>
       </div>
 
