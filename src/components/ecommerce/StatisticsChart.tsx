@@ -30,6 +30,12 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
     const [from, to] = selectedDates;
     setLoading(true);
 
+    // Guardar selección en localStorage
+    localStorage.setItem('statisticsChartDateRange', JSON.stringify({
+      from: from.toISOString(),
+      to: to.toISOString()
+    }));
+
     try {
       const toEndOfDay = new Date(to);
       toEndOfDay.setHours(23, 59, 59, 999);
@@ -52,15 +58,30 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
   useEffect(() => {
     if (!datePickerRef.current) return;
 
-    const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    let defaultDates: [Date, Date];
+    const savedRange = localStorage.getItem('statisticsChartDateRange');
+
+    if (savedRange) {
+      try {
+        const parsed = JSON.parse(savedRange);
+        defaultDates = [new Date(parsed.from), new Date(parsed.to)];
+      } catch (e) {
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        defaultDates = [firstDayOfMonth, today];
+      }
+    } else {
+      const today = new Date();
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      defaultDates = [firstDayOfMonth, today];
+    }
 
     const fp = flatpickr(datePickerRef.current, {
       mode: "range",
       static: true,
       monthSelectorType: "static",
       dateFormat: "M d",
-      defaultDate: [firstDayOfMonth, today],
+      defaultDate: defaultDates,
       clickOpens: true,
       onChange: (selectedDates) => handleDateRangeChange(selectedDates),
       prevArrow:
@@ -69,6 +90,10 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
         '<svg class="stroke-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 15L12.5 10L7.5 5" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     });
 
+    if (savedRange) {
+      handleDateRangeChange(defaultDates);
+    }
+
     return () => {
       if (!Array.isArray(fp)) {
         fp.destroy();
@@ -76,63 +101,102 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
     };
   }, [handleDateRangeChange]);
 
-  const {categories, monthlyTotals, accumulatedTotals, totalSales} = useMemo(() => {
-    const now = new Date();
-    const monthKeys: string[] = [];
-
-    for (let i = 11; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      monthKeys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  const {categories, dailyTotals, totalSales, averagePerDay, maxSale, minSale} = useMemo(() => {
+    if (!sales || sales.length === 0) {
+      return {
+        categories: [],
+        dailyTotals: [],
+        totalSales: 0,
+        averagePerDay: 0,
+        maxSale: {value: 0, date: "-"},
+        minSale: {value: 0, date: "-"}
+      };
     }
 
-    const totalsMap = monthKeys.reduce<Record<string, number>>((acc, key) => {
-      acc[key] = 0;
-      return acc;
-    }, {});
+    const dates = sales.map(s => {
+      const d = new Date(s.date_created);
+      d.setHours(0, 0, 0, 0);
+      return d.getTime();
+    }).filter(t => !Number.isNaN(t));
 
-    for (const sale of sales ?? []) {
+    if (dates.length === 0) {
+      return {
+        categories: [],
+        dailyTotals: [],
+        totalSales: 0,
+        averagePerDay: 0,
+        maxSale: {value: 0, date: "-"},
+        minSale: {value: 0, date: "-"}
+      };
+    }
+
+    const minDate = new Date(Math.min(...dates));
+    const maxDate = new Date(Math.max(...dates));
+
+    const dayKeys: string[] = [];
+    const totalsMap: Record<string, number> = {};
+
+    // Rellenamos días vacíos para asegurar el trazo de la gráfica continuo
+    for (let d = new Date(minDate); d <= maxDate; d.setDate(d.getDate() + 1)) {
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      dayKeys.push(key);
+      totalsMap[key] = 0;
+    }
+
+    for (const sale of sales) {
       const saleDate = new Date(sale.date_created);
       if (Number.isNaN(saleDate.getTime())) continue;
 
-      const saleKey = `${saleDate.getFullYear()}-${String(saleDate.getMonth() + 1).padStart(2, "0")}`;
-      if (!(saleKey in totalsMap)) continue;
-
-      totalsMap[saleKey] += (sale.transferred || 0) + (sale.cashed || 0);
+      const key = `${saleDate.getFullYear()}-${String(saleDate.getMonth() + 1).padStart(2, "0")}-${String(saleDate.getDate()).padStart(2, "0")}`;
+      if (totalsMap[key] !== undefined) {
+        totalsMap[key] += (sale.transferred || 0) + (sale.cashed || 0);
+      }
     }
 
-    const monthFormatter = new Intl.DateTimeFormat("es-ES", {
-      month: "long",
-      year: "numeric",
+    const dateFormatter = new Intl.DateTimeFormat("es-ES", {
+      day: "2-digit",
+      month: "short"
     });
 
-    const monthlyTotalsArray = monthKeys.map((key) => totalsMap[key] ?? 0);
-    const total = monthlyTotalsArray.reduce((sum, value) => sum + value, 0);
+    const dailyTotalsArray = dayKeys.map((key) => totalsMap[key] ?? 0);
+    const total = dailyTotalsArray.reduce((sum, value) => sum + value, 0);
+    const average = dayKeys.length > 0 ? total / dayKeys.length : 0;
 
-    // Calcular total acumulado por mes
-    const accumulatedTotals = monthlyTotalsArray.reduce<number[]>((acc, value) => {
-      const lastAccumulated = acc[acc.length - 1] ?? 0;
-      acc.push(lastAccumulated + value);
-      return acc;
-    }, []);
+    let maxSale = {value: 0, date: "-"};
+    let minSale = {value: 0, date: "-"};
+
+    if (dailyTotalsArray.length > 0) {
+      maxSale.value = Math.max(...dailyTotalsArray);
+      minSale.value = Math.min(...dailyTotalsArray);
+
+      const maxIdx = dailyTotalsArray.indexOf(maxSale.value);
+      const minIdx = dailyTotalsArray.indexOf(minSale.value);
+
+      const [mxYear, mxMonth, mxDay] = dayKeys[maxIdx].split("-").map(Number);
+      maxSale.date = dateFormatter.format(new Date(mxYear, mxMonth - 1, mxDay));
+
+      const [mnYear, mnMonth, mnDay] = dayKeys[minIdx].split("-").map(Number);
+      minSale.date = dateFormatter.format(new Date(mnYear, mnMonth - 1, mnDay));
+    }
 
     return {
-      categories: monthKeys.map((key) => {
-        const [year, month] = key.split("-").map(Number);
-        return monthFormatter.format(new Date(year, month - 1, 1));
+      categories: dayKeys.map((key) => {
+        const [year, month, day] = key.split("-").map(Number);
+        return dateFormatter.format(new Date(year, month - 1, day));
       }),
-      monthlyTotals: monthlyTotalsArray,
-      accumulatedTotals,
+      dailyTotals: dailyTotalsArray,
       totalSales: total,
+      averagePerDay: average,
+      maxSale,
+      minSale,
     };
   }, [sales]);
 
   const options: ApexOptions = {
     legend: {
-      show: true,
-      position: "top",
-      horizontalAlign: "left",
+      show: false,
     },
-    colors: ["#465FFF", "#10B981"],
+    colors: ["#3B82F6"],
     chart: {
       fontFamily: "Outfit, sans-serif",
       height: 310,
@@ -142,8 +206,8 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
       },
     },
     stroke: {
-      curve: "straight",
-      width: [2, 2],
+      curve: "smooth",
+      width: [2],
     },
     fill: {
       type: "gradient",
@@ -169,8 +233,9 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
       yaxis: {
         lines: {
           show: true,
-        },
+        }
       },
+      strokeDashArray: 3,
     },
     dataLabels: {
       enabled: false,
@@ -193,6 +258,12 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
       tooltip: {
         enabled: false,
       },
+      labels: {
+        style: {
+          fontSize: "12px",
+          colors: ["#6B7280"],
+        }
+      }
     },
     yaxis: {
       labels: {
@@ -213,13 +284,9 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
 
   const series = [
     {
-      name: "Ventas Mes",
-      data: monthlyTotals,
-    },
-    {
-      name: "Total acumulado",
-      data: accumulatedTotals,
-    },
+      name: "Ventas Día",
+      data: dailyTotals,
+    }
   ];
 
   if (initialLoading) {
@@ -229,7 +296,12 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
         <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
           <div className="w-full space-y-3">
             <div className="h-6 w-1/3 bg-gray-100 dark:bg-gray-800 rounded"></div>
-            <div className="h-4 w-1/4 bg-gray-100 dark:bg-gray-800 rounded"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 w-full">
+              <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded-xl"></div>
+              <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded-xl"></div>
+              <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded-xl"></div>
+              <div className="h-20 bg-gray-100 dark:bg-gray-800 rounded-xl"></div>
+            </div>
           </div>
         </div>
         <div className="h-[310px] bg-gray-100 dark:bg-gray-800 rounded w-full"></div>
@@ -240,18 +312,14 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
   return (
     <div
       className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-      <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between items-center">
-        <div className="w-full">
+      <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between items-start sm:items-center">
+        <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            Ventas mensuales
+            Reporte de ventas por rango
           </h3>
-          <p className="mt-1 text-theme-sm text-gray-500 dark:text-gray-400">
-            Total de ventas: <span
-            className="font-semibold text-gray-800 dark:text-white">{formattedMoney(totalSales)}</span>
-          </p>
         </div>
 
-        <div className="w-full sm:w-1/3">
+        <div className="w-full sm:w-1/3 shrink-0">
           <div className="relative">
             <input
               ref={datePickerRef}
@@ -272,6 +340,31 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
                 </svg>
               </span>
           </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <div
+          className="flex flex-col bg-white dark:bg-gray-900/50 rounded-xl px-5 py-4 border border-gray-200 dark:border-white/10 shadow-sm transition-all hover:shadow-md">
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Total vendido</span>
+          <span className="font-bold text-gray-800 dark:text-white text-2xl">{formattedMoney(totalSales)}</span>
+        </div>
+        <div
+          className="flex flex-col bg-white dark:bg-gray-900/50 rounded-xl px-5 py-4 border border-gray-200 dark:border-white/10 shadow-sm transition-all hover:shadow-md">
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Promedio diario</span>
+          <span className="font-bold text-brand-500 text-2xl">{formattedMoney(averagePerDay)}</span>
+        </div>
+        <div
+          className="flex flex-col bg-white dark:bg-gray-900/50 rounded-xl px-5 py-4 border border-gray-200 dark:border-white/10 shadow-sm transition-all hover:shadow-md">
+          <span
+            className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Mayor venta ({maxSale.date})</span>
+          <span className="font-bold text-success-500 text-2xl">{formattedMoney(maxSale.value)}</span>
+        </div>
+        <div
+          className="flex flex-col bg-white dark:bg-gray-900/50 rounded-xl px-5 py-4 border border-gray-200 dark:border-white/10 shadow-sm transition-all hover:shadow-md">
+          <span
+            className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Menor venta ({minSale.date})</span>
+          <span className="font-bold text-error-500 text-2xl">{formattedMoney(minSale.value)}</span>
         </div>
       </div>
 
