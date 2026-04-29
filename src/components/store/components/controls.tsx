@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
-import {EyeIcon, MenuDots, PencilIcon, RestoreIcon, TrashBinIcon} from "@/icons";
+import {CheckCircleIcon, EyeIcon, MenuDots, PencilIcon, RestoreIcon, TrashBinIcon} from "@/icons";
 import {Dropdown} from "@/components/ui/dropdown/Dropdown";
 import Link from "next/link";
 import {
+  activateProduct,
   deleteCategory,
   deleteDailySale,
   deleteProduct,
@@ -23,10 +24,12 @@ export type ControlsProps = {
     delete?: boolean;
     view?: boolean;
     restore?: boolean;
+    activate?: boolean;
   }
   module?: 'products' | 'categories' | 'shelves' | 'daily-sales' | 'reports';
   onDeleted?: () => void | Promise<void>;
   onRestored?: () => void | Promise<void>;
+  onActivated?: () => void | Promise<void>;
 }
 
 const Controls = (
@@ -36,7 +39,8 @@ const Controls = (
     op,
     module,
     onDeleted,
-    onRestored
+    onRestored,
+    onActivated
   }: ControlsProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -48,7 +52,8 @@ const Controls = (
     view: op?.view ?? false,
     edit: op?.edit ?? true,
     delete: op?.delete ?? true,
-    restore: op?.restore ?? false
+    restore: op?.restore ?? false,
+    activate: op?.activate ?? false
   }
 
   const onDelete = async () => {
@@ -73,6 +78,12 @@ const Controls = (
       if (module === 'reports') await restoreReport(id);
     }
     await onRestored?.();
+    closeDropdown();
+  }
+
+  const onActivate = async () => {
+    if (id && module === 'products') await activateProduct(id);
+    await onActivated?.();
     closeDropdown();
   }
 
@@ -119,6 +130,14 @@ const Controls = (
               onClick={onRestore}
             >
               <RestoreIcon/> Restaurar
+            </li>
+          )}
+          {ops?.activate && (
+            <li
+              className='flex items-center gap-2 p-3 text-blue-700 font-semibold hover:bg-blue-100 cursor-pointer rounded-md'
+              onClick={onActivate}
+            >
+              <CheckCircleIcon/> Activar
             </li>
           )}
         </ul>

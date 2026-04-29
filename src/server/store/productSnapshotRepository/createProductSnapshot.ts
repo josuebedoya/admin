@@ -23,11 +23,12 @@ const createProductSnapshot = async ({ data }: createParams): Promise<ResCreateP
     });
   }
 
-  // Fetch all products
+  // Fetch only active, non-deleted products
   const { data: allProductsData, error: productsError } = await getProducts({
     getAll: true,
     orderBy: 'id',
-    ascending: true
+    ascending: true,
+    eq: {status: true}
   });
 
   if (productsError) {

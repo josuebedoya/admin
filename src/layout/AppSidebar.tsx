@@ -26,6 +26,13 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <Store/>,
+    name: "Almacén",
+    subItems: [
+      {name: "Productos", path: "/tienda/productos-almacen", pro: false}
+    ]
+  },
+  {
+    icon: <Store/>,
     name: "Tienda",
     subItems: [
       {name: "Productos", path: "/tienda/productos", pro: false},
@@ -47,8 +54,6 @@ const navItems: NavItem[] = [
     name: "Análisis",
     subItems: [
       {name: "Géneral", path: "/", pro: false},
-      {name: "Productos", path: "/analisis/productos", pro: false},
-      {name: "Ventas", path: "/analisis/ventas", pro: false},
     ]
   },
 ];

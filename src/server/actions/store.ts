@@ -1,6 +1,7 @@
 'use server';
 
 import {checkAdminPermission} from '@/server/auth/checkPermission';
+import supabase from '@/server/client';
 import getProducts from '@/server/store/productRepository/getProducts';
 import createProduct from '@/server/store/productRepository/createProduct';
 import updateProduct from '@/server/store/productRepository/updateProduct';
@@ -46,6 +47,18 @@ export type TypeFetch = (
 // Fetch
 export async function fetchProducts(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
   const {data, error} = await getProducts({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount});
+  if (error) throw new Error(error);
+  return data;
+}
+
+export async function fetchActiveProducts(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
+  const {data, error} = await getProducts({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount, eq: {status: true}});
+  if (error) throw new Error(error);
+  return data;
+}
+
+export async function fetchInactiveProducts(...[page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount]: Parameters<TypeFetch>) {
+  const {data, error} = await getProducts({page, pageSize, orderBy, ascending, search, getAll, getDeleted, onlyCount, eq: {status: false}});
   if (error) throw new Error(error);
   return data;
 }
@@ -548,6 +561,32 @@ export async function restoreReport(id: string | number) {
   }
 
   return await softRestoreReport({id});
+}
+
+export async function activateProduct(id: string | number) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {success: false, error: permError, message: 'PERMISSION_DENIED', status};
+  }
+  return await updateProduct({data: {status: true}, eq: {id}});
+}
+
+export async function vaciarProducts() {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {success: false, error: permError, message: 'PERMISSION_DENIED', status};
+  }
+
+  const {error} = await supabase
+    .from('product')
+    .update({status: false})
+    .is('date_deleted', null)
+    .eq('status', true);
+
+  if (error) {
+    return {success: false, error: error.message, message: error.code || 'VACIAR_FAILED'};
+  }
+  return {success: true, error: null, message: 'VACIAR_SUCCESS'};
 }
 
 export async function fetchProductsTotalPrice() {

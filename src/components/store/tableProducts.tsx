@@ -12,7 +12,8 @@ import {
   getTotalProfit
 } from "@/utils/index";
 import {usePaginatedTable} from "@/hooks/usePaginatedTable";
-import {fetchProducts, saveProductSnapshot} from "@/server/actions/store";
+import {fetchActiveProducts, fetchInactiveProducts, fetchProducts, saveProductSnapshot} from "@/server/actions/store";
+import ButtonVaciar from "@/components/store/components/ButtonVaciar";
 import {useRouter} from "next/navigation";
 import {ArrowRightIcon} from "@/icons";
 import ButtonReport from "./components/buttonReport";
@@ -32,6 +33,7 @@ interface TableProductsProps {
   showAll?: boolean;
   keyCache?: string;
   disableServerFetch?: boolean;
+  mode?: 'active' | 'inactive';
   button?: {
     label: string;
     position?: 'left' | 'right';
@@ -57,6 +59,7 @@ const TableProducts = (
     showAll,
     keyCache,
     disableServerFetch = false,
+    mode,
     button,
     fetchFn,
     idReport,
@@ -64,6 +67,8 @@ const TableProducts = (
   }: TableProductsProps) => {
 
   const [refreshKey, setRefreshKey] = useState(0);
+
+  const defaultFetchFn = mode === 'inactive' ? fetchInactiveProducts : mode === 'active' ? fetchActiveProducts : fetchProducts;
 
   // Usar el hook centralizado
   const {
@@ -85,11 +90,11 @@ const TableProducts = (
     initialPage: currentPage,
     initialPageSize: pageSize,
     enableServerFetch: !disableServerFetch,
-    fetchFn: fetchFn ?? fetchProducts,
+    fetchFn: fetchFn ?? defaultFetchFn,
   });
   const router = useRouter();
 
-  const tableHeaders = ['ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO', 'ESTADO'];
+  const tableHeaders = mode ? ['ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO'] : ['ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO', 'ESTADO'];
   const dashboardHeaders = ['ID', 'NOMBRE', 'CANTIDAD', 'PRECIO VENTA', 'PRECIO COMPRA', 'TOTAL PRODUCTO', 'GANANCIA', 'GANANCIA %', 'ESTADO'];
 
   if (showAll) {
@@ -109,23 +114,32 @@ const TableProducts = (
 
         <Cell text={`${p?.quantity} - ${TYPE_UNITIES?.find(t => t.value === p?.type_unity)?.label}`} key={i}/>,
 
-        <Cell text={fMat(p?.price)} key={i}/>,
+        <Cell
+          text={fMat(p?.price)} key={i}
+          isLast={!!mode && !isDashboard}
+          controls={mode ? {
+            id: p.id,
+            link: `/tienda/productos/${p.id}`,
+            module: 'products',
+            op: mode === 'inactive' ? {edit: false, delete: false, activate: true} : undefined,
+            onDeleted: () => setRefreshKey((prev) => prev + 1),
+            onActivated: () => setRefreshKey((prev) => prev + 1),
+          } : undefined}
+        />,
         (isDashboard && <Cell text={fMat(p?.price_sale)} key={i}/>),
         (isDashboard && <Cell text={fMat(p?.price_sale * p?.quantity)} key={i}/>),
         (isDashboard && <Cell text={fMat(profit(p?.price, p?.price_sale, p?.quantity))} key={i}/>),
         (isDashboard && <Cell text={`${calculateProfitPercent(p?.price, p?.price_sale)}%`} key={i}/>),
 
-        <CellBadge
+        (!mode && <CellBadge
           isActive={p?.status} key={i} isLast
           controls={{
             id: p.id,
             link: `/tienda/productos/${p.id}`,
             module: 'products',
-            onDeleted: () => {
-              setRefreshKey((prev) => prev + 1);
-            }
+            onDeleted: () => setRefreshKey((prev) => prev + 1),
           }}
-        />
+        />)
       ].filter(Boolean)
     }))
   };
@@ -174,7 +188,7 @@ const TableProducts = (
   const sortableData = {
     columnKeys: isDashboard
       ? ['id', 'name', 'quantity', 'price', 'price_sale', '', '', '', 'status']
-      : ['id', 'name', 'category', 'shelf', 'quantity', 'price', 'status'],
+      : mode ? ['id', 'name', 'category', 'shelf', 'quantity', 'price'] : ['id', 'name', 'category', 'shelf', 'quantity', 'price', 'status'],
     onSort: handleSort,
     sortBy,
     sortOrder,
@@ -204,7 +218,8 @@ const TableProducts = (
       placeholder: 'Buscar en productos...'
     }}
     headContent={(<>
-      {!readonly && <ButtonReport onGenerate={saveProductSnapshot}/>}
+      {mode === 'active' && <ButtonVaciar onVaciar={() => setRefreshKey((prev) => prev + 1)}/>}
+      {!readonly && !mode && <ButtonReport onGenerate={saveProductSnapshot}/>}
       {readonly && <ButtonDownloadReport nameReport={nameReport} id={idReport || ''}/>}
     </>)}
   />;
