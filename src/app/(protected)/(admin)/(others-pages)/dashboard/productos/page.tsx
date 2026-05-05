@@ -21,7 +21,7 @@ export default async function Productos({ searchParams }: PageProps) {
   const page = Number(params.page) || 1;
   const pageSize = await getPageSizeFromParams(params);
 
-  const { data: products, error, message } = await getProducts({ page, pageSize });
+  const { data: products, error, message } = await getProducts({ page, pageSize, eq: { status: true } });
 
   return (
     <div>

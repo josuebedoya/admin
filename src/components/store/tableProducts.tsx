@@ -95,7 +95,7 @@ const TableProducts = (
   const router = useRouter();
 
   const tableHeaders = mode ? ['ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO'] : ['ID', 'NOMBRE', 'CATEGORÍA', 'ESTANTERÍA', 'CANTIDAD', 'PRECIO', 'ESTADO'];
-  const dashboardHeaders = ['ID', 'NOMBRE', 'CANTIDAD', 'PRECIO VENTA', 'PRECIO COMPRA', 'TOTAL PRODUCTO', 'GANANCIA', 'GANANCIA %', 'ESTADO'];
+  const dashboardHeaders = ['ID', 'NOMBRE', 'CANTIDAD', 'PRECIO VENTA', 'PRECIO COMPRA', 'TOTAL PRODUCTO', 'GANANCIA', 'GANANCIA %'];
 
   if (showAll) {
     dashboardHeaders.splice(2, 0, 'CATEGORÍA', 'ESTANTERÍA');
@@ -129,17 +129,7 @@ const TableProducts = (
         (isDashboard && <Cell text={fMat(p?.price_sale)} key={i}/>),
         (isDashboard && <Cell text={fMat(p?.price_sale * p?.quantity)} key={i}/>),
         (isDashboard && <Cell text={fMat(profit(p?.price, p?.price_sale, p?.quantity))} key={i}/>),
-        (isDashboard && <Cell text={`${calculateProfitPercent(p?.price, p?.price_sale)}%`} key={i}/>),
-
-        (!mode && <CellBadge
-          isActive={p?.status} key={i} isLast
-          controls={{
-            id: p.id,
-            link: `/tienda/productos/${p.id}`,
-            module: 'products',
-            onDeleted: () => setRefreshKey((prev) => prev + 1),
-          }}
-        />)
+        (isDashboard && <Cell text={`${calculateProfitPercent(p?.price, p?.price_sale)}%`} key={i} isLast={isDashboard}/>)
       ].filter(Boolean)
     }))
   };
