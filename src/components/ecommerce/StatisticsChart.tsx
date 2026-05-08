@@ -19,6 +19,11 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
   const datePickerRef = useRef<HTMLInputElement>(null);
   const [sales, setSales] = useState<DailySale[]>(initialSales);
   const [loading, setLoading] = useState(false);
+  const onDateRangeChangeRef = useRef(onDateRangeChange);
+
+  useEffect(() => {
+    onDateRangeChangeRef.current = onDateRangeChange;
+  }, [onDateRangeChange]);
 
   useEffect(() => {
     setSales(initialSales);
@@ -30,7 +35,6 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
     const [from, to] = selectedDates;
     setLoading(true);
 
-    // Guardar selección en localStorage
     localStorage.setItem('statisticsChartDateRange', JSON.stringify({
       from: from.toISOString(),
       to: to.toISOString()
@@ -47,13 +51,15 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
 
       const data = await fetchDailySalesWithQuery(query);
       setSales(data?.items || []);
-      onDateRangeChange?.(from, to);
+      onDateRangeChangeRef.current?.(from, to);
     } catch (err) {
       console.error('Error fetching sales for date range:', err);
     } finally {
       setLoading(false);
     }
-  }, [onDateRangeChange]);
+  }, []);
+
+  const handleDateRangeChangeRef = useRef(handleDateRangeChange);
 
   useEffect(() => {
     if (!datePickerRef.current) return;
@@ -82,7 +88,7 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
       monthSelectorType: "static",
       dateFormat: "M d",
       defaultDate: defaultDates,
-      onChange: (selectedDates) => handleDateRangeChange(selectedDates),
+      onChange: (selectedDates) => handleDateRangeChangeRef.current(selectedDates),
       prevArrow:
         '<svg class="stroke-current" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 15L7.5 10L12.5 5" stroke="" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
       nextArrow:
@@ -90,7 +96,7 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
     });
 
     if (savedRange) {
-      handleDateRangeChange(defaultDates);
+      handleDateRangeChangeRef.current(defaultDates);
     }
 
     return () => {
@@ -98,7 +104,7 @@ export default function StatisticsChart({sales: initialSales, onDateRangeChange,
         fp.destroy();
       }
     };
-  }, [handleDateRangeChange]);
+  }, []);
 
   const {categories, dailyTotals, totalSales, averagePerDay, maxSale, minSale} = useMemo(() => {
     if (!sales || sales.length === 0) {
