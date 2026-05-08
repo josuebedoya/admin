@@ -7,6 +7,8 @@ import {getCategories} from "@/server/store/categoryRepository";
 import { requireAdmin } from "@/server/auth/requireAdmin";
 import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Categorías Eliminadas - Admin",
   description: "Administra las categorías eliminadas en la papelera de reciclaje. Restaura las categorías según sea necesario.",

@@ -7,6 +7,8 @@ import TableDeletedReports from "@/components/wastebasket/tableDeletedReports";
 import { requireAdmin } from "@/server/auth/requireAdmin";
 import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Reportes eliminados - Admin",
   description: "Administra los reportes eliminados en la papelera de reciclaje. Restaura los reportes según sea necesario.",

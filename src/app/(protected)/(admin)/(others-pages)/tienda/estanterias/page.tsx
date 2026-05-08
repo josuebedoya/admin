@@ -6,6 +6,8 @@ import getShelves from "@/server/store/shelveRepository/getShelves";
 import TableShelves from "@/components/store/tableShelves";
 import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Estanterías - Admin",
   description:

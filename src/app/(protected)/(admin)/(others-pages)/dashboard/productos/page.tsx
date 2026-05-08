@@ -6,6 +6,8 @@ import TableProducts from "@/components/store/tableProducts";
 import getProducts from "@/server/store/productRepository/getProducts";
 import { getPageSizeFromParams } from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Dashboard productos - Admin",
   description:

@@ -6,6 +6,8 @@ import { dictionary } from "@/dictionary";
 import { getProductSnapshotById } from "@/server/store/productSnapshotRepository";
 import { getReportById } from "@/server/store/reportsRepository";
 
+export const dynamic = 'force-dynamic';
+
 type PageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ [ key: string ]: string | string[] | undefined }>;

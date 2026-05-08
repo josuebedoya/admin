@@ -7,6 +7,8 @@ import TableDeletedShelf from "@/components/wastebasket/tableDeletedShelves";
 import {requireAdmin} from "@/server/auth/requireAdmin";
 import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Estanterías Eliminadas - Admin",
   description: "Administra las estanterías eliminadas en la papelera de reciclaje. Restaura las estanterías según sea necesario.",

@@ -7,6 +7,8 @@ import TableCategories from "@/components/store/tableCategories";
 import getCategories from "@/server/store/categoryRepository/getCategories";
 import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Categorías - Admin",
   description:

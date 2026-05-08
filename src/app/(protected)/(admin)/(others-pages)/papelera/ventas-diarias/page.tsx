@@ -7,6 +7,8 @@ import TableDeletedDailySales from "@/components/wastebasket/tableDeletedDailySa
 import { requireAdmin } from "@/server/auth/requireAdmin";
 import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Ventas diarias eliminadas - Admin",
   description: "Administra las ventas diarias eliminadas en la papelera de reciclaje. Restaura las ventas diarias según sea necesario.",

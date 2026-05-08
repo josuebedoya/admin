@@ -6,6 +6,8 @@ import TableReports from "@/components/store/tableReports";
 import getReports from "@/server/store/reportsRepository/getReports";
 import { getPageSizeFromParams } from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Reportes - Admin",
   description:

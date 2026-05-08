@@ -2,6 +2,8 @@ import React from 'react';
 import StatisticsChart from "@/components/ecommerce/StatisticsChart";
 import {fetchDailySalesWithQuery} from "@/server/actions/store";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SalesPage() {
   const currentDate = new Date();
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);

@@ -7,6 +7,8 @@ import TableDeletedProducts from "@/components/wastebasket/tableDeletedProducts"
 import { requireAdmin } from "@/server/auth/requireAdmin";
 import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Productos Eliminados - Admin",
   description: "Administra los productos eliminados en la papelera de reciclaje. Restaura los productos según sea necesario.",

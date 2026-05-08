@@ -6,6 +6,8 @@ import TableSales from "@/components/store/tableSales";
 import getDailySales from "@/server/store/dailySaleRepository/getDailySales";
 import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Ventas Diarias - Admin",
   description:

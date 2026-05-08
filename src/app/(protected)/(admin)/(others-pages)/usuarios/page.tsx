@@ -7,6 +7,8 @@ import getUsers from "@/server/auth/getUsers";
 import {requireAdmin} from "@/server/auth/requireAdmin";
 import {getPageSizeFromParams} from "@/server/utils/getPageSizeFromParams";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Usuarios - Admin",
   description:
