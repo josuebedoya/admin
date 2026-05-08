@@ -15,6 +15,9 @@ type ParamsGetCommon = {
   gte?: {
     [key: string]: string | number | boolean;
   };
+  lte?: {
+    [key: string]: string | number | boolean;
+  };
   lt?: {
     [key: string]: string | number | boolean;
   };
@@ -82,6 +85,13 @@ const get = async ({table, onlyCount = false, ...config}: Params): Promise<ResGe
     if (config.gte) {
       Object.entries(config.gte).forEach(([key, value]) => {
         query = query.gte(key, value as any);
+      });
+    }
+
+    // LTE filters
+    if (config.lte) {
+      Object.entries(config.lte).forEach(([key, value]) => {
+        query = query.lte(key, value as any);
       });
     }
 
