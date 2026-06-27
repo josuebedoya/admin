@@ -5,9 +5,11 @@ import Cell from "@/components/store/components/cell";
 import CellBadge from "@/components/store/components/cellBadge";
 import {formattedMoney} from '@/utils';
 import {usePaginatedTable} from "@/hooks/usePaginatedTable";
-import {fetchShelves} from "@/server/actions/store";
+import {bulkUpdateShelves, fetchShelves, saveShelve} from "@/server/actions/store";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
+import EditableTable, {ColumnDef, EditableTableChange} from "@/components/store/components/EditableTable";
+import {STATUS_OPTIONS} from "@/components/store/resources";
 
 interface TableShelvesProps {
   items: {
@@ -24,6 +26,11 @@ interface TableShelvesProps {
   stickyLastRow?: boolean;
 }
 
+const SHELF_COLUMNS: ColumnDef[] = [
+  {key: 'name', label: 'Nombre', type: 'text', sortable: true, minWidth: 200},
+  {key: 'status', label: 'Estado', type: 'select', options: STATUS_OPTIONS, minWidth: 110},
+];
+
 const TableShelves = (
   {
     items: initialItems,
@@ -33,8 +40,9 @@ const TableShelves = (
     stickyLastRow
   }: TableShelvesProps) => {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  // Usar el hook centralizado
   const {
     items,
     currentPage: page,
@@ -58,7 +66,42 @@ const TableShelves = (
 
   const router = useRouter();
 
-  const tableHeaders = ['ID', 'NOMBRE', 'ESTADO', 'PRODUCTOS', 'PRECIO TOTAL', 'PRECIO VENTA']
+  const handleBulkSave = async (changes: EditableTableChange[]) => {
+    if (!changes.length) return;
+    setSaving(true);
+    try {
+      const toUpdate = changes.filter(c => !c.isNew);
+      const toCreate = changes.filter(c => c.isNew);
+      const results = await Promise.all([
+        ...(toUpdate.length > 0 ? [bulkUpdateShelves(toUpdate)] : []),
+        ...toCreate.map(c => saveShelve(c.data, true)),
+      ]);
+      const failed = results.filter(r => !r.success);
+      if (failed.length > 0) {
+        alert(failed[0].error || 'Error al guardar los cambios');
+      } else {
+        setEditMode(false);
+        setRefreshKey(prev => prev + 1);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (editMode) {
+    return (
+      <EditableTable
+        items={items}
+        columns={SHELF_COLUMNS}
+        onSave={handleBulkSave}
+        onCancel={() => setEditMode(false)}
+        saving={saving}
+        noBorder
+      />
+    );
+  }
+
+  const tableHeaders = ['ID', 'NOMBRE', 'ESTADO', 'PRODUCTOS', 'PRECIO TOTAL', 'PRECIO VENTA'];
 
   const transformItemsToTableBody = (items: TableShelvesProps['items']) => {
     return items?.map((item, i) => ({
@@ -72,9 +115,7 @@ const TableShelves = (
           text={formattedMoney(item?.total_price_sale)} isLast key={i}
           controls={{
             id: item.id, link: `/tienda/estanterias/${item?.id}`,
-            module: 'shelves', onDeleted: () => {
-              setRefreshKey((prev) => prev + 1);
-            }
+            module: 'shelves', onDeleted: () => setRefreshKey(prev => prev + 1),
           }}/>,
       ]
     }))
@@ -82,7 +123,6 @@ const TableShelves = (
 
   const bodyRows = transformItemsToTableBody(items);
 
-  // Agregar fila de totales
   const totalProducts = items.reduce((acc, item) => acc + item.products, 0);
   const totalPrice = items.reduce((acc, item) => acc + item.total_price, 0);
   const totalPriceSale = items.reduce((acc, item) => acc + item.total_price_sale, 0);
@@ -101,7 +141,7 @@ const TableShelves = (
   const dataTable = {
     headers: tableHeaders,
     body: bodyRows,
-  }
+  };
 
   const paginationData = {
     currentPage: page,
@@ -118,21 +158,33 @@ const TableShelves = (
     sortOrder,
   };
 
-  const openFormNewShelf = () => {
-    router.push('/tienda/estanterias/+');
-  };
-
   return <BasicTableOne
     data={dataTable}
     stickyLastRow={stickyLastRow}
     pagination={paginationData}
     sortable={sortableData}
-    buttonAdd={{onClick: openFormNewShelf, label: 'Agregar Estantería'}}
+    buttonAdd={{onClick: () => router.push('/tienda/estanterias/+'), label: 'Agregar Estantería'}}
     search={{
       onChange: handleSearchChange,
       value: searchTerm,
       placeholder: 'Buscar en estanterías...'
-    }}/>;
+    }}
+    headContent={
+      items.length > 0 ? (
+        <button
+          type="button"
+          onClick={() => setEditMode(true)}
+          className="flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-white/10 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors whitespace-nowrap"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M3 10h18M3 14h18M10 3v18M14 3v18"/>
+          </svg>
+          Editar como tabla
+        </button>
+      ) : undefined
+    }
+  />;
 };
 
 export default TableShelves;

@@ -602,3 +602,103 @@ export async function fetchProductsTotalPrice() {
   if (!success) return 0;
   return data?.items.reduce((sum, p) => sum + ((p.price || 0) * (p.quantity || 0)), 0) || 0;
 }
+
+export async function bulkUpdateProducts(
+  updates: Array<{id: string | number; data: Record<string, any>}>
+) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {success: false, error: permError, message: 'PERMISSION_DENIED', status, count: 0};
+  }
+
+  const results = await Promise.all(
+    updates.map(({id, data}) => updateProduct({data, eq: {id}, returning: false}))
+  );
+
+  const failed = results.filter(r => !r.success);
+  if (failed.length > 0) {
+    return {
+      success: false,
+      error: `${failed.length} producto(s) no se pudieron actualizar`,
+      message: 'BULK_UPDATE_PARTIAL_ERROR',
+      count: results.length - failed.length,
+    };
+  }
+
+  return {success: true, error: null, message: 'BULK_UPDATE_SUCCESS', count: results.length};
+}
+
+export async function bulkUpdateCategories(
+  updates: Array<{id: string | number; data: Record<string, any>}>
+) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {success: false, error: permError, message: 'PERMISSION_DENIED', status, count: 0};
+  }
+
+  const results = await Promise.all(
+    updates.map(({id, data}) => updateCategory({data, eq: {id}, returning: false}))
+  );
+
+  const failed = results.filter(r => !r.success);
+  if (failed.length > 0) {
+    return {
+      success: false,
+      error: `${failed.length} categoría(s) no se pudieron actualizar`,
+      message: 'BULK_UPDATE_PARTIAL_ERROR',
+      count: results.length - failed.length,
+    };
+  }
+
+  return {success: true, error: null, message: 'BULK_UPDATE_SUCCESS', count: results.length};
+}
+
+export async function bulkUpdateShelves(
+  updates: Array<{id: string | number; data: Record<string, any>}>
+) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {success: false, error: permError, message: 'PERMISSION_DENIED', status, count: 0};
+  }
+
+  const results = await Promise.all(
+    updates.map(({id, data}) => updateShelve({data, eq: {id}, returning: false}))
+  );
+
+  const failed = results.filter(r => !r.success);
+  if (failed.length > 0) {
+    return {
+      success: false,
+      error: `${failed.length} estantería(s) no se pudieron actualizar`,
+      message: 'BULK_UPDATE_PARTIAL_ERROR',
+      count: results.length - failed.length,
+    };
+  }
+
+  return {success: true, error: null, message: 'BULK_UPDATE_SUCCESS', count: results.length};
+}
+
+export async function bulkUpdateDailySales(
+  updates: Array<{id: string | number; data: Record<string, any>}>
+) {
+  const {hasPermission, error: permError, status} = await checkAdminPermission();
+  if (!hasPermission) {
+    return {success: false, error: permError, message: 'PERMISSION_DENIED', status, count: 0};
+  }
+
+  const results = await Promise.all(
+    updates.map(({id, data}) => updateDailySale({data, eq: {id}, returning: false}))
+  );
+
+  const failed = results.filter(r => !r.success);
+  if (failed.length > 0) {
+    return {
+      success: false,
+      error: `${failed.length} venta(s) no se pudieron actualizar`,
+      message: 'BULK_UPDATE_PARTIAL_ERROR',
+      count: results.length - failed.length,
+    };
+  }
+
+  return {success: true, error: null, message: 'BULK_UPDATE_SUCCESS', count: results.length};
+}

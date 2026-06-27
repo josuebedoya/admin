@@ -12,7 +12,7 @@ import {
   getTotalProfit
 } from "@/utils/index";
 import {usePaginatedTable} from "@/hooks/usePaginatedTable";
-import {fetchActiveProducts, fetchInactiveProducts, fetchProducts, saveProductSnapshot} from "@/server/actions/store";
+import {bulkUpdateProducts, fetchActiveProducts, fetchInactiveProducts, fetchProducts, saveProduct, saveProductSnapshot} from "@/server/actions/store";
 import ButtonVaciar from "@/components/store/components/ButtonVaciar";
 import {useRouter} from "next/navigation";
 import {ArrowRightIcon} from "@/icons";
@@ -21,6 +21,7 @@ import ButtonDownloadReport from "./components/buttonDownladReport";
 import {Product} from "@/server/store/productRepository";
 import {useState} from "react";
 import {TYPE_UNITIES} from "@/components/store/resources";
+import TableEditMode from "@/components/store/components/TableEditMode";
 
 interface TableProductsProps {
   items: Product[];
@@ -67,6 +68,30 @@ const TableProducts = (
   }: TableProductsProps) => {
 
   const [refreshKey, setRefreshKey] = useState(0);
+  const [editMode, setEditMode] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleBulkSave = async (changes: Array<{id: string | number; data: Record<string, any>; isNew?: boolean}>) => {
+    if (changes.length === 0) return;
+    setSaving(true);
+    try {
+      const toUpdate = changes.filter(c => !c.isNew);
+      const toCreate = changes.filter(c => c.isNew);
+      const results = await Promise.all([
+        ...(toUpdate.length > 0 ? [bulkUpdateProducts(toUpdate)] : []),
+        ...toCreate.map(c => saveProduct(c.data, true)),
+      ]);
+      const failed = results.filter(r => !r.success);
+      if (failed.length > 0) {
+        alert(failed[0].error || 'Error al guardar los cambios');
+      } else {
+        setEditMode(false);
+        setRefreshKey(prev => prev + 1);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const defaultFetchFn = mode === 'inactive' ? fetchInactiveProducts : mode === 'active' ? fetchActiveProducts : fetchProducts;
 
@@ -193,6 +218,32 @@ const TableProducts = (
     }
   };
 
+  if (editMode) {
+    return (
+      <TableEditMode
+        items={items}
+        onSave={handleBulkSave}
+        onCancel={() => setEditMode(false)}
+        saving={saving}
+        noBorder
+      />
+    );
+  }
+
+  const editTableButton = !readonly && !isDashboard && items.length > 0 ? (
+    <button
+      type="button"
+      onClick={() => setEditMode(true)}
+      className="flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-white/10 px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors whitespace-nowrap"
+    >
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M3 10h18M3 14h18M10 3v18M14 3v18"/>
+      </svg>
+      Editar como tabla
+    </button>
+  ) : null;
+
   return <BasicTableOne
     data={dataTable}
     stickyLastRow={stickyLastRow}
@@ -208,6 +259,7 @@ const TableProducts = (
       placeholder: 'Buscar en productos...'
     }}
     headContent={(<>
+      {editTableButton}
       {mode === 'active' && <ButtonVaciar onVaciar={() => setRefreshKey((prev) => prev + 1)}/>}
       {!readonly && !mode && <ButtonReport onGenerate={saveProductSnapshot}/>}
       {readonly && <ButtonDownloadReport nameReport={nameReport} id={idReport || ''}/>}

@@ -1,10 +1,11 @@
 const formattedMoney = (value: number) => {
   if (!value) return '$0';
-
-  return value.toLocaleString('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-  });
+  const abs = Math.abs(value);
+  const [intPart, decPart] = abs.toFixed(2).split('.');
+  const sign = value < 0 ? '-' : '';
+  const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const cents = decPart === '00' ? '' : `,${decPart}`;
+  return `${sign}$ ${formattedInt}${cents}`;
 };
 
 type DateFormat = 'short' | 'medium' | 'long' | 'numeric' | 'input';
