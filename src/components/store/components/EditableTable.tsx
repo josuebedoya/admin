@@ -4,6 +4,8 @@ import {createPortal} from 'react-dom';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {enhancedSearch} from '@/utils/searchUtils';
 import Select from '@/components/form/Select';
+import ColumnControls from '@/components/tables/ColumnControls';
+import {useColumnManager} from '@/hooks/useColumnManager';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,6 +44,8 @@ export interface EditableTableProps {
   saving: boolean;
   /** Remove the inner border/shadow so the component sits flush inside a parent card */
   noBorder?: boolean;
+  /** Unique id used to persist column visibility/order in localStorage. Defaults to a hash of the column keys. */
+  tableId?: string;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -109,8 +113,25 @@ function SortIcon({active, asc}: {active: boolean; asc: boolean}) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function EditableTable({items, columns, onSave, onCancel, saving, noBorder}: EditableTableProps) {
+export default function EditableTable({items, columns, onSave, onCancel, saving, noBorder, tableId}: EditableTableProps) {
   const originals = useRef(items.map(r => ({...r})));
+
+  const columnMeta = useMemo(
+    () => columns.map(c => ({key: c.key, label: c.label, defaultWidth: c.minWidth ?? 150})),
+    [columns]
+  );
+  const storageKey = `table-columns:${tableId ?? columns.map(c => c.key).join('|')}`;
+  const {
+    orderedColumns: orderedColumnMeta, isHidden, toggleVisible, moveColumn, resetColumns,
+    getWidth, increaseWidth, decreaseWidth, minColumnWidth, maxColumnWidth,
+  } = useColumnManager(storageKey, columnMeta);
+  const [dragKey, setDragKey] = useState<string | null>(null);
+
+  const columnsByKey = useMemo(() => new Map(columns.map(c => [c.key, c])), [columns]);
+  const visibleColumns = useMemo(
+    () => orderedColumnMeta.map(m => columnsByKey.get(m.key)).filter((c): c is ColumnDef => !!c && !isHidden(c.key)),
+    [orderedColumnMeta, columnsByKey, isHidden]
+  );
 
   const [editState, setEditState] = useState<EditStateMap>(() =>
     buildEditState(items, columns)
@@ -372,6 +393,17 @@ export default function EditableTable({items, columns, onSave, onCancel, saving,
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          <ColumnControls
+            columns={columnMeta}
+            isHidden={isHidden}
+            onToggle={toggleVisible}
+            onReset={resetColumns}
+            getWidth={getWidth}
+            onIncreaseWidth={increaseWidth}
+            onDecreaseWidth={decreaseWidth}
+            minWidth={minColumnWidth}
+            maxWidth={maxColumnWidth}
+          />
           <button
             type="button"
             disabled={saving || isLoading}
@@ -476,27 +508,49 @@ export default function EditableTable({items, columns, onSave, onCancel, saving,
             <table className="min-w-full border-collapse">
               <thead>
                 <tr className="sticky top-0 z-10 bg-gray-50/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-white/[0.05]">
-                  <th className="px-3 py-3 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-3 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap w-12 max-w-12">
                     ID
                   </th>
-                  {columns.map(col => (
+                  {visibleColumns.map(col => {
+                    const width = getWidth(col.key);
+                    return (
                     <th key={col.key}
-                      onClick={() => col.sortable && toggleSort(col.key)}
-                      className={`px-3 py-3 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap${col.sortable ? ' cursor-pointer select-none' : ''}`}
+                      draggable
+                      onDragStart={() => setDragKey(col.key)}
+                      onDragEnd={() => setDragKey(null)}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (dragKey) moveColumn(dragKey, col.key);
+                        setDragKey(null);
+                      }}
+                      className={`px-3 py-3 text-left text-[11px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap cursor-move${col.sortable ? ' select-none' : ''}${dragKey === col.key ? ' opacity-40' : ''}`}
+                      style={{width, minWidth: width, maxWidth: width}}
                     >
-                      <span className="flex items-center gap-1">
-                        {col.label}
-                        {col.sortable && <SortIcon active={sortKey === col.key} asc={sortAsc}/>}
+                      <span className="flex items-center gap-1.5">
+                        <svg className="w-3 h-3 text-gray-300 dark:text-gray-600 shrink-0" fill="currentColor" viewBox="0 0 8 14">
+                          <circle cx="1.5" cy="1.5" r="1.5"/><circle cx="6.5" cy="1.5" r="1.5"/>
+                          <circle cx="1.5" cy="7" r="1.5"/><circle cx="6.5" cy="7" r="1.5"/>
+                          <circle cx="1.5" cy="12.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/>
+                        </svg>
+                        <span
+                          onClick={() => col.sortable && toggleSort(col.key)}
+                          className={`flex items-center gap-1 ${col.sortable ? 'cursor-pointer' : ''}`}
+                        >
+                          {col.label}
+                          {col.sortable && <SortIcon active={sortKey === col.key} asc={sortAsc}/>}
+                        </span>
                       </span>
                     </th>
-                  ))}
+                    );
+                  })}
                 </tr>
               </thead>
 
               <tbody>
                 {newRows.map(id => (
                   <tr key={id} className="border-b border-green-100 dark:border-green-900/30 bg-green-50 dark:bg-green-900/10">
-                    <td className="px-3 py-2 whitespace-nowrap">
+                    <td className="px-3 py-2 whitespace-nowrap w-12 max-w-12">
                       <span className="inline-flex items-center gap-1.5">
                         <button
                           type="button"
@@ -510,9 +564,10 @@ export default function EditableTable({items, columns, onSave, onCancel, saving,
                         <span className="text-[10px] font-semibold uppercase tracking-wide text-green-600 dark:text-green-400">nuevo</span>
                       </span>
                     </td>
-                    {columns.map(col => {
+                    {visibleColumns.map(col => {
+                      const width = getWidth(col.key);
                       if (col.readOnly) return (
-                        <td key={col.key} className="px-3 py-2 whitespace-nowrap">
+                        <td key={col.key} className="px-3 py-2 whitespace-nowrap overflow-hidden" style={{width, minWidth: width, maxWidth: width}}>
                           <span className="text-sm text-gray-400 dark:text-gray-500">—</span>
                         </td>
                       );
@@ -520,12 +575,11 @@ export default function EditableTable({items, columns, onSave, onCancel, saving,
                       const colOpts = getOptions(col);
                       const colLoading = loadingCols.has(col.key);
                       return (
-                        <td key={col.key} className="px-3 py-2">
+                        <td key={col.key} className="px-3 py-2" style={{width, minWidth: width, maxWidth: width}}>
                           {col.type === 'select' && colLoading ? (
-                            <div className="h-11 rounded-md bg-gray-100 dark:bg-white/5 animate-pulse"
-                              style={{minWidth: col.minWidth ?? 110}}/>
+                            <div className="h-11 w-full rounded-md bg-gray-100 dark:bg-white/5 animate-pulse"/>
                           ) : col.type === 'select' ? (
-                            <div style={{minWidth: col.minWidth ?? 110}}>
+                            <div className="w-full">
                               <Select
                                 name={`${col.key}-${id}`}
                                 value={value}
@@ -538,14 +592,12 @@ export default function EditableTable({items, columns, onSave, onCancel, saving,
                           ) : col.type === 'textarea' ? (
                             <textarea aria-label={col.label} value={value} rows={1}
                               onChange={e => updateCell(id, col.key, e.target.value)}
-                              className={`${inputCls} resize-none`}
-                              style={{minWidth: col.minWidth ?? 200}}/>
+                              className={`${inputCls} w-full resize-none`}/>
                           ) : (
                             <input aria-label={col.label} type={col.type} value={value}
                               step={col.step} min={col.min} max={col.max}
                               onChange={e => updateCell(id, col.key, e.target.value)}
-                              className={inputCls}
-                              style={{minWidth: col.minWidth ?? (col.type === 'text' ? 160 : 100)}}
+                              className={`${inputCls} w-full`}
                             />
                           )}
                         </td>
@@ -565,7 +617,7 @@ export default function EditableTable({items, columns, onSave, onCancel, saving,
                       }`}
                     >
                       {/* ID cell */}
-                      <td className="px-3 py-2 whitespace-nowrap">
+                      <td className="px-3 py-2 whitespace-nowrap w-12 max-w-12 truncate">
                         <span className="text-xs text-gray-400 dark:text-gray-500 font-mono select-none">
                           {modified && (
                             <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 mr-1.5 mb-0.5"/>
@@ -574,26 +626,26 @@ export default function EditableTable({items, columns, onSave, onCancel, saving,
                         </span>
                       </td>
 
-                      {columns.map(col => {
+                      {visibleColumns.map(col => {
                         const value = editState[row.id]?.[col.key] ?? '';
                         const colOpts = getOptions(col);
                         const colLoading = loadingCols.has(col.key);
+                        const width = getWidth(col.key);
 
                         if (col.readOnly) {
                           return (
-                            <td key={col.key} className="px-3 py-2 whitespace-nowrap">
+                            <td key={col.key} className="px-3 py-2 whitespace-nowrap overflow-hidden" style={{width, minWidth: width, maxWidth: width}}>
                               <span className="text-sm text-gray-500 dark:text-gray-400">{value}</span>
                             </td>
                           );
                         }
 
                         return (
-                          <td key={col.key} className="px-3 py-2">
+                          <td key={col.key} className="px-3 py-2" style={{width, minWidth: width, maxWidth: width}}>
                             {col.type === 'select' && colLoading ? (
-                              <div className="h-11 rounded-md bg-gray-100 dark:bg-white/5 animate-pulse"
-                                style={{minWidth: col.minWidth ?? 110}}/>
+                              <div className="h-11 w-full rounded-md bg-gray-100 dark:bg-white/5 animate-pulse"/>
                             ) : col.type === 'select' ? (
-                              <div style={{minWidth: col.minWidth ?? 110}}>
+                              <div className="w-full">
                                 <Select
                                   name={`${col.key}-${String(row.id)}`}
                                   value={value}
@@ -608,16 +660,14 @@ export default function EditableTable({items, columns, onSave, onCancel, saving,
                                 aria-label={col.label}
                                 value={value} rows={1}
                                 onChange={e => updateCell(row.id, col.key, e.target.value)}
-                                className={`${inputCls} resize-none`}
-                                style={{minWidth: col.minWidth ?? 200}}/>
+                                className={`${inputCls} w-full resize-none`}/>
                             ) : (
                               <input
                                 aria-label={col.label}
                                 type={col.type} value={value}
                                 step={col.step} min={col.min} max={col.max}
                                 onChange={e => updateCell(row.id, col.key, e.target.value)}
-                                className={inputCls}
-                                style={{minWidth: col.minWidth ?? (col.type === 'text' ? 160 : 100)}}
+                                className={`${inputCls} w-full`}
                               />
                             )}
                           </td>
