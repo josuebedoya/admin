@@ -41,8 +41,8 @@ const PRODUCT_COLUMNS: ColumnDef[] = [
   },
   {key: 'quantity', label: 'Cantidad', type: 'number', min: 0, step: 1, minWidth: 90},
   {key: 'type_unity', label: 'Tipo Unidad', type: 'select', options: TYPE_UNITIES, minWidth: 130},
-  {key: 'price', label: 'Precio Compra', type: 'number', min: 0, step: 0.01, minWidth: 120},
-  {key: 'price_sale', label: 'Precio Venta', type: 'number', min: 0, step: 0.01, minWidth: 120},
+  {key: 'price', label: 'Precio Venta', type: 'number', min: 0, step: 0.01, minWidth: 120},
+  {key: 'price_sale', label: 'Precio Compra', type: 'number', min: 0, step: 0.01, minWidth: 120},
   {key: 'status', label: 'Estado', type: 'select', options: STATUS_OPTIONS, minWidth: 100},
 ];
 
